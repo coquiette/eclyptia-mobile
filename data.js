@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 2.2', BUILD = '22';
+let AR = 1300; const VERSION = 'mobile 2.3', BUILD = '23';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -235,6 +235,9 @@ const upCost = l => 100 * (l + 1);
 
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const PATCH = [
+  { v: '2.3', date: '11 novembre 2026', title: 'Elyra en 3D, capes qui flottent', items: [
+    { img: 'h1.jpg', t: 'Nouveau modèle 3D d\'Elyra', d: 'La mage de feu a son vrai modèle 3D animé, avec sa chevelure de flammes.' },
+    { img: 'h0.jpg', t: 'Cape de Kaelion corrigée', d: 'Retravaillée dans Blender : la cape et les pans d\'armure ne se déforment plus et flottent quand il court.' } ] },
   { v: '2.2', date: '11 novembre 2026', title: 'Kaelion en vraie 3D', items: [
     { img: 'h0.jpg', t: 'Nouveau modèle 3D de Kaelion', d: 'Kaelion a un vrai modèle 3D détaillé, avec armure dorée et animation de course. Les autres gardiens et les monstres suivront.' } ] },
   { v: '2.1', date: '11 novembre 2026', title: 'Plus lisible, plus rapide', items: [
