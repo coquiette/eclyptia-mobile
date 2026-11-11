@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 2.7', BUILD = '27';
+let AR = 1300; const VERSION = 'mobile 2.8', BUILD = '28';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -236,6 +236,9 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste'];
 const PATCH = [
+  { v: '2.8', date: '11 novembre 2026', title: 'Nouvelles animations et musiques', items: [
+    { img: 'h3.jpg', t: 'Les gardiens prennent vie', d: 'Animation d\'attente, coup d\'arme ou lancer de sort quand ils attaquent à l\'arrêt, et vraie chute quand ils tombent au combat.' },
+    { img: 'ui/play.webp', t: 'Musiques moins répétitives', d: 'Plusieurs morceaux par ambiance, des arrangements qui changent sans arrêt, des mélodies improvisées et une tonalité différente selon la carte.' } ] },
   { v: '2.7', date: '11 novembre 2026', title: 'Tous les gardiens en vraie 3D', items: [
     { img: 'h2.jpg', t: 'Aria, Vesper, Brakkor et Nyxara', d: 'Les quatre derniers gardiens ont leur vrai modèle 3D animé. Les six héros et les sept monstres sont maintenant tous en 3D détaillée.' } ] },
   { v: '2.6', date: '11 novembre 2026', title: 'Les monstres en vraie 3D', items: [

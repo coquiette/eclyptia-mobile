@@ -54,7 +54,7 @@ function startRun(infos, me, role) {
   G = { n, me, ps: infos.map((f, i) => mkPlayer(f, i, n)), get p() { return this.ps[this.me]; }, state: 'play', t: 0, wave: 0, en: [], sh: [], gems: [], fx: [], txt: [], queue: [], tasks: [], spawnT: 0, kills: 0, shards: 0, boss: 0, kc: {},
     inter: 0, all: false, shake: 0, flash: 0, slow: 0, banner: null, combo: 0, comboT: 0, frenzy: 0, pil: [], ts: 1, slowmo: 0, stop: 0, stopCd: 0, zoomP: 0, cine: null, ann: null, uid: 1, evq: [], ql: 0, pickT: 0, bon: infos[me].bon || {} };
   G.ps.forEach((p, i) => { p.remote = i !== me; });
-  J.x = J.y = 0; J.id = null; G.map = ((infos[0] && infos[0].map) | 0) % MAPS.length; LASTMAP = G.map; R3.reset(AR, G.map); G.ann = { s: MAPS[G.map].toUpperCase(), col: '#ffd45e', t: 1.6 };
+  J.x = J.y = 0; J.id = null; G.map = ((infos[0] && infos[0].map) | 0) % MAPS.length; LASTMAP = G.map; R3.reset(AR, G.map); if (typeof musMap === 'function') musMap(G.map); G.ann = { s: MAPS[G.map].toUpperCase(), col: '#ffd45e', t: 1.6 };
   if (NETROLE !== 2) { nextWave(); G.spawnT = 1.5; } else G.banner = { t: 2.4, s: 'VAGUE 1', boss: 0 };
 }
 const alive = () => G.ps.filter(p => !p.dead && !p.gone);
