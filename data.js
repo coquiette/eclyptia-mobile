@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 1.9', BUILD = '19';
+let AR = 1300; const VERSION = 'mobile 2.0', BUILD = '20';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -65,13 +65,113 @@ Object.assign(TOX, {
   p3: { n: 'Bottes du vent', t: 'pas', k: 'spd', v: 2, d: 'Vitesse de déplacement augmentée.' },
   p4: { n: 'Trèfle doré', t: 'pas', k: 'coins', v: 5, d: 'Plus de pièces à la fin de chaque partie.' }
 });
-const ALT = { kaelion: ['k5', 'k6'], elyra: ['e5', 'e6'], aria: ['a5', 'a6'], vesper: ['v5', 'v6'], brakkor: ['b5', 'b6'], nyxara: ['n5', 'n6'] }, PASSIVE = ['p1', 'p2', 'p3', 'p4'];
-for (const h of HERO_IDS) { HEROES[h].tox.forEach((id, i) => { TOX[id].h = h; TOX[id].r = i; TOX[id].id = id; }); ALT[h].forEach((id, i) => { TOX[id].h = h; TOX[id].r = i + 1; TOX[id].id = id; TOX[id].alt = 1; }); }
-PASSIVE.forEach((id, i) => { TOX[id].r = i < 2 ? 1 : 2; TOX[id].id = id; });
+/* 14 TOX de plus par gardien (20 au total) : plusieurs choix pour chaque emplacement A, B, C et pour l'ultime */
+const MORE = {
+  k7: { n: "Lames d'aurore", t:'salve',cd:3.5,num:5,dk:1.7,cone:.9,pierce:3, d: "Cinq projectiles perçants en éventail.", h: 'kaelion', s: 0 },
+  k8: { n: "Rayon solaire", t:'salve',cd:4.5,num:1,dk:5.5,cone:.1,pierce:12,r:38,sp:1100, d: "Un énorme projectile qui traverse tout.", h: 'kaelion', s: 0 },
+  k9: { n: "Éclats de lumière", t:'rain',cd:4.5,num:4,dk:2.2,rad:130, d: "Quatre frappes rapides sur les ennemis.", h: 'kaelion', s: 0 },
+  k10: { n: "Charge héroïque", t:'blink',cd:4,dist:300,rad:200,dk:2.4, d: "Un bond court qui frappe à l'arrivée.", h: 'kaelion', s: 0 },
+  k11: { n: "Halo tranchant", t:'onde',cd:3.5,rad:220,dk:2.6,kb:350, d: "Une petite onde, très vite rechargée.", h: 'kaelion', s: 0 },
+  k12: { n: "Bouclier radieux", t:'heal',cd:10,pct:.12,sh:3.5, d: "Un long bouclier et un peu de soin.", h: 'kaelion', s: 1 },
+  k13: { n: "Chaînes de lumière", t:'slow',cd:9,rad:440,dur:4,dk:1.8, d: "Blesse et ralentit une grande zone.", h: 'kaelion', s: 1 },
+  k14: { n: "Colonne sacrée", t:'pulse',cd:9,nw:3,rad:320,dk:1.7,kb:250, d: "Trois ondes à la suite autour de toi.", h: 'kaelion', s: 1 },
+  k15: { n: "Lances du zénith", t:'salve',cd:7,num:3,dk:3.4,cone:.5,pierce:5,r:30, d: "Trois gros projectiles perçants.", h: 'kaelion', s: 1 },
+  k16: { n: "Aube guérisseuse", t:'heal',cd:15,pct:.45,sh:1.5, d: "Un très gros soin.", h: 'kaelion', s: 2 },
+  k17: { n: "Châtiment", t:'drain',cd:11,rad:360,dk:2.6,heal:.05, d: "Blesse autour de toi et te soigne pour chaque ennemi.", h: 'kaelion', s: 2 },
+  k18: { n: "Ailes solaires", t:'buff',cd:13,dur:6,rate:1.35,spd:1.6, d: "Tu cours beaucoup plus vite et tu tires plus vite.", h: 'kaelion', s: 2 },
+  k19: { n: "Éclipse dorée", t:'ult',dk:7,bk:11,hl:.5, d: "Frappe tous les ennemis et te rend la moitié de tes PV.", h: 'kaelion', s: 3 },
+  k20: { n: "Colère du soleil", t:'ult',dk:12.5,bk:18, d: "Des dégâts énormes sur tous les ennemis.", h: 'kaelion', s: 3 },
+  e7: { n: "Dards de braise", t:'salve',cd:3.5,num:5,dk:1.7,cone:.9,pierce:3, d: "Cinq projectiles perçants en éventail.", h: 'elyra', s: 0 },
+  e8: { n: "Comète", t:'salve',cd:4.5,num:1,dk:5.5,cone:.1,pierce:12,r:38,sp:1100, d: "Un énorme projectile qui traverse tout.", h: 'elyra', s: 0 },
+  e9: { n: "Étincelles folles", t:'rain',cd:4.5,num:4,dk:2.2,rad:130, d: "Quatre frappes rapides sur les ennemis.", h: 'elyra', s: 0 },
+  e10: { n: "Saut de flamme", t:'blink',cd:4,dist:300,rad:200,dk:2.4, d: "Un bond court qui frappe à l'arrivée.", h: 'elyra', s: 0 },
+  e11: { n: "Souffle ardent", t:'onde',cd:3.5,rad:220,dk:2.6,kb:350, d: "Une petite onde, très vite rechargée.", h: 'elyra', s: 0 },
+  e12: { n: "Voile de cendres", t:'heal',cd:10,pct:.12,sh:3.5, d: "Un long bouclier et un peu de soin.", h: 'elyra', s: 1 },
+  e13: { n: "Terre brûlée", t:'slow',cd:9,rad:440,dur:4,dk:1.8, d: "Blesse et ralentit une grande zone.", h: 'elyra', s: 1 },
+  e14: { n: "Triple explosion", t:'pulse',cd:9,nw:3,rad:320,dk:1.7,kb:250, d: "Trois ondes à la suite autour de toi.", h: 'elyra', s: 1 },
+  e15: { n: "Trident de feu", t:'salve',cd:7,num:3,dk:3.4,cone:.5,pierce:5,r:30, d: "Trois gros projectiles perçants.", h: 'elyra', s: 1 },
+  e16: { n: "Renaissance du phénix", t:'heal',cd:15,pct:.45,sh:1.5, d: "Un très gros soin.", h: 'elyra', s: 2 },
+  e17: { n: "Flammes voraces", t:'drain',cd:11,rad:360,dk:2.6,heal:.05, d: "Blesse autour de toi et te soigne pour chaque ennemi.", h: 'elyra', s: 2 },
+  e18: { n: "Traînée de feu", t:'buff',cd:13,dur:6,rate:1.35,spd:1.6, d: "Tu cours beaucoup plus vite et tu tires plus vite.", h: 'elyra', s: 2 },
+  e19: { n: "Cœur du volcan", t:'ult',dk:7,bk:11,hl:.5, d: "Frappe tous les ennemis et te rend la moitié de tes PV.", h: 'elyra', s: 3 },
+  e20: { n: "Apocalypse de feu", t:'ult',dk:12.5,bk:18, d: "Des dégâts énormes sur tous les ennemis.", h: 'elyra', s: 3 },
+  a7: { n: "Bulles perçantes", t:'salve',cd:3.5,num:5,dk:1.7,cone:.9,pierce:3, d: "Cinq projectiles perçants en éventail.", h: 'aria', s: 0 },
+  a8: { n: "Harpon des abysses", t:'salve',cd:4.5,num:1,dk:5.5,cone:.1,pierce:12,r:38,sp:1100, d: "Un énorme projectile qui traverse tout.", h: 'aria', s: 0 },
+  a9: { n: "Gouttes chantantes", t:'rain',cd:4.5,num:4,dk:2.2,rad:130, d: "Quatre frappes rapides sur les ennemis.", h: 'aria', s: 0 },
+  a10: { n: "Glissade marine", t:'blink',cd:4,dist:300,rad:200,dk:2.4, d: "Un bond court qui frappe à l'arrivée.", h: 'aria', s: 0 },
+  a11: { n: "Clapotis", t:'onde',cd:3.5,rad:220,dk:2.6,kb:350, d: "Une petite onde, très vite rechargée.", h: 'aria', s: 0 },
+  a12: { n: "Bulle protectrice", t:'heal',cd:10,pct:.12,sh:3.5, d: "Un long bouclier et un peu de soin.", h: 'aria', s: 1 },
+  a13: { n: "Marée glacée", t:'slow',cd:9,rad:440,dur:4,dk:1.8, d: "Blesse et ralentit une grande zone.", h: 'aria', s: 1 },
+  a14: { n: "Trois vagues", t:'pulse',cd:9,nw:3,rad:320,dk:1.7,kb:250, d: "Trois ondes à la suite autour de toi.", h: 'aria', s: 1 },
+  a15: { n: "Tridents d'écume", t:'salve',cd:7,num:3,dk:3.4,cone:.5,pierce:5,r:30, d: "Trois gros projectiles perçants.", h: 'aria', s: 1 },
+  a16: { n: "Source de vie", t:'heal',cd:15,pct:.45,sh:1.5, d: "Un très gros soin.", h: 'aria', s: 2 },
+  a17: { n: "Chant de sirène", t:'drain',cd:11,rad:360,dk:2.6,heal:.05, d: "Blesse autour de toi et te soigne pour chaque ennemi.", h: 'aria', s: 2 },
+  a18: { n: "Courant rapide", t:'buff',cd:13,dur:6,rate:1.35,spd:1.6, d: "Tu cours beaucoup plus vite et tu tires plus vite.", h: 'aria', s: 2 },
+  a19: { n: "Hymne de l'océan", t:'ult',dk:7,bk:11,hl:.5, d: "Frappe tous les ennemis et te rend la moitié de tes PV.", h: 'aria', s: 3 },
+  a20: { n: "Déluge", t:'ult',dk:12.5,bk:18, d: "Des dégâts énormes sur tous les ennemis.", h: 'aria', s: 3 },
+  v7: { n: "Shurikens d'ombre", t:'salve',cd:3.5,num:5,dk:1.7,cone:.9,pierce:3, d: "Cinq projectiles perçants en éventail.", h: 'vesper', s: 0 },
+  v8: { n: "Lame traversante", t:'salve',cd:4.5,num:1,dk:5.5,cone:.1,pierce:12,r:38,sp:1100, d: "Un énorme projectile qui traverse tout.", h: 'vesper', s: 0 },
+  v9: { n: "Coups furtifs", t:'rain',cd:4.5,num:4,dk:2.2,rad:130, d: "Quatre frappes rapides sur les ennemis.", h: 'vesper', s: 0 },
+  v10: { n: "Roulade d'ombre", t:'blink',cd:4,dist:300,rad:200,dk:2.4, d: "Un bond court qui frappe à l'arrivée.", h: 'vesper', s: 0 },
+  v11: { n: "Tourbillon de lames", t:'onde',cd:3.5,rad:220,dk:2.6,kb:350, d: "Une petite onde, très vite rechargée.", h: 'vesper', s: 0 },
+  v12: { n: "Cape d'ombre", t:'heal',cd:10,pct:.12,sh:3.5, d: "Un long bouclier et un peu de soin.", h: 'vesper', s: 1 },
+  v13: { n: "Piège du néant", t:'slow',cd:9,rad:440,dur:4,dk:1.8, d: "Blesse et ralentit une grande zone.", h: 'vesper', s: 1 },
+  v14: { n: "Triple entaille", t:'pulse',cd:9,nw:3,rad:320,dk:1.7,kb:250, d: "Trois ondes à la suite autour de toi.", h: 'vesper', s: 1 },
+  v15: { n: "Kunais géants", t:'salve',cd:7,num:3,dk:3.4,cone:.5,pierce:5,r:30, d: "Trois gros projectiles perçants.", h: 'vesper', s: 1 },
+  v16: { n: "Méditation sombre", t:'heal',cd:15,pct:.45,sh:1.5, d: "Un très gros soin.", h: 'vesper', s: 2 },
+  v17: { n: "Baiser du néant", t:'drain',cd:11,rad:360,dk:2.6,heal:.05, d: "Blesse autour de toi et te soigne pour chaque ennemi.", h: 'vesper', s: 2 },
+  v18: { n: "Vitesse fantôme", t:'buff',cd:13,dur:6,rate:1.35,spd:1.6, d: "Tu cours beaucoup plus vite et tu tires plus vite.", h: 'vesper', s: 2 },
+  v19: { n: "Danse des ombres", t:'ult',dk:7,bk:11,hl:.5, d: "Frappe tous les ennemis et te rend la moitié de tes PV.", h: 'vesper', s: 3 },
+  v20: { n: "Exécution", t:'ult',dk:12.5,bk:18, d: "Des dégâts énormes sur tous les ennemis.", h: 'vesper', s: 3 },
+  b7: { n: "Clous runiques", t:'salve',cd:3.5,num:5,dk:1.7,cone:.9,pierce:3, d: "Cinq projectiles perçants en éventail.", h: 'brakkor', s: 0 },
+  b8: { n: "Boulet de forge", t:'salve',cd:4.5,num:1,dk:5.5,cone:.1,pierce:12,r:38,sp:1100, d: "Un énorme projectile qui traverse tout.", h: 'brakkor', s: 0 },
+  b9: { n: "Marteaux volants", t:'rain',cd:4.5,num:4,dk:2.2,rad:130, d: "Quatre frappes rapides sur les ennemis.", h: 'brakkor', s: 0 },
+  b10: { n: "Bond du forgeron", t:'blink',cd:4,dist:300,rad:200,dk:2.4, d: "Un bond court qui frappe à l'arrivée.", h: 'brakkor', s: 0 },
+  b11: { n: "Coup d'enclume", t:'onde',cd:3.5,rad:220,dk:2.6,kb:350, d: "Une petite onde, très vite rechargée.", h: 'brakkor', s: 0 },
+  b12: { n: "Plaque runique", t:'heal',cd:10,pct:.12,sh:3.5, d: "Un long bouclier et un peu de soin.", h: 'brakkor', s: 1 },
+  b13: { n: "Sol en fusion", t:'slow',cd:9,rad:440,dur:4,dk:1.8, d: "Blesse et ralentit une grande zone.", h: 'brakkor', s: 1 },
+  b14: { n: "Triple martèlement", t:'pulse',cd:9,nw:3,rad:320,dk:1.7,kb:250, d: "Trois ondes à la suite autour de toi.", h: 'brakkor', s: 1 },
+  b15: { n: "Haches de lancer", t:'salve',cd:7,num:3,dk:3.4,cone:.5,pierce:5,r:30, d: "Trois gros projectiles perçants.", h: 'brakkor', s: 1 },
+  b16: { n: "Chope du forgeron", t:'heal',cd:15,pct:.45,sh:1.5, d: "Un très gros soin.", h: 'brakkor', s: 2 },
+  b17: { n: "Rune vampire", t:'drain',cd:11,rad:360,dk:2.6,heal:.05, d: "Blesse autour de toi et te soigne pour chaque ennemi.", h: 'brakkor', s: 2 },
+  b18: { n: "Forge en furie", t:'buff',cd:13,dur:6,rate:1.35,spd:1.6, d: "Tu cours beaucoup plus vite et tu tires plus vite.", h: 'brakkor', s: 2 },
+  b19: { n: "Rune de vie", t:'ult',dk:7,bk:11,hl:.5, d: "Frappe tous les ennemis et te rend la moitié de tes PV.", h: 'brakkor', s: 3 },
+  b20: { n: "Marteau des dieux", t:'ult',dk:12.5,bk:18, d: "Des dégâts énormes sur tous les ennemis.", h: 'brakkor', s: 3 },
+  n7: { n: "Griffes d'ombre", t:'salve',cd:3.5,num:5,dk:1.7,cone:.9,pierce:3, d: "Cinq projectiles perçants en éventail.", h: 'nyxara', s: 0 },
+  n8: { n: "Rayon du vide", t:'salve',cd:4.5,num:1,dk:5.5,cone:.1,pierce:12,r:38,sp:1100, d: "Un énorme projectile qui traverse tout.", h: 'nyxara', s: 0 },
+  n9: { n: "Nuée de chauves-souris", t:'rain',cd:4.5,num:4,dk:2.2,rad:130, d: "Quatre frappes rapides sur les ennemis.", h: 'nyxara', s: 0 },
+  n10: { n: "Pas de sorcière", t:'blink',cd:4,dist:300,rad:200,dk:2.4, d: "Un bond court qui frappe à l'arrivée.", h: 'nyxara', s: 0 },
+  n11: { n: "Cri du corbeau", t:'onde',cd:3.5,rad:220,dk:2.6,kb:350, d: "Une petite onde, très vite rechargée.", h: 'nyxara', s: 0 },
+  n12: { n: "Cercle de protection", t:'heal',cd:10,pct:.12,sh:3.5, d: "Un long bouclier et un peu de soin.", h: 'nyxara', s: 1 },
+  n13: { n: "Brume maudite", t:'slow',cd:9,rad:440,dur:4,dk:1.8, d: "Blesse et ralentit une grande zone.", h: 'nyxara', s: 1 },
+  n14: { n: "Triple maléfice", t:'pulse',cd:9,nw:3,rad:320,dk:1.7,kb:250, d: "Trois ondes à la suite autour de toi.", h: 'nyxara', s: 1 },
+  n15: { n: "Faux spectrales", t:'salve',cd:7,num:3,dk:3.4,cone:.5,pierce:5,r:30, d: "Trois gros projectiles perçants.", h: 'nyxara', s: 1 },
+  n16: { n: "Potion noire", t:'heal',cd:15,pct:.45,sh:1.5, d: "Un très gros soin.", h: 'nyxara', s: 2 },
+  n17: { n: "Festin d'âmes", t:'drain',cd:11,rad:360,dk:2.6,heal:.05, d: "Blesse autour de toi et te soigne pour chaque ennemi.", h: 'nyxara', s: 2 },
+  n18: { n: "Balai volant", t:'buff',cd:13,dur:6,rate:1.35,spd:1.6, d: "Tu cours beaucoup plus vite et tu tires plus vite.", h: 'nyxara', s: 2 },
+  n19: { n: "Lune de sang", t:'ult',dk:7,bk:11,hl:.5, d: "Frappe tous les ennemis et te rend la moitié de tes PV.", h: 'nyxara', s: 3 },
+  n20: { n: "Nuit éternelle", t:'ult',dk:12.5,bk:18, d: "Des dégâts énormes sur tous les ennemis.", h: 'nyxara', s: 3 },
+};
+/* armes : chaque gardien en a deux ; la seconde s'achète en pièces et change son tir de base */
+const WEAPONS = {
+  kaelion: [{ n: "Épée de l'aube", d: 'Arme de départ', m: {} }, { n: "Lance solaire", d: "Tirs perçants, plus forts mais plus lents", k: 'lance', m: { pierce:2,rate:.8,dmg:1.25 }, cost: 1500 }],
+  elyra: [{ n: "Bâton de braise", d: 'Arme de départ', m: {} }, { n: "Sceptre du phénix", d: "Un projectile de plus, dégâts réduits", k: 'sceptre', m: { multi:1,dmg:.75 }, cost: 1500 }],
+  aria: [{ n: "Lyre des marées", d: 'Arme de départ', m: {} }, { n: "Harpe de corail", d: "Tire plus vite, un peu moins fort", k: 'harp', m: { rate:1.3,dmg:.85 }, cost: 1500 }],
+  vesper: [{ n: "Dagues du néant", d: 'Arme de départ', m: {} }, { n: "Faux d'ombre", d: "Beaucoup plus de coups critiques, tir plus lent", k: 'scythe', m: { crit:.15,rate:.85 }, cost: 1500 }],
+  brakkor: [{ n: "Marteau runique", d: 'Arme de départ', m: {} }, { n: "Canon de forge", d: "Gros boulets très puissants, tir lent", k: 'cannon', m: { dmg:1.5,rate:.7,big:1 }, cost: 1500 }],
+  nyxara: [{ n: "Bâton d'ombre", d: 'Arme de départ', m: {} }, { n: "Grimoire maudit", d: "Un projectile de plus qui traverse, dégâts réduits", k: 'book', m: { multi:1,pierce:1,dmg:.7 }, cost: 1500 }],
+};
+const ALT = { kaelion: ['k5', 'k6'], elyra: ['e5', 'e6'], aria: ['a5', 'a6'], vesper: ['v5', 'v6'], brakkor: ['b5', 'b6'], nyxara: ['n5', 'n6'] }, PASSIVE = ['p1', 'p2', 'p3', 'p4'], HTOX = {};
+for (const h of HERO_IDS) { HEROES[h].tox.forEach((id, i) => { TOX[id].h = h; TOX[id].s = i; }); ALT[h].forEach((id, i) => { TOX[id].h = h; TOX[id].s = i + 1; TOX[id].alt = 1; }); }
+Object.assign(TOX, MORE);
+for (const id in TOX) { const T = TOX[id]; T.id = id; if (T.h) { T.r = T.s; (HTOX[T.h] = HTOX[T.h] || []).push(id); } }
+for (const h of HERO_IDS) HTOX[h].sort((a, b) => TOX[a].s - TOX[b].s);
+PASSIVE.forEach((id, i) => { TOX[id].r = i < 2 ? 1 : 2; });
 const TOX_IDS = Object.keys(TOX), TMAX = 10;
-/* les 4 TOX équipés d'un gardien (A, B, C, ultime) */
-function eqOf(h) { const t = HEROES[h].tox.slice(), e = (S.eq && S.eq[h]) || {}; for (const s of [1, 2]) { const id = e[s]; if (id && TOX[id] && TOX[id].h === h && (S.tox[id] || {}).l) t[s] = id; } return t; }
+/* les 4 TOX équipés d'un gardien (A, B, C, ultime) : au choix parmi ceux qu'il a débloqués pour chaque emplacement */
+function eqOf(h) { const t = HEROES[h].tox.slice(), e = (S.eq && S.eq[h]) || {}; for (let s = 0; s < 4; s++) { const id = e[s]; if (id && TOX[id] && TOX[id].h === h && TOX[id].s === s && (S.tox[id] || {}).l) t[s] = id; else if (!(S.tox[t[s]] || {}).l) { const o = HTOX[h].find(x => TOX[x].s === s && (S.tox[x] || {}).l); if (o) t[s] = o; } } return t; }
 const pasLv = id => (S.tox[id] || {}).l || 0;
+const wpOf = h => (S.wp && S.wp[h] && S.wpo && S.wpo[h]) ? 1 : 0;
 const tneed = l => [1, 2, 3, 4, 5, 6, 8, 10, 12, 15][l] || 99, tcost = (l, r) => 80 * l * (r + 1);
 const tk = l => 1 + .12 * (Math.max(1, l) - 1), tcd = (t, l) => +(t.cd * (1 - .025 * (Math.max(1, l) - 1))).toFixed(1);
 /* tenues rares, trouvées dans les étoiles légendaires */
@@ -135,6 +235,12 @@ const upCost = l => 100 * (l + 1);
 
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const PATCH = [
+  { v: '2.0', date: '11 novembre 2026', title: '120 TOX et des armes', items: [
+    { img: 'tx/k19.webp', t: '20 TOX par gardien', d: 'Chaque gardien a maintenant 20 pouvoirs : plusieurs choix pour chaque emplacement et pour l\'ultime.' },
+    { img: 'tx/wp_kaelion1.webp', t: '2 armes par gardien', d: 'Une seconde arme à acheter en pièces : elle change le tir de base et l\'apparence.' },
+    { img: 'ui/st_2.webp', t: 'Étoiles et niveaux', d: 'Les TOX montent de niveau tout seuls avec les copies trouvées dans les étoiles.' },
+    { img: 'tx/k1.webp', t: 'Page TOX', d: 'Le bouton TOX de chaque gardien montre tous ses pouvoirs, ses copies et ce qui est équipé.' },
+    { img: 'ui/b_shop.webp', t: 'Gros boutons', d: 'Les boutons de la boutique sont plus grands. Les boutiques de gardien sont retirées.' } ] },
   { v: '1.9', date: '11 novembre 2026', title: 'Les étoiles font tout', items: [
     { img: 'ui/st_2.webp', t: 'TOX améliorés par les étoiles', d: 'Fini les pièces : un TOX monte de niveau tout seul dès que tu as assez de copies.' },
     { img: 'tx/k1.webp', t: 'Bouton « TOX »', d: 'Chaque gardien a sa page TOX : ses 6 pouvoirs, leur niveau, tes copies et ce qui est équipé.' },
@@ -167,10 +273,10 @@ const PATCH = [
 ];
 const KEY = 'eclyptia_mobile_v1';
 function defSave() {
-  const tox = {}; for (const id of TOX_IDS) tox[id] = { l: TOX[id].r === 0 ? 1 : 0, c: 0 };
+  const tox = {}; for (const id of TOX_IDS) tox[id] = { l: TOX[id].h && HEROES[TOX[id].h].tox[0] === id ? 1 : 0, c: 0 };
   const hs = {}; for (const h of HERO_IDS) hs[h] = { hp: 0, dmg: 0, spd: 0 };
   return { v: 2, name: 'Gardien', coins: 200, prisms: 50, xp: 0, passXp: 0, passClaim: [], passClaimP: [], premium: false, owned: ['kaelion', 'elyra'], hero: 'kaelion',
-    up: { hp: 0, dmg: 0, spd: 0 }, hs, tox, skins: [], skin: {}, eq: {}, boost: {}, bon: {}, bopen: 0, seen: '',
+    up: { hp: 0, dmg: 0, spd: 0 }, hs, tox, skins: [], skin: {}, eq: {}, wp: {}, wpo: {}, boost: {}, bon: {}, bopen: 0, seen: '',
     stats: { games: 0, wins: 0, maxWave: 0, kills: 0, boss: 0, time: 0 }, codex: {}, orbs: 3, pity: 0,
     q: { day: '', kills: 0, wave: 0, games: 0, claimed: [] }, set: { btn: 1, lefty: false, vib: true, snd: true, mus: true, gfx: 1, fill: 1 } };
 }
@@ -204,7 +310,9 @@ function addCard(id, n) { const t = S.tox[id] || (S.tox[id] = { l: 0, c: 0 }); t
 function randCard(rar, hero, main) {
   const own = S.owned, h = hero || (Math.random() < .6 ? S.hero : own[(Math.random() * own.length) | 0]);
   let r = rar; if (r === undefined) { const x = Math.random(); r = x < .5 ? 0 : x < .8 ? 1 : x < .95 ? 2 : 3; }
-  const c = [HEROES[h].tox[r]]; if (!main && (r === 1 || r === 2)) { c.push(HEROES[h].tox[r], ALT[h][r - 1], ALT[h][r - 1]); for (const p of PASSIVE) if (TOX[p].r === r) c.push(p); }
+  if (main) return HEROES[h].tox[r];
+  /* on favorise les TOX déjà possédés (pour les faire monter), tout en laissant en découvrir de nouveaux */
+  const all = HTOX[h].filter(id => TOX[id].r === r), mine = all.filter(id => (S.tox[id] || {}).l), c = (mine.length && Math.random() < .5 ? mine : all).slice(); if (Math.random() < .12) for (const p of PASSIVE) if (TOX[p].r === r) c.push(p);
   return c[(Math.random() * c.length) | 0];
 }
 function give(r) {
@@ -230,7 +338,7 @@ function loadImages(cb, prog) {
   const names = ['h0', 'h1', 'h2', 'h3', 'h5', 'h6', 'm0', 'm1', 'm2', 'm3', 'm4', 'm5', 'm6'];
   let left = names.length + 1; const done = () => { left--; if (prog) prog(1 - left / (names.length + 1)); if (left === 0) cb(); };
   names.forEach(n => { const im = new Image(); im.onload = im.onerror = done; im.src = 'img/' + n + '.jpg'; IMG[n] = im; });
-  preload(['ui/play.webp', 'bg.jpg', 'ui/menu.jpg', 'ui/booster.webp', 'ui/st_m.webp', 'ui/st_0.webp', 'ui/st_1.webp', 'ui/st_2.webp', 'ui/st_3.webp', 'ui/pagebg.jpg', 'kit/panel.webp', 'kit/ribbon.webp', 'kit/bgold.webp', 'kit/bvio.webp', 'kit/bgray.webp', 'kit/back.webp', 'kit/cardf.webp', 'kit/pillf.webp', 'kit/medf.webp', 'ui/bstar.webp'].concat(TOX_IDS.map(i => 'tx/' + i + '.webp')).concat(BOOSTS.map(b => 'tx/' + b.ic + '.webp')).concat(['tx/bx_pass.webp']).concat(['shop', 'codex', 'pass', 'quests', 'profile', 'collection', 'friends', 'settings'].map(n => 'ui/b_' + n + '.webp')).concat(IC_ALL.map(n => 'ic/' + n + '.webp')), done);
+  preload(['ui/play.webp', 'bg.jpg', 'ui/menu.jpg', 'ui/booster.webp', 'ui/st_m.webp', 'ui/st_0.webp', 'ui/st_1.webp', 'ui/st_2.webp', 'ui/st_3.webp', 'ui/pagebg.jpg', 'kit/panel.webp', 'kit/ribbon.webp', 'kit/bgold.webp', 'kit/bvio.webp', 'kit/bgray.webp', 'kit/back.webp', 'kit/cardf.webp', 'kit/pillf.webp', 'kit/medf.webp', 'ui/bstar.webp'].concat(BOOSTS.map(b => 'tx/' + b.ic + '.webp')).concat(['tx/bx_pass.webp']).concat(['shop', 'codex', 'pass', 'quests', 'profile', 'collection', 'friends', 'settings'].map(n => 'ui/b_' + n + '.webp')).concat(IC_ALL.map(n => 'ic/' + n + '.webp')), done);
 }
 const SPR = {};
 function sprite(img, r, ring) {

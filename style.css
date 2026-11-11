@@ -671,3 +671,29 @@ html.alone body{position:absolute;left:0;top:0;overflow:visible;width:100%}
 .bcard .btn{min-width:0;padding:0 14px 6px;font-size:36px;gap:8px}
 .bcard .btn .ici{width:42px;height:42px}
 .body>.grid{min-width:0}
+
+/* ===== v2.0 : 20 TOX par gardien, armes ===== */
+.ttab{flex:1;min-width:0;display:flex;align-items:center;gap:10px;height:96px;padding:0 16px;font-size:23px;line-height:1.05;text-align:left;border:3px solid transparent;border-image:url(img/kit/panel.webp) 62 fill / 30px / 3px stretch;color:#fff;opacity:.72;transition:transform .1s}
+.ttab .tic{width:66px;height:66px;flex:none;vertical-align:0}
+.ttab small{display:block;font-size:16px;color:var(--rc);letter-spacing:1px;margin-top:3px}
+.ttab.on{opacity:1;border-image:url(img/kit/bgold.webp) 0 52 fill / 0 46px stretch;color:#4a2200}.ttab.on small{color:#7a3d00}
+.ttab:active{transform:scale(.95)}
+.wrow{display:flex;gap:10px;width:100%}
+.wpb{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px 10px;border-radius:22px;background:linear-gradient(#2e1868,#190c38);border:4px solid #6a48c0;color:#fff;transition:transform .1s}
+.wpb img{width:104px;height:104px;object-fit:contain;filter:drop-shadow(0 4px 6px #000a)}
+.wpb b{font-size:19px;line-height:1.05}
+.wpb small{font-size:14px;line-height:1.1;color:#cdb8ff;font-weight:600;min-height:32px}
+.wpb em{font-style:normal;font-size:22px;padding:4px 12px 6px;border-radius:16px;background:linear-gradient(#7d55e0,#4d2aa8);border:3px solid #d9c2ff;margin-top:auto}
+.wpb em .ici{width:24px;height:24px;display:inline-block;vertical-align:-4px}
+.wpb.on{border-color:#ffd45e;box-shadow:0 0 22px #ffb84e}.wpb.on em{background:linear-gradient(#ffdc6a,#ff9a2e);border-color:#7a3d00;color:#4a2200}
+.wpb.lk img{filter:grayscale(.8) brightness(.6)}
+.wpb:active{transform:scale(.95)}
+.chb{position:relative;flex:1;min-width:0;height:96px;border-radius:22px;overflow:hidden;border:4px solid #6a48c0;background:#1c0f3c;display:flex;align-items:center;justify-content:center}
+.chb img{width:100%;height:100%;object-fit:cover;display:block}.chb .ici{width:60px;height:60px;object-fit:contain}
+.chb b{position:absolute;left:0;right:0;bottom:0;background:#150a2ecc;font-size:17px;line-height:22px}
+.chb.on{border-color:#ffd45e;box-shadow:0 0 20px #ffb84e}.chb.lk img{filter:grayscale(1) brightness(.45)}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:16px 8px;align-content:center;justify-items:center;min-height:0}
+.cgrid .tcell{width:92px;height:92px}
+.tcell.eq:after{content:"";position:absolute;right:-2px;top:-2px;width:24px;height:24px;border-radius:50%;background:#ffd45e;border:3px solid #7a3d00}
+.ttab{font-size:30px}.ttab small{font-size:17px}
+.txc .tname{font-size:27px}.txc .sub{font-size:19px}

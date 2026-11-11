@@ -35,15 +35,15 @@ let NETROLE = 0;   // 0 solo, 1 hôte, 2 invité
 const multi = () => G && G.n > 1;
 function myInfo() {
   const h = S.hero, bon = {}; for (const b of BOOSTS) if (S.bon[b.id] && (S.boost[b.id] || 0) > 0) bon[b.id] = 1;
-  return { hero: h, name: S.name, skin: skinOf(h), hs: S.hs[h] || { hp: 0, dmg: 0, spd: 0 }, tx: eqOf(h), tl: eqOf(h).map(id => (S.tox[id] || {}).l || 0), ps: PASSIVE.map(pasLv), bon };
+  return { hero: h, name: S.name, skin: skinOf(h), hs: S.hs[h] || { hp: 0, dmg: 0, spd: 0 }, tx: eqOf(h), tl: eqOf(h).map(id => (S.tox[id] || {}).l || 0), ps: PASSIVE.map(pasLv), wp: wpOf(h), bon };
 }
 function mkPlayer(info, i, n) {
-  const h = HEROES[info.hero] || HEROES.kaelion, hs = info.hs || {}, bon = info.bon || {}, tl = info.tl || [1, 0, 0, 0], tx = (info.tx || h.tox).map((id, i) => TOX[id] && TOX[id].h === info.hero ? id : h.tox[i]), ps = info.ps || [0, 0, 0, 0], T3 = tx.map(id => TOX[id]);
+  const h = HEROES[info.hero] || HEROES.kaelion, hs = info.hs || {}, bon = info.bon || {}, tl = info.tl || [1, 0, 0, 0], tx = (info.tx || h.tox).map((id, i) => TOX[id] && TOX[id].h === info.hero ? id : h.tox[i]), ps = info.ps || [0, 0, 0, 0], T3 = tx.map(id => TOX[id]), wm = (info.wp && WEAPONS[info.hero] ? WEAPONS[info.hero][1].m : {});
   const maxhp = Math.round(h.hp * (1 + .08 * (hs.hp || 0)) * (1 + .04 * ps[0]) * (bon.shield ? 1.25 : 1)), a = i / n * 6.283;
-  return { i, hero: info.hero, h, name: info.name || 'Gardien', skin: info.skin || 0, tl, tx, bon, x: n > 1 ? Math.cos(a) * 110 : 0, y: n > 1 ? Math.sin(a) * 110 : 0, r: 52, hp: maxhp, maxhp, fx: 0, fy: 1, inv: 1.4, sh: 0, fireT: 1.2, dash: 0, ddx: 0, ddy: 1, atk: 0, blink: 0,
+  return { i, hero: info.hero, h, name: info.name || 'Gardien', skin: info.skin || 0, wp: info.wp ? 1 : 0, big: wm.big || 0, tl, tx, bon, x: n > 1 ? Math.cos(a) * 110 : 0, y: n > 1 ? Math.sin(a) * 110 : 0, r: 52, hp: maxhp, maxhp, fx: 0, fy: 1, inv: 1.4, sh: 0, fireT: 1.2, dash: 0, ddx: 0, ddy: 1, atk: 0, blink: 0,
     mv: 0, mvx: 0, mvy: 1, ix: 0, iy: 0, ult: bon.start ? 100 : 0, cd: { a: 0, b: 0, c: 0, d: 0 }, cdm: { a: tcd(T3[0], tl[0]), b: tcd(T3[1], tl[1]), c: tcd(T3[2], tl[2]), d: 2.2 },
-    base: h.dmg * (1 + .06 * (hs.dmg || 0)), spd0: h.spd * (1 + .03 * (hs.spd || 0)) * (1 + .02 * ps[2]), buff: null, dead: false, gone: false, revive: bon.revive ? 1 : 0, picked: true, remote: false,
-    mods: { dmg: 1, rate: 1, spd: 1, multi: h.multi || 1, pierce: h.pierce || 0, magnet: bon.magnet ? 560 : 240, cdr: 1, leech: 0, crit: (h.crit || .05) + .02 * ps[1] } };
+    base: h.dmg * (1 + .06 * (hs.dmg || 0)) * (wm.dmg || 1), spd0: h.spd * (1 + .03 * (hs.spd || 0)) * (1 + .02 * ps[2]), buff: null, dead: false, gone: false, revive: bon.revive ? 1 : 0, picked: true, remote: false,
+    mods: { dmg: 1, rate: wm.rate || 1, spd: 1, multi: (h.multi || 1) + (wm.multi || 0), pierce: (h.pierce || 0) + (wm.pierce || 0), magnet: bon.magnet ? 560 : 240, cdr: 1, leech: 0, crit: (h.crit || .05) + .02 * ps[1] + (wm.crit || 0) } };
 }
 function startRun(infos, me, role) {
   NETROLE = role || 0; infos = infos || [myInfo()]; me = me || 0; const n = infos.length;
@@ -131,7 +131,7 @@ function fire(p) {
   const a0 = Math.atan2(best.y - p.y, best.x - p.x), n = p.mods.multi;
   for (let i = 0; i < n; i++) {
     const a = a0 + (i - (n - 1) / 2) * .17, crit = Math.random() < p.mods.crit;
-    G.sh.push({ x: p.x + Math.cos(a) * 40, y: p.y + Math.sin(a) * 40, vx: Math.cos(a) * 960, vy: Math.sin(a) * 960, r: 15, dmg: p.base * p.mods.dmg * (crit ? 2 : 1), crit, pierce: p.mods.pierce, life: .9, col: p.h.col, by: p });
+    G.sh.push({ x: p.x + Math.cos(a) * 40, y: p.y + Math.sin(a) * 40, vx: Math.cos(a) * 960, vy: Math.sin(a) * 960, r: p.big ? 26 : 15, dmg: p.base * p.mods.dmg * (crit ? 2 : 1), crit, pierce: p.mods.pierce, life: .9, col: p.h.col, by: p });
   }
   p.fx = Math.cos(a0); p.fy = Math.sin(a0); p.atk = .2; return true;
 }
@@ -155,6 +155,7 @@ function skill(k, p) {
       G.flash = .8; G.shake = .7; evp(['sh', .7, .8]); if (T.slow) G.slow = T.slow; else G.slow = 2; G.ecl = 1.6; G.zoomP = .25; vib(160); gsnd('ult');
       for (const s of G.sh) if (s.foe) s.life = 0;
       for (const e of G.en.slice()) { addPil(e.x, e.y, e.r * .9, 1000, col, .8); dmgE(e, d * (e.m.boss ? T.bk : T.dk) * K, true, p); }
+      if (T.hl) { const amt = Math.round(p.maxhp * T.hl); p.hp = Math.min(p.maxhp, p.hp + amt); addTxt(p.x, p.y, 180, '+' + amt, '#8cff7a', 1); addPil(p.x, p.y, 90, 800, '#8cff7a', .9); }
       addFx(p.x, p.y, 1300, col, .8); addFx(p.x, p.y, 800, '#ffd45e', .6); addFx(p.x, p.y, 420, '#ffffff', .45); addPil(p.x, p.y, 120, 1400, '#ffd45e', 1);
     } }); return;
   }
@@ -167,6 +168,9 @@ function skill(k, p) {
   } else if (T.t === 'onde') {
     aoe(p, p.x, p.y, T.rad, d * T.dk * K, T.kb);
     addFx(p.x, p.y, T.rad, col, .45); addFx(p.x, p.y, T.rad * .65, '#ffffff', .3); spark(p.x, p.y, col, 22); addFx(p.x, p.y, T.rad * 1.4, col, .6); G.shake = .3; G.zoomP = .1; gsnd('onde');
+  } else if (T.t === 'pulse') {
+    for (let i = 0; i < T.nw; i++) G.tasks.push({ t: i * .28, f: p, rad: T.rad * (1 + i * .15), dmg: d * T.dk * K, col, p, kb: T.kb, wave: 1 });
+    G.zoomP = .08; gsnd('onde');
   } else if (T.t === 'heal') {
     const amt = Math.round(p.maxhp * T.pct * K); p.hp = Math.min(p.maxhp, p.hp + amt); p.inv = Math.max(p.inv, T.sh); p.sh = T.sh;
     if (multi()) for (const q of alive()) if (q !== p && hyp(q.x - p.x, q.y - p.y) < 420) { q.hp = Math.min(q.maxhp, q.hp + Math.round(amt * .5)); addTxt(q.x, q.y, 180, '+' + Math.round(amt * .5), '#8cff7a', 1); addPil(q.x, q.y, 70, 500, '#8cff7a', .6); }
@@ -218,7 +222,7 @@ function update(dt) {
   }
   const me = G.p; if (!me.dead && me.hp < me.maxhp * .3) { G.hb = (G.hb || 0) - dt; if (G.hb <= 0) { G.hb = .85; snd('heart'); } }
   if (G.queue.length && G.en.length < (lite() ? 42 : 56) + 18 * (G.n - 1)) { G.spawnT -= dt; if (G.spawnT <= 0) { spawn(G.queue.pop()); if (G.queue.length && Math.random() < .5) spawn(G.queue.pop()); G.spawnT = Math.max(.08, (.36 - .02 * G.wave) / (1 + .6 * (G.n - 1))); } }
-  for (let i = G.tasks.length - 1; i >= 0; i--) { const k = G.tasks[i]; k.t -= dt; if (k.t <= 0) { G.tasks.splice(i, 1); aoe(k.p, k.x, k.y, k.rad, k.dmg, 200); addFx(k.x, k.y, k.rad * 1.2, k.col, .4); addFx(k.x, k.y, k.rad * .7, '#ffe07a', .3); addPil(k.x, k.y, k.rad * .5, 900, k.col, .5); spark(k.x, k.y, k.col, 10); G.shake = Math.max(G.shake, .2); gsnd('boom'); } }
+  for (let i = G.tasks.length - 1; i >= 0; i--) { const k = G.tasks[i]; k.t -= dt; if (k.t <= 0) { G.tasks.splice(i, 1); if (k.wave) { const q = k.f; aoe(k.p, q.x, q.y, k.rad, k.dmg, k.kb); addFx(q.x, q.y, k.rad, k.col, .4); addFx(q.x, q.y, k.rad * .6, '#ffffff', .25); spark(q.x, q.y, k.col, 12); G.shake = Math.max(G.shake, .2); gsnd('onde'); continue; } aoe(k.p, k.x, k.y, k.rad, k.dmg, 200); addFx(k.x, k.y, k.rad * 1.2, k.col, .4); addFx(k.x, k.y, k.rad * .7, '#ffe07a', .3); addPil(k.x, k.y, k.rad * .5, 900, k.col, .5); spark(k.x, k.y, k.col, 10); G.shake = Math.max(G.shake, .2); gsnd('boom'); } }
   const gs = G.slow > 0 ? .4 : 1;
   for (const e of G.en) {
     if (e.dead) continue;
