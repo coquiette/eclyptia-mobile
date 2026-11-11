@@ -412,3 +412,14 @@ function applyItem(p, T, l) { if (!p || !T || !l) return; const x = T.v * l / 10
 { const _st = setTox; setTox = function (p, id) { const T = TOX[id]; if (T && T.it) { if (!p) return; applyItem(p, T, 1); p.itn = p.itn || {}; p.itn[id] = (p.itn[id] || 0) + 1; return; } return _st(p, id); }; }
 { const _rt = rollTox; rollTox = function (p) { const out = _rt(p), pool = (HITEM[p.hero] || []).slice(); for (let i = 0; i < out.length && pool.length; i++) if (Math.random() < .3) out[i] = pool.splice((Math.random() * pool.length) | 0, 1)[0]; return out; }; }
 { const _cx3 = SCR.codex; SCR.codex = () => _cx3().replace('EMPLACEMENT undefined', 'OBJET'); }
+
+/* ================= garde-fou : si le téléphone a fermé le jeu (mémoire saturée), on le sait au retour et on allège l'affichage ================= */
+const HBK = 'ecl_hb';
+function heartbeat(clean) { try { localStorage.setItem(HBK, JSON.stringify({ t: Date.now(), b: BUILD, s: SCREEN, w: G ? G.wave | 0 : 0, st: G ? G.state : '', c: clean ? 1 : 0 })); } catch (e) {} }
+{ let last = null; try { last = JSON.parse(localStorage.getItem(HBK) || 'null'); } catch (e) {}
+  if (last && !last.c && Date.now() - last.t < 5 * 60000 && last.s && last.s !== 'load') { S.crash = (S.crash | 0) + 1; S.crashAt = (last.s === 'game' ? 'en partie, vague ' + last.w : 'écran ' + last.s) + ' · v' + last.b; save();
+    setTimeout(() => toast('Le jeu s’était fermé tout seul (' + S.crashAt + ') : affichage allégé'), 2500); }
+  if ((S.crash | 0) > 0) { document.documentElement.classList.add('slow'); if (window.R3) R3.q = .7; }
+  setInterval(() => heartbeat(document.hidden), 4000); addEventListener('pagehide', () => heartbeat(true)); document.addEventListener('visibilitychange', () => heartbeat(document.hidden));
+  for (const k of ['update', 'accGo', 'accNew']) { const o = ACT[k]; if (o) ACT[k] = function () { heartbeat(true); return o.apply(this, arguments); }; }
+  const _m3 = SCR.menu; SCR.menu = () => _m3().replace(`<div class="ver">${VERSION}</div>`, `<div class="ver">${VERSION}${S.crashAt ? ' · dernier arrêt : ' + S.crashAt : ''}</div>`); }

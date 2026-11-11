@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 3.8', BUILD = '38';
+let AR = 1300; const VERSION = 'mobile 3.9', BUILD = '39';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,10 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '3.9', date: '11 novembre 2026', title: 'Stabilité et capes', items: [
+    { img: 'tx/k3.webp', t: 'Jeu plus léger', d: 'Moins de mémoire utilisée : image 3D allégée, modèles inutiles libérés entre les parties, effets d’écran simplifiés.' },
+    { img: 'ui/bstar.webp', t: 'Garde-fou', d: 'Si le téléphone ferme le jeu, il le signale au retour et passe tout seul en affichage allégé.' },
+    { img: 'tx/k1.webp', t: 'Capes et robes', d: 'Le buste se tord beaucoup moins pour viser, le gardien recule en tirant derrière lui, et les capes restent près du corps.' } ] },
   { v: '3.8', date: '11 novembre 2026', title: 'Objets des gardiens', items: [
     { img: 'tx/ki1.webp', t: '48 objets, 8 par gardien', d: 'Anneaux, capes, bottes, amulettes… Un objet renforce le gardien lui-même : vitesse, PV, dégâts, cadence, critique, recharge, aimant ou chance.' },
     { img: 'tx/ni8.webp', t: 'Toujours actifs', d: 'Ils se trouvent dans les packs étoiles et le TOX du jour, montent de niveau avec les copies, et se voient dans le nouvel onglet OBJETS de chaque gardien.' },
