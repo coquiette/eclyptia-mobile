@@ -56,7 +56,7 @@ const SCR = {
   /* les TOX d'un gardien : 20 pouvoirs répartis sur 4 emplacements, leur niveau, les copies possédées, ce qui est équipé, et ses 2 armes */
   htox() {
     SEL = SEL || S.hero; const h = HEROES[SEL], hasSk = S.skins.includes(SEL), eq = eqOf(SEL), all = HTOX[SEL], ids = all.filter(id => TOX[id].s === TTAB), own = all.filter(id => (S.tox[id] || {}).l).length, W2 = WEAPONS[SEL], wo = !!(S.wpo && S.wpo[SEL]), wc = wpOf(SEL);
-    const tabs = ['A', 'B', 'C', 'ULTIME'].map((t, i) => { const l = all.filter(id => TOX[id].s === i); return `<button class="ttab ${i === TTAB ? 'on' : ''}" data-a="ttab" data-v="${i}" style="--rc:${RARC[i]}">${tic(eq[i])}<span>${i < 3 ? 'TOX ' + t : t}<small>${RARN[i]} · ${l.filter(id => (S.tox[id] || {}).l).length}/${l.length}</small></span></button>`; }).join('');
+    const tabs = ['A', 'B', 'C', 'ULTIME', 'OBJETS'].map((t, i) => { const l = all.filter(id => TOX[id].s === i); return `<button class="ttab ${i === TTAB ? 'on' : ''}" data-a="ttab" data-v="${i}" style="--rc:${RARC[i] || '#8cff7a'}">${tic(eq[i] || l[0])}<span>${i < 3 ? 'TOX ' + t : t}<small>${RARN[i] || 'PASSIFS'} · ${l.filter(id => (S.tox[id] || {}).l).length}/${l.length}</small></span></button>`; }).join('');
     return head('TOX DE ' + h.n.toUpperCase(), 'hero') + `<div class="body">
       <div class="pn col txl" style="width:340px;flex:none;align-items:center;text-align:center;gap:8px;padding:22px 20px 20px">
         <div class="row" style="gap:14px;width:100%"><div class="card on heroshow" style="width:120px;height:120px;border-radius:50%;flex:none">${himg(SEL)}</div><div style="text-align:left"><div style="font-size:36px;line-height:1" class="gold">${h.n.toUpperCase()}</div><div class="sub" style="font-size:22px">${own} / ${all.length} TOX</div></div></div>
@@ -65,10 +65,10 @@ const SCR = {
         <div class="row" style="gap:8px;width:100%;margin-top:auto"><button class="btn sm grow ${skinOf(SEL) ? 'gray' : ''}" data-a="skin" data-v="0" style="font-size:27px;padding:0 8px 4px;min-height:88px">Classique</button><button class="btn sm grow ${skinOf(SEL) ? '' : 'gray'}" data-a="skin" data-v="1" style="font-size:27px;padding:0 8px 4px;min-height:88px">${hasSk ? 'Tenue rare' : 'Verrouillée'}</button></div>
       </div>
       <div class="col grow" style="gap:12px;min-width:0"><div class="row" style="gap:10px">${tabs}</div>
-      <div class="grid grow txg">${ids.map(id => { const T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }, on = eq.includes(id); return `<div class="txc ${s.l ? '' : 'lk'} ${on ? 'on' : ''}" style="--rc:${RARC[T.r]}">
+      <div class="grid grow txg ${TTAB === 4 ? 't8' : ''}">${ids.map(id => { const T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }, on = eq.includes(id); return `<div class="txc ${s.l ? '' : 'lk'} ${on ? 'on' : ''}" style="--rc:${RARC[T.r]}">
         <div class="tring">${tic(id)}${s.l ? `<b>Niv. ${s.l}</b>` : `<b>${ic('lock')}</b>`}</div>
         <div class="txt"><div class="tname">${T.n}</div><div class="sub">${T.d}</div><div class="sub gold">${tfx(T, s.l || 1)}</div>${s.l ? tbar(id) : ''}
-          ${!s.l || s.l >= TMAX ? tbtn(id) : ''}${s.l ? (on ? '<span class="teq on">ÉQUIPÉ</span>' : `<button class="teq" data-a="teq" data-v="${id}">ÉQUIPER</button>`) : ''}</div></div>`; }).join('')}</div></div></div>`;
+          ${!s.l || s.l >= TMAX ? tbtn(id) : ''}${T.it ? (s.l ? '<span class="teq on">TOUJOURS ACTIF</span>' : '') : s.l ? (on ? '<span class="teq on">ÉQUIPÉ</span>' : `<button class="teq" data-a="teq" data-v="${id}">ÉQUIPER</button>`) : ''}</div></div>`; }).join('')}</div></div></div>`;
   },
   /* la boutique générale : uniquement des boosts (payés en prismes) et les boosters de constellation */
   shop() {
@@ -221,10 +221,11 @@ function askUpdate() {
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { fitSoon(); checkUpdate(); } });
 addEventListener('pageshow', checkUpdate); setInterval(() => { if (!document.hidden) checkUpdate(); }, 60000); setInterval(askUpdate, 4000);
+const LTIPS = ['Les objets renforcent ton gardien en permanence.', 'Atteins la vague 4 pour gagner une étoile de pack.', 'Un TOX du jour est offert dans la boutique.', 'Enchaîne tes pouvoirs dans le bon ordre pour un combo.', 'Relancer la mini-boutique coûte de plus en plus cher.', 'Les boss arrivent aux vagues 4, 7 et 10.'];
 function launch(infos, me, role) {
   if (!infos) { if (!S.owned.includes(S.hero)) S.hero = S.owned[0]; if (SEL && S.owned.includes(SEL)) S.hero = SEL; save(); infos = [myInfo()]; me = 0; role = 0; }
   goFull(); LAUNCH = { infos, me }; const f = infos[me], h = HEROES[f.hero];
-  BUSY = true; const w = $('#wipe'); w.querySelector('.wi').innerHTML = `<div class="lbg"></div><div class="lcard">${infos.map((q, i) => `<span class="lpw">${himg(q.hero, q.skin)}</span>`).join('')}<div><b>${infos.length > 1 ? 'GROUPE DE ' + infos.length : h.n.toUpperCase()}</b><div class="sub" style="font-size:40px">${infos.length > 1 ? infos.map(q => esc(q.name)).join(' · ') : h.cls}</div><img class="lload" src="img/ui/loading.webp"></div></div>`; w.classList.add('in'); snd('wipe');
+  BUSY = true; const w = $('#wipe'); w.querySelector('.wi').innerHTML = `<div class="lbg"></div><div class="lcard">${infos.map((q, i) => `<span class="lpw">${himg(q.hero, q.skin)}</span>`).join('')}<div><b>${infos.length > 1 ? 'GROUPE DE ' + infos.length : h.n.toUpperCase()}</b><div class="sub" style="font-size:40px">${infos.length > 1 ? infos.map(q => esc(q.name)).join(' · ') : h.cls}</div><img class="lload" src="img/ui/loading.webp"></div></div><div class="lbar2"><i></i></div><div class="ltip">${LTIPS[(Math.random() * LTIPS.length) | 0]}</div>`; w.classList.add('in'); snd('wipe');
   setTimeout(() => { G = null; GEN.clear(); show('game'); music('game'); musLevel(0); }, 380);
   setTimeout(() => { startRun(infos, me, role); w.classList.remove('in'); snd('pick'); setTimeout(() => BUSY = false, 300); }, 1500);
 }

@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 3.7', BUILD = '37';
+let AR = 1300; const VERSION = 'mobile 3.8', BUILD = '38';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,11 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '3.8', date: '11 novembre 2026', title: 'Objets des gardiens', items: [
+    { img: 'tx/ki1.webp', t: '48 objets, 8 par gardien', d: 'Anneaux, capes, bottes, amulettes… Un objet renforce le gardien lui-même : vitesse, PV, dégâts, cadence, critique, recharge, aimant ou chance.' },
+    { img: 'tx/ni8.webp', t: 'Toujours actifs', d: 'Ils se trouvent dans les packs étoiles et le TOX du jour, montent de niveau avec les copies, et se voient dans le nouvel onglet OBJETS de chaque gardien.' },
+    { img: 'tx/ei5.webp', t: 'En vente entre les vagues', d: 'La mini-boutique propose aussi des objets : chaque achat s’ajoute pour toute la partie et se cumule.' },
+    { img: 'ui/bstar.webp', t: 'Chargement et transitions', d: 'Nouvel écran de chargement avec barre et conseil, pages qui s’ouvrent en cascade.' } ] },
   { v: '3.7', date: '11 novembre 2026', title: 'Mini-boutique en cartes', items: [
     { img: 'tx/k4.webp', t: 'Quatre grandes cartes', d: 'Entre les vagues, chaque TOX a sa carte avec une grande image, sa rareté, son emplacement et un gros bouton de prix.' },
     { img: 'tx/k1.webp', t: 'Ce que l’achat change, en images', d: 'Chaque carte montre si le TOX débloque un emplacement, remplace ton TOX actuel ou l’améliore d’un niveau.' } ] },
