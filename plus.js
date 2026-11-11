@@ -376,3 +376,17 @@ ACT.cpg = v => { const NP = Math.ceil(MON_IDS.length / 10); CPG = (CPG + (+v) + 
   for (const k of 'abcdu') { const c = $('#cd' + k), b = $('#b' + k); if (!c || !b) continue; const on = parseFloat(c.style.height) > 1; if (CDP[k] && !on && !b.classList.contains('lk')) { b.classList.remove('rdy'); void b.offsetWidth; b.classList.add('rdy'); } CDP[k] = on; }
   const hp = $('.hhp'), f = $('#hpf'); if (hp && f) { const low = parseFloat(f.style.width) < 30, hit = G.hurtT > 0; if (hp._l !== low) { hp._l = low; hp.classList.toggle('low', low); } if (hp._h !== hit) { hp._h = hit; hp.classList.toggle('hit', hit); } }
 }; }
+
+/* ================= mini-boutique v2 : 4 grandes cartes illustrées, ce que l'achat change est montré en images ================= */
+{ const _pu = pickUI; pickUI = function () {
+  if (G.pb < 0) return _pu();
+  const c = G.choices, p = G.p, w = wallet(), rc = rollCost(), bl = (p.bl || []).concat(NETROLE === 2 || !BLESS[c.b[G.pb]] ? [] : [BLESS[c.b[G.pb]].n]);
+  const card = (id, i) => { const T = TOX[id], cur = p.tx[T.s], has = !!p.tl[T.s], same = has && cur === id, lv = same ? p.tl[T.s] + 1 : Math.max(1, p.tl[T.s] || 0), pr = shopPrice(id), sold = G.sold[i], poor = !sold && w < pr;
+    const chg = same ? `<span class="sv2c up"><i>Niv. ${lv - 1}</i><u>▸</u><b>Niv. ${lv}</b><small>AMÉLIORE</small></span>` : has ? `<span class="sv2c sw">${tic(cur)}<u>▸</u>${tic(id)}<small>REMPLACE</small></span>` : `<span class="sv2c nw">${ic('lock')}<u>▸</u>${tic(id)}<small>DÉBLOQUE</small></span>`;
+    return `<button class="sv2k ${sold ? 'sold' : ''} ${poor ? 'poor' : ''} ${G.justB === i ? 'just' : ''}" data-a="shopBuy" data-v="${i}" style="--rc:${RARC[T.r]};--i:${i}"><i class="sv2s">${T.s === 3 ? 'ULTIME' : 'TOX ' + 'ABC'[T.s]}</i><i class="sv2r">${RARN[T.r]}</i><em>${tic(id)}</em><b>${T.n}</b>${chg}<small class="sv2d">${tfx(T, lv)}</small><span class="sv2p">${sold ? 'ACHETÉ ✓' : pr + ' ' + ic('shard')}</span></button>`; };
+  over(`<div class="sv2"><div class="sv2t"><span class="pill shxw ${G.justP ? 'spent' : ''}">${ic('shard')} <b>${w}</b>${G.justP ? `<i class="minus">-${G.justP}</i>` : ''}</span><div class="sv2h"><b class="gold">BOUTIQUE</b><small>Vague ${G.wave} terminée · achète ce que tu veux</small></div><button class="shxr ${w < rc ? 'poor' : ''}" data-a="shopRoll"><i class="sv2dice">⟳</i>RELANCER <b>${rc}</b> ${ic('shard')}</button></div>
+    <div class="sv2g ${G.justR ? 'rl' : ''}">${c.t.map(card).join('')}</div>
+    <div class="sv2b"><div class="sv2m"><small>MES TOX</small><div>${p.tx.map((id, i) => `<span class="shxo ${p.tl[i] ? '' : 'lk'} ${G.justS === i ? 'lvl' : ''}" style="--rc:${RARC[i]}">${tic(id)}<b>${p.tl[i] ? 'Niv. ' + p.tl[i] : ic('lock')}</b></span>`).join('')}</div></div>
+      <div class="sv2l"><small>BÉNÉDICTIONS (${bl.length})</small><div>${bl.length ? bl.slice(-6).map(n => `<i>${n}</i>`).join('') : '<i class="none">Aucune pour l’instant</i>'}</div></div>
+      <button class="btn big shxgo" data-a="shopReady">PRÊT ▸ VAGUE ${G.wave + 1}</button></div></div>`);
+}; }
