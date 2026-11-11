@@ -886,3 +886,7 @@ html.alone body{position:absolute;left:0;top:0;overflow:visible;width:100%}
 .rkend em{font-style:normal;color:#ffd45e;animation:pul .5s infinite alternate}
 .rks{color:#ffe9a8;font-size:30px}
 .orbbtn .bst{position:absolute;left:50%;top:-34px;transform:translateX(-50%);font-style:normal;font-size:26px;white-space:nowrap;color:#ffd45e;text-shadow:0 3px 0 #1a0c36}
+.cx28{gap:10px!important}
+.cx28 .card .tag{font-size:19px!important;line-height:1.05!important;padding:3px 2px!important;bottom:6px!important;left:6px!important;right:6px!important}
+.cx28 .card .lk .ici{width:56px!important;height:56px!important}
+.cx28 .card .tag{font-size:16px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;bottom:4px!important;left:4px!important;right:4px!important}

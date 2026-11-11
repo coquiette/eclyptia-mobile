@@ -233,3 +233,28 @@ function rankOf(rp) { const t = Math.floor((rp || 0) / RSTEP), i = Math.min(RANK
   _se(r); const o = $('#over'); if (o && extra) o.insertAdjacentHTML('beforeend', extra);
 }; }
 { const _menu = SCR.menu; SCR.menu = () => { const k = rankOf(S.rp); return _menu().replace("Gardien de l'Aube", `<b style="color:${k.c}">${k.n}</b> · ${k.in} / ${RSTEP}`).replace('<span class="olab">BOOSTERS</span>', `<span class="olab">BOOSTERS</span><i class="bst">★ ${S.bst || 0} / 4</i>`); }; }
+
+/* ================= monstres propres à chaque carte : nom, portrait et caractère ================= */
+const MAPFAM = ['arc', 'nat', 'nat', 'mar', 'feu', 'arc', 'arc', 'arc', 'mar'], FAMK = { nat: { hp: 1.18, spd: .95, dmg: 1 }, mar: { hp: .92, spd: 1.13, dmg: 1 }, feu: { hp: 1, spd: 1, dmg: 1.16 } };
+const FAMN = {
+  nat: { larve: ['Limace-champignon', 'Lente mais coriace, elle rampe en bande dans les sous-bois.'], chauve: ['Guêpe géante', 'Fonce en piqué sur le gardien.'], esprit: ['Feu follet des bois', 'Reste à distance et crache des graines.'], bombe: ['Cactus explosif', 'Court vers sa cible et éclate en épines.'], mage: ['Chaman des bois', 'Lance trois orbes de sève en éventail.'], garde: ['Golem de bois', 'Lent, très résistant, frappe fort.'] },
+  mar: { larve: ['Méduse des abysses', 'Fragile mais rapide, elle arrive en banc.'], chauve: ['Piranha volant', 'Le plus rapide des monstres marins.'], esprit: ['Esprit d\'eau', 'Garde ses distances et tire des gouttes.'], bombe: ['Poisson-globe', 'Gonfle, fonce et explose au contact.'], mage: ['Pieuvre mage', 'Lance trois orbes d\'encre en éventail.'], garde: ['Crabe géant', 'Carapace épaisse et pinces redoutables.'] },
+  feu: { larve: ['Larve de magma', 'Brûlante, elle frappe plus fort que ses cousines.'], chauve: ['Chauve-souris de feu', 'Fonce droit sur le gardien en laissant des braises.'], esprit: ['Feu follet', 'Tire des flammèches à distance.'], bombe: ['Bombe de lave', 'Explose violemment au contact.'], mage: ['Mage de cendre', 'Lance trois orbes de feu en éventail.'], garde: ['Golem de lave', 'Lent, très résistant, ses coups brûlent.'] }
+};
+for (const f in FAMN) for (const b in FAMN[f]) { const id = b + '_' + f, k = FAMK[f], B = MON[b]; MON[id] = Object.assign({}, B, { n: FAMN[f][b][0], d: FAMN[f][b][1], img: 'mx_' + id, hp: Math.round(B.hp * k.hp), spd: Math.round(B.spd * k.spd), dmg: Math.round(B.dmg * k.dmg), w: 0, vr: b }); if (!MON_IDS.includes(id)) MON_IDS.push(id); }
+for (const id of MYTH) MON[id].img = 'mx_' + id;
+{ const _sp3 = spawn; spawn = function (id) { _sp3(id); const e = G.en[G.en.length - 1], f = MAPFAM[G.map | 0], k = FAMK[f]; if (!e || e.id !== id || !k || !FAMN[f][id] || e.vid) return; e.vid = id + '_' + f; e.hp = e.max = e.hp * k.hp; e.spd *= k.spd; e.dmg *= k.dmg; }; }
+{ const _k3 = kill; kill = function (e) { const r = _k3(e); if (e && e.vid && !e._vc && G.kc[e.id] > 0) { e._vc = 1; G.kc[e.id]--; if (!G.kc[e.id]) delete G.kc[e.id]; G.kc[e.vid] = (G.kc[e.vid] || 0) + 1; } return r; }; }
+{ const _cx = SCR.codex; SCR.codex = () => _cx().replace('grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr)', 'grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(4,1fr)" class="cx28').replace('Dès la vague<b>5</b>', 'Dès la vague<b>' + (MON[CSEL] && MON[CSEL].myth ? '7' : '4') + '</b>'); }
+
+/* ================= effets visuels des armes, des pouvoirs et des ultimes ================= */
+{ const _fire = fire; fire = function (p) { const ok = _fire(p); if (ok && p && (!p._mf || G.t - p._mf > .09)) { p._mf = G.t; const x = p.x + p.fx * 62, y = p.y + p.fy * 62; addFx(x, y, 46, p.h.col, .14); if (Math.random() < .5) spark(x, y, p.h.col, 2); } return ok; }; }
+{ const _sk4 = skill; skill = function (k, p) {
+  const q = p || (G && G.p); if (!G || !q || G.state !== 'play' || q.dead || NETROLE === 2) return _sk4(k, p);
+  const t0 = q.skt; _sk4(k, p); if (q.skt === t0 || q.skt !== G.t) return; const col = q.h.col, x = q.x, y = q.y;
+  if (k === 'd') { for (let i = 1; i <= 3; i++) addFx(x - q.ddx * i * 46, y - q.ddy * i * 46, 70 - i * 12, col, .22 + i * .05); return; }
+  const rc = RARC[{ a: 0, b: 1, c: 2, u: 3 }[k]] || col;
+  addFx(x, y, 150, '#ffffff', .18); addFx(x, y, 210, rc, .34); addPil(x, y, 54, 620, rc, .42); spark(x, y, rc, 12);
+  if (k === 'u') { G.flash = Math.max(G.flash, .35); evp(['sh', .6, .35]); for (let i = 0; i < 4; i++) fdo(i * .1, () => addFx(x, y, 320 + i * 260, i % 2 ? '#ffffff' : col, .5)); for (let i = 0; i < 10; i++) fdo(.05 + i * .03, () => addPil(x + Math.cos(i * .628) * 300, y + Math.sin(i * .628) * 300, 56, 1300, i % 2 ? '#ffd45e' : col, .8)); spark(x, y, '#ffd45e', 30); }
+}; }
+{ const _dm = dmgE; let lastB = 0; dmgE = function (e, d, crit, by) { const r = _dm(e, d, crit, by); if (e && crit && G.t - lastB > .05) { lastB = G.t; addFx(e.x, e.y, e.r * 1.5, '#ffd45e', .16); } return r; }; }

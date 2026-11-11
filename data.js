@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 3.1', BUILD = '31';
+let AR = 1300; const VERSION = 'mobile 3.2', BUILD = '32';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,11 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '3.2', date: '11 novembre 2026', title: 'Effets, Codex et monstres uniques', items: [
+    { img: 'tx/k4.webp', t: 'Nouveaux effets visuels', d: 'Projectiles en comète avec traînée, éclairs de tir, aura sous les gardiens, explosions de pouvoir selon la rareté et ultimes bien plus spectaculaires.' },
+    { img: 'h3.jpg', t: 'Déplacements retravaillés', d: 'Les gardiens penchent dans les virages, soulèvent de la poussière en courant et laissent une traînée en esquivant.' },
+    { img: 'mx_bombe_mar.jpg', t: 'Chaque monstre a son identité', d: 'Les 18 monstres des cartes ont leur nom, leur portrait dans le Codex et leur caractère : ceux de la forêt sont plus résistants, les marins plus rapides, ceux du volcan frappent plus fort.' },
+    { img: 'mx_xalven.jpg', t: 'Portraits des boss mythiques', d: 'Xalven, le Cyclope et Scorch ont leur vrai portrait dans le Codex.' } ] },
   { v: '3.1', date: '11 novembre 2026', title: 'Les cartes refaites', items: [
     { img: 'bg.jpg', t: '9 cartes retravaillées', d: 'Bordure de pierre autour de l\'arène, décors plus nombreux, et un sol animé sur chaque carte : lave qui pulse, eau qui ondule, feuilles, sable, givre…' },
     { img: 'm1.jpg', t: 'Des monstres selon la carte', d: '18 nouveaux monstres : créatures de la forêt et du désert, monstres marins dans les Abysses et le Glacier, monstres de lave dans le Volcan.' },
