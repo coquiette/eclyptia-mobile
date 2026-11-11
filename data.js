@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 3.2', BUILD = '32';
+let AR = 1300; const VERSION = 'mobile 3.3', BUILD = '33';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,11 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '3.3', date: '11 novembre 2026', title: 'Nouvelle boutique et TOX du jour', items: [
+    { img: 'ui/b_shop.webp', t: 'Boutique refaite', d: 'Quatre onglets avec de gros boutons : TOX du jour, offres, tenues en prismes, boosts et packs.' },
+    { img: 'tx/k4.webp', t: 'TOX du jour', d: 'Chaque jour, 4 TOX offerts : tu en prends 1 seul, par lot de 5, 10, 20 ou même 50 copies avec de la chance.' },
+    { img: 'tx/k1.webp', t: 'Mini-boutique entre les vagues', d: 'Une liste de 4 TOX avec leur prix en éclats, une relance payante de plus en plus chère, et tu peux en acheter plusieurs.' },
+    { img: 'ui/bstar.webp', t: 'Achats animés et menu rangé', d: 'Chaque achat déclenche une vraie animation. Les packs étoiles et le TOX du jour sont en bas à gauche du menu.' } ] },
   { v: '3.2', date: '11 novembre 2026', title: 'Effets, Codex et monstres uniques', items: [
     { img: 'tx/k4.webp', t: 'Nouveaux effets visuels', d: 'Projectiles en comète avec traînée, éclairs de tir, aura sous les gardiens, explosions de pouvoir selon la rareté et ultimes bien plus spectaculaires.' },
     { img: 'h3.jpg', t: 'Déplacements retravaillés', d: 'Les gardiens penchent dans les virages, soulèvent de la poussière en courant et laissent une traînée en esquivant.' },

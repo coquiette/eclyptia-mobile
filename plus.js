@@ -258,3 +258,99 @@ for (const id of MYTH) MON[id].img = 'mx_' + id;
   if (k === 'u') { G.flash = Math.max(G.flash, .35); evp(['sh', .6, .35]); for (let i = 0; i < 4; i++) fdo(i * .1, () => addFx(x, y, 320 + i * 260, i % 2 ? '#ffffff' : col, .5)); for (let i = 0; i < 10; i++) fdo(.05 + i * .03, () => addPil(x + Math.cos(i * .628) * 300, y + Math.sin(i * .628) * 300, 56, 1300, i % 2 ? '#ffd45e' : col, .8)); spark(x, y, '#ffd45e', 30); }
 }; }
 { const _dm = dmgE; let lastB = 0; dmgE = function (e, d, crit, by) { const r = _dm(e, d, crit, by); if (e && crit && G.t - lastB > .05) { lastB = G.t; addFx(e.x, e.y, e.r * 1.5, '#ffd45e', .16); } return r; }; }
+
+/* ================= mini-boutique façon « roguelite » : liste, prix en éclats, relance payante, bouton Prêt ================= */
+const shopPrice = id => [14, 30, 55, 95][TOX[id].r] + (G.wave | 0) * 2, wallet = () => Math.max(0, (G.shards | 0) - (G.p.spent | 0)), rollCost = () => 3 + (G.wave | 0) + 3 * (G.rolls | 0);
+applyPick = function (p, i, j, buy) {
+  if (!p || p.picked || !p.ch) return; const ch = p.ch;
+  if (ch.b) { const b = BLESS[ch.b[i | 0]] || BLESS[ch.b[0]]; if (b) { b.f(p.mods, p); (p.bl = p.bl || []).push(b.n); } if (Array.isArray(buy)) for (const id of buy.slice(0, 12)) if (TOX[id] && TOX[id].h === p.hero) setTox(p, id); }
+  p.picked = true; if (G.ps.every(q => q.picked)) endPick();
+};
+startPick = function () { G.state = 'pick'; G.pickT = 60; for (const p of G.ps) { p.picked = p.gone; if (p.gone) continue; const ch = { b: rollBless(p), t: rollTox(p) }; p.ch = ch; if (p === G.p) openPick(ch); else NET.to(p.i, { t: 'pk', ch, w: G.wave }); } };
+openPick = function (ch) { G.state = 'pick'; G.choices = ch && ch.b ? ch : { b: rollBless(G.p), t: rollTox(G.p) }; G.pb = -1; G.rolls = 0; G.sold = {}; G.bought = []; G.justB = G.justS = -1; G.justP = G.justR = 0; snd('pick'); pickUI(); };
+pickUI = function () {
+  const c = G.choices, p = G.p;
+  if (G.pb < 0) return over(`<div class="pkt gold">VAGUE ${G.wave} TERMINÉE</div><div class="pks">Choisis 1 bénédiction parmi 4</div><div class="row pk4">${c.b.map((b, i) => { const B = BLESS[b]; return `<button class="pick p4" data-a="bless" data-v="${i}" style="--rc:${BRC[B.r]}"><i class="prar">${BRN[B.r]}</i><em>${ic(B.ic)}</em><b>${B.n}</b>${B.d ? `<small>${B.d}</small>` : ''}</button>`; }).join('')}</div>`);
+  const w = wallet(), rc = rollCost(), bl = (p.bl || []).concat(NETROLE === 2 || !BLESS[c.b[G.pb]] ? [] : [BLESS[c.b[G.pb]].n]);
+  over(`<div class="shx"><div class="shxt"><span class="pill shxw ${G.justP ? 'spent' : ''}">${ic('shard')} <b>${w}</b>${G.justP ? `<i class="minus">-${G.justP}</i>` : ''}</span><div class="pkt gold">BOUTIQUE</div><button class="shxr ${w < rc ? 'poor' : ''}" data-a="shopRoll">RELANCER <b>${rc}</b> ${ic('shard')}</button></div>
+    <div class="shxb"><div class="shxl ${G.justR ? 'rl' : ''}">${c.t.map((id, i) => { const T = TOX[id], same = p.tx[T.s] === id, lv = same ? (p.tl[T.s] || 0) + 1 : Math.max(1, p.tl[T.s] || 0), pr = shopPrice(id), sold = G.sold[i];
+      return `<button class="shxi ${sold ? 'sold' : ''} ${G.justB === i ? 'just' : ''} ${!sold && w < pr ? 'poor' : ''}" data-a="shopBuy" data-v="${i}" style="--rc:${RARC[T.r]};--i:${i}"><em>${tic(id)}</em><span class="shxn"><b>${T.n}</b><i>${T.s === 3 ? 'ULTIME' : 'TOX ' + 'ABC'[T.s]} · ${RARN[T.r]} · ${same ? 'NIVEAU ' + (lv - 1) + ' ▸ ' + lv : p.tl[T.s] ? 'REMPLACE ' + (TOX[p.tx[T.s]] || {}).n : 'DÉBLOQUE'}</i><small>${tfx(T, lv)}</small></span><u>${sold ? 'ACHETÉ' : pr + ' ' + ic('shard')}</u></button>`; }).join('')}</div>
+    <div class="shxs"><div class="shxh">MES TOX</div><div class="shxg">${p.tx.map((id, i) => `<div class="shxo ${p.tl[i] ? '' : 'lk'} ${G.justS === i ? 'lvl' : ''}" style="--rc:${RARC[i]}">${tic(id)}<b>${p.tl[i] ? 'Niv. ' + p.tl[i] : ic('lock')}</b></div>`).join('')}</div>
+      <div class="shxh">BÉNÉDICTIONS (${bl.length})</div><div class="shxc">${bl.length ? bl.slice(-9).map(n => `<i>${n}</i>`).join('') : '<i class="none">Aucune pour l’instant</i>'}</div></div></div>
+    <button class="btn big shxgo" data-a="shopReady">PRÊT (VAGUE ${G.wave + 1})</button></div>`);
+};
+ACT.shopBuy = v => { const i = +v, id = G.choices.t[i]; if (G.sold[i] || !id) return; const pr = shopPrice(id); if (wallet() < pr) { snd('no'); return toast('Pas assez d\'éclats'); } G.p.spent = (G.p.spent | 0) + pr; G.sold[i] = 1; G.bought.push(id); setTox(G.p, id); refreshBtns(); snd('buy'); G.justB = i; G.justS = TOX[id].s; G.justP = pr; pickUI(); G.justB = G.justS = -1; G.justP = 0; };
+ACT.shopRoll = () => { const rc = rollCost(); if (wallet() < rc) { snd('no'); return toast('Pas assez d\'éclats'); } G.p.spent = (G.p.spent | 0) + rc; G.rolls++; G.choices.t = rollTox(G.p); G.sold = {}; snd('pick'); G.justR = 1; G.justP = rc; pickUI(); G.justR = 0; G.justP = 0; };
+ACT.shopReady = () => { snd('buy'); const wait = '<div class="gold" style="font-size:64px">En attente des autres joueurs…</div>'; if (NETROLE === 2) { NET.send({ t: 'pc', i: G.pb, j: 0, buy: G.bought }); over(wait); return; } G.p.ch = G.choices; G.p.picked = false; applyPick(G.p, G.pb, 0, []); refreshBtns(); if (G.state === 'pick') over(wait); };
+ACT.toxp = () => {};
+
+/* ================= animation d'achat : rayons, anneau, étincelles, compteur qui descend ================= */
+function buyFx(html, title, sub, col, curr, cost) {
+  const host = $('#toast').parentNode, old = $('#bfx'); if (old) old.remove();
+  const d = document.createElement('div'); d.id = 'bfx'; d.style.setProperty('--rc', col || '#ffd45e'); const n = lite() ? 8 : 18;
+  d.innerHTML = `<i class="bfr"></i><i class="bfo"></i>${Array.from({ length: n }, (_, i) => `<i class="bfs" style="--a:${i * 360 / n + (i % 2) * 9}deg;--d:${330 + (i * 53) % 190}px;--t:${(i % 5) * .04}s"></i>`).join('')}<div class="bfi">${html}</div><b class="bft">${title}</b>${sub ? `<span class="bfu">${sub}</span>` : ''}`;
+  host.appendChild(d); snd('slam'); setTimeout(() => snd('pop'), 260); setTimeout(() => d.remove(), 1750);
+  if (cost) { const p = document.querySelectorAll('.top .cur .pill, .m2cur .pill')[curr === 'coins' ? 1 : 0]; if (p) { p.classList.add('spent'); p.insertAdjacentHTML('beforeend', `<i class="minus">-${cost}</i>`); } }
+}
+for (const [k, f] of [
+  ['buyBoost', v => { const b = BOOSTS.find(x => x.id === v); return [`<img src="img/tx/${b.ic}.webp" draggable="false" alt="">`, b.n, 'Prêt pour ta prochaine partie', '#d58bff', 'prisms', b.cost]; }],
+  ['buyOrb', () => [orbImg('myst'), '+1 PACK ÉTOILE', 'À ouvrir depuis le menu', '#ffd45e', 'prisms', 80]],
+  ['buyHero', v => [himg(v), HEROES[v].n, 'NOUVEAU GARDIEN !', HEROES[v].col, HEROES[v].curr, HEROES[v].cost]]]) { const o = ACT[k]; ACT[k] = v => { const a = S.prisms + S.coins; o(v); if (S.prisms + S.coins < a) { const x = f(v); $('#toast').classList.remove('on'); buyFx(...x); } }; }
+
+/* ================= boutique à onglets : TOX du jour, offres, tenues, boosts ================= */
+let STAB = 0;
+const dayKey = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
+const DQ = [[5, .55, ''], [10, .28, 'CHANCE !'], [20, .12, 'GROSSE CHANCE !'], [50, .05, 'JACKPOT !']], SKINP = 300;
+function daily() {
+  const k = dayKey(); if (S.daily && S.daily.d === k && S.daily.t && S.daily.t.length === 4) return S.daily;
+  const t = [], used = {};
+  for (let i = 0; i < 4; i++) { const x = Math.random(), r = x < .5 ? 0 : x < .8 ? 1 : x < .95 ? 2 : 3; let pool = []; for (const h of S.owned) for (const id of HTOX[h]) if (!used[id]) pool.push(id); const pr = pool.filter(id => TOX[id].r === r); if (pr.length) pool = pr; const id = pool[(Math.random() * pool.length) | 0]; used[id] = 1;
+    let y = Math.random(), q = DQ[0][0]; for (const [n, p] of DQ) { if (y < p) { q = n; break; } y -= p; } t.push([id, q]); }
+  S.daily = { d: k, t, got: -1 }; save(); return S.daily;
+}
+const dayLeft = () => { const n = new Date(), m = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1), s = Math.max(0, (m - n) / 1000) | 0; return ((s / 3600) | 0) + ' h ' + String(((s % 3600) / 60) | 0).padStart(2, '0'); };
+const dayFree = () => !(S.daily && S.daily.d === dayKey() && S.daily.got >= 0);
+setInterval(() => { const e = $('#dcd'); if (e) { if (S.daily && S.daily.d !== dayKey()) show('shop'); else e.textContent = dayLeft(); } }, 20000);
+const EUR = [
+  { ic: () => ic('prism'), n: 'Poignée de prismes', d: '300 prismes', p: '1,99 €' }, { ic: () => ic('prism'), n: 'Sac de prismes', d: '900 prismes', p: '4,99 €', tag: 'POPULAIRE' }, { ic: () => ic('prism'), n: 'Coffre de prismes', d: '2 000 prismes', p: '9,99 €', tag: 'MEILLEUR PRIX' },
+  { ic: () => orbImg('myst'), n: 'Pack de départ', d: '5 packs étoiles + 500 prismes', p: '2,99 €', tag: 'UNE SEULE FOIS' }, { ic: () => ic('crown'), n: 'Pass Premium', d: 'Toutes les récompenses du pass', p: '4,99 €' }, { ic: () => orbImg(3), n: 'Pluie d’étoiles', d: '12 packs étoiles', p: '7,99 €' }];
+SCR.shop = function () {
+  const T = [['tox', 'DU JOUR', dayFree() ? 'GRATUIT' : 'Pris'], ['prism', 'OFFRES', 'En euros'], ['crown', 'TENUES', 'En prismes'], ['bolt', 'BOOSTS', 'En prismes']];
+  let b = '';
+  if (STAB === 0) { const D = daily(), got = D.got >= 0;
+    b = `<div class="s3h"><b>TOX DU JOUR</b><span>${got ? 'Déjà pris aujourd’hui' : 'Choisis-en 1 seul, il est offert'} · nouvelle sélection dans <i id="dcd">${dayLeft()}</i></span></div>
+      <div class="s3d">${D.t.map(([id, q], i) => { const X = TOX[id], tg = (DQ.find(z => z[0] === q) || [])[2], s = S.tox[id] || { l: 0 }; return `<div class="s3c ${got ? (D.got === i ? 'mine' : 'off') : ''} ${q >= 20 ? 'luck' : ''}" style="--rc:${RARC[X.r]};--i:${i}">${tg ? `<i class="s3tag">${tg}</i>` : ''}<em>${tic(id)}<u>×${q}</u></em><b>${X.n}</b><small>${X.h && HEROES[X.h] ? HEROES[X.h].n + ' · ' : ''}${RARN[X.r]}</small><small class="s3l">${s.l ? 'Niveau ' + s.l : 'Pas encore débloqué'}</small>
+        <button class="btn ${got ? 'gray' : ''}" data-a="dayTake" data-v="${i}">${got ? (D.got === i ? 'PRIS ✓' : 'DEMAIN') : 'PRENDRE'}</button></div>`; }).join('')}</div>
+      <div class="s3o">Chances par TOX : ${DQ.map(z => '×' + z[0] + ' → ' + Math.round(z[1] * 100) + ' %').join(' · ')}</div>`; }
+  else if (STAB === 1) b = `<div class="s3h"><b>OFFRES</b><span>${PAYL.some(Boolean) ? 'Paiement sécurisé par carte' : 'Le paiement en ligne n’est pas encore ouvert : ces offres arrivent bientôt'}</span></div><div class="s3g">${EUR.map((o, i) => `<button class="s3e" data-a="buyEur" data-v="${i}" style="--i:${i}">${o.tag ? `<i class="s3tag">${o.tag}</i>` : ''}<em>${o.ic()}</em><b>${o.n}</b><small>${o.d}</small><span class="s3p">${o.p}${PAYL[i] ? '' : '<i>BIENTÔT</i>'}</span></button>`).join('')}</div>`;
+  else if (STAB === 2) b = `<div class="s3h"><b>TENUES</b><span>Une tenue rare par gardien · ${SKINP} prismes</span></div><div class="s3g">${Object.keys(SKINS).map((h, i) => { const own = S.owned.includes(h), has = S.skins.includes(h), on = has && S.skin[h]; return `<div class="s3e sk ${own ? '' : 'off'}" style="--i:${i}"><em class="s3a">${himg(h, 1)}</em><b>${SKINS[h].n}</b><small>${HEROES[h].n}</small>
+      <button class="btn ${has ? (on ? 'gray' : 'vio') : own && S.prisms >= SKINP ? '' : 'gray'}" data-a="buySkin" data-v="${h}">${has ? (on ? 'ÉQUIPÉE ✓' : 'ÉQUIPER') : own ? SKINP + ' ' + ic('prism') : ic('lock') + ' Gardien'}</button></div>`; }).join('')}</div>`;
+  else b = `<div class="s3h"><b>BOOSTS ET PACKS</b><span>Un boost sert pour une partie</span></div><div class="s3g g4">${BOOSTS.map((x, i) => `<div class="s3e bo" style="--i:${i}"><i class="s3n">${S.boost[x.id] || 0}</i><em><img src="img/tx/${x.ic}.webp" draggable="false" alt=""></em><b>${x.n}</b><small>${x.d}</small><button class="btn ${S.prisms < x.cost ? 'gray' : ''}" data-a="buyBoost" data-v="${x.id}">${x.cost} ${ic('prism')}</button></div>`).join('')}
+      <div class="s3e bo pk" style="--i:6"><i class="s3n">${S.orbs || 0}</i><em>${orbImg('myst')}</em><b>Pack étoile</b><small>4 étoiles, 1 TOX à choisir</small><button class="btn ${S.prisms < 80 ? 'gray' : ''}" data-a="buyOrb">80 ${ic('prism')}</button></div>
+      <button class="s3e bo pk" data-a="orb" style="--i:7"><em>${orbImg(3)}</em><b>Ouvrir mes packs</b><small>${S.orbs || 0} en réserve</small><span class="btn vio">OUVRIR</span></button></div>`;
+  return head('BOUTIQUE') + `<div class="body s3"><div class="s3t">${T.map((t, i) => `<button class="s3b ${i === STAB ? 'on' : ''}" data-a="stab" data-v="${i}">${ic(t[0])}<span>${t[1]}<small>${t[2]}</small></span>${i === 0 && dayFree() ? '<i class="dot"></i>' : ''}</button>`).join('')}</div><div class="s3m" data-k="${STAB}">${b}</div></div>`;
+};
+ACT.stab = v => { STAB = +v; snd('pick'); show('shop'); const m = $('.s3m'); if (m) m.classList.add('sw'); };
+ACT.dayGo = () => { STAB = 0; nav('shop'); };
+/* paiements : un lien de paiement Stripe par offre (vide = pas encore ouvert). Au retour du paiement, l'offre est créditée une seule fois. */
+const PAYL = ['', '', '', '', '', ''], PAYR = [{ prisms: 300 }, { prisms: 900 }, { prisms: 2000 }, { orbs: 5, prisms: 500 }, { premium: 1 }, { orbs: 12 }];
+ACT.buyEur = v => { const u = PAYL[+v]; if (!u) return no('Paiement en ligne pas encore ouvert : cette offre arrive bientôt'); if (+v === 3 && S.starter) return no('Pack de départ déjà acheté'); if (+v === 4 && S.premium) return no('Tu as déjà le Pass Premium'); save(); location.href = u; };
+function payBack() { const m = /[?&]paid=(\d)&cs=(cs_[A-Za-z0-9_]{10,})/.exec(location.search); if (!m || !PAYL[+m[1]]) return; S.paid = S.paid || []; try { history.replaceState(null, '', location.pathname); } catch (e) {} if (S.paid.includes(m[2])) return; S.paid.push(m[2]); const r = PAYR[+m[1]], o = EUR[+m[1]];
+  if (r.premium) S.premium = true; if (+m[1] === 3) S.starter = true; if (r.prisms) S.prisms += r.prisms; if (r.orbs) S.orbs = (S.orbs || 0) + r.orbs; save(); setTimeout(() => { if (SCREEN === 'menu') show('menu'); buyFx(o.ic(), 'MERCI !', o.n + ' · ' + o.d, '#ffd45e'); }, 1200); }
+{ const _st = ACT.start; ACT.start = () => { _st(); try { payBack(); } catch (e) {} }; }
+ACT.dayTake = v => { const D = daily(), i = +v; if (D.got >= 0) return no(D.got === i ? 'Déjà pris : reviens demain' : 'Un seul TOX par jour : reviens demain'); const [id, q] = D.t[i], l0 = (S.tox[id] || { l: 0 }).l; D.got = i; addCard(id, q); save(); snd('buy'); show('shop'); const l1 = S.tox[id].l; buyFx(tic(id), TOX[id].n, '×' + q + ' copies' + (l1 > l0 ? (l0 ? ' · NIVEAU ' + l1 + ' !' : ' · DÉBLOQUÉ !') : ''), RARC[TOX[id].r]); };
+ACT.buySkin = h => { if (!S.owned.includes(h)) return no('Débloque d’abord ' + HEROES[h].n); if (S.skins.includes(h)) { S.skin[h] = S.skin[h] ? 0 : 1; save(); snd('pick'); return show('shop'); } if (S.prisms < SKINP) return no('Pas assez de prismes'); S.prisms -= SKINP; S.skins.push(h); S.skin[h] = 1; save(); snd('buy'); show('shop'); buyFx(himg(h, 1), SKINS[h].n, 'TENUE DÉBLOQUÉE ET ÉQUIPÉE', '#ffd45e', 'prisms', SKINP); };
+
+/* ================= menu : packs étoiles en bas à gauche, boutons mieux rangés ================= */
+SCR.menu = () => {
+  const k = rankOf(S.rp), st = S.bst || 0, B = [['shop', 'Boutique'], ['codex', 'Codex'], ['pass', 'Pass'], ['quests', 'Quêtes'], ['profile', 'Profil'], ['collection', 'Collection'], ['friends', 'Groupe'], ['settings', 'Réglages']];
+  return `<div class="m2 m3"><div class="m2bg"></div><div class="m2sh"></div>${spk(10)}
+    <button class="m2prof" data-a="go" data-v="profile"><span class="av">${himg(S.hero)}</span><span class="tx">${esc(S.name)}<span class="sub">Niv. ${level()} · <b style="color:${k.c}">${k.n}</b> · ${k.in} / ${RSTEP}</span><span class="bar"><i style="width:${(S.xp % 400) / 4}%"></i></span></span></button>
+    <div class="m2cur"><span class="pill">${ic('prism')} ${S.prisms}</span><span class="pill">${ic('coin')} ${S.coins}</span></div>
+    <div class="m2col"><img class="m2logo" src="img/ui/logo.webp" draggable="false" alt="Eclyptia">
+      <div class="m2grid">${B.map((b, i) => `<button class="m2b" data-a="go" data-v="${b[0]}" style="--i:${i}"><img src="img/ui/b_${b[0]}.webp" draggable="false" alt="${b[1]}">${b[0] === 'shop' && dayFree() ? '<i class="dot"></i>' : ''}</button>`).join('')}</div>
+      <button class="m2play" data-a="go" data-v="hero"><img src="img/ui/play.webp" draggable="false" alt="Jouer"></button></div>
+    <div class="m3bl"><button class="m3day ${dayFree() ? 'free' : ''}" data-a="dayGo">${ic('tox')}<span>TOX DU JOUR<small>${dayFree() ? 'Gratuit : à prendre !' : 'Revient dans ' + dayLeft()}</small></span></button>
+      <button class="m3pk" data-a="orb">${orbImg('myst')}<span class="m3pt"><b>PACKS ÉTOILES</b><span class="m3st">${[0, 1, 2, 3].map(i => `<i class="${i < st ? 'on' : ''}">★</i>`).join('')}</span><small>${4 - st} étoile${4 - st > 1 ? 's' : ''} avant le prochain pack</small></span><u>${S.orbs || 0}</u></button></div>
+    <div class="ver">${VERSION}</div></div>`;
+};

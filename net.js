@@ -50,7 +50,7 @@ const NET = {
     else if (!G || SCREEN !== 'game') return;
     else if (d.t === 'i') { const p = G.ps[this.idx(i)]; if (p && !p.dead) { p.x = clamp(+d.x || 0, -AR, AR); p.y = clamp(+d.y || 0, -AR, AR); p.mv = +d.m || 0; p.mvx = +d.a || 0; p.mvy = +d.b || 0; } }
     else if (d.t === 'k') { const p = G.ps[this.idx(i)]; if (p && 'abcdu'.includes(d.k)) skill(d.k, p); }
-    else if (d.t === 'pc') applyPick(G.ps[this.idx(i)], d.i | 0, d.j | 0);
+    else if (d.t === 'pc') applyPick(G.ps[this.idx(i)], d.i | 0, d.j | 0, d.buy || []);
   },
   idx(i) { return i; },
   start() {
