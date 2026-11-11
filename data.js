@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 3.4', BUILD = '34';
+let AR = 1300; const VERSION = 'mobile 3.5', BUILD = '35';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,11 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '3.5', date: '11 novembre 2026', title: 'Écran de jeu épuré et nouvelles musiques', items: [
+    { img: 'tx/k1.webp', t: 'Boutons sans cadre', d: 'En jeu, les pouvoirs, la pause et les combos n’ont plus de cadre. Un pouvoir flashe quand il est de nouveau prêt.' },
+    { img: 'tx/k2.webp', t: 'Annonce de vague discrète', d: 'Plus de grande bande en travers de l’écran : un titre plus petit, qui disparaît plus vite.' },
+    { img: 'ui/bstar.webp', t: 'Musiques', d: 'Cinq nouveaux morceaux, des passages calmes, des montées, et un changement de morceau deux fois plus fréquent.' },
+    { img: 'tx/k3.webp', t: 'Fluidité', d: 'Le jeu baisse plus vite sa finesse d’image quand le téléphone peine, pour rester fluide.' } ] },
   { v: '3.4', date: '11 novembre 2026', title: 'Codex aéré et affichage en jeu allégé', items: [
     { img: 'ui/b_codex.webp', t: 'Codex refait', d: 'Les monstres sont sur des pages de 10 grandes cartes, avec une fiche plus lisible. Les TOX ont plus d’espace entre eux.' },
     { img: 'tx/k2.webp', t: 'Haut de l’écran plus léger en jeu', d: 'Le bandeau de vague et la fiche du gardien prennent beaucoup moins de place.' } ] },

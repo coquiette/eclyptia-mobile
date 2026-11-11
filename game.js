@@ -55,7 +55,7 @@ function startRun(infos, me, role) {
     inter: 0, all: false, shake: 0, flash: 0, slow: 0, banner: null, combo: 0, comboT: 0, frenzy: 0, pil: [], ts: 1, slowmo: 0, stop: 0, stopCd: 0, zoomP: 0, cine: null, ann: null, uid: 1, evq: [], ql: 0, pickT: 0, bon: infos[me].bon || {} };
   G.ps.forEach((p, i) => { p.remote = i !== me; });
   J.x = J.y = 0; J.id = null; G.map = ((infos[0] && infos[0].map) | 0) % MAPS.length; LASTMAP = G.map; R3.reset(AR, G.map); if (typeof musMap === 'function') musMap(G.map); G.ann = { s: MAPS[G.map].toUpperCase(), col: '#ffd45e', t: 1.6 };
-  if (NETROLE !== 2) { nextWave(); G.spawnT = 1.5; } else G.banner = { t: 2.4, s: 'VAGUE 1', boss: 0 };
+  if (NETROLE !== 2) { nextWave(); G.spawnT = 1.5; } else G.banner = { t: 1.7, s: 'VAGUE 1', boss: 0 };
 }
 const alive = () => G.ps.filter(p => !p.dead && !p.gone);
 function nearest(x, y) { let b = null, bd = 1e9; for (const p of G.ps) { if (p.dead || p.gone) continue; const d = hyp(p.x - x, p.y - y); if (d < bd) { bd = d; b = p; } } return b; }
@@ -67,7 +67,7 @@ function nextWave() {
   let n = Math.round((26 + 10 * w) * k); if (boss) n = Math.floor(n * .55);
   G.queue = []; for (let i = 0; i < n; i++) G.queue.push(pool[(Math.random() * pool.length) | 0]);
   if (boss) G.queue.push('ver');
-  G.spawnT = 1.2; G.banner = { t: 2.4, s: boss ? 'BOSS !' : 'VAGUE ' + w, boss }; gsnd(boss ? 'boss' : 'wave'); music(boss ? 'boss' : w >= 6 ? 'game2' : 'game'); musLevel(w / LAST_WAVE);
+  G.spawnT = 1.2; G.banner = { t: 1.7, s: boss ? 'BOSS !' : 'VAGUE ' + w, boss }; gsnd(boss ? 'boss' : 'wave'); music(boss ? 'boss' : w >= 6 ? 'game2' : 'game'); musLevel(w / LAST_WAVE);
 }
 function spawn(id) {
   const m = MON[id], w = G.wave, k = 1 + .3 * (G.n - 1); let a, x, y, n = 0, pn;
@@ -377,12 +377,11 @@ function draw(dt, raw) {
   if (G.p.hp < G.p.maxhp * .3 && !G.p.dead && G.state === 'play') { const g = x.createRadialGradient(W / 2, H / 2, H * .4, W / 2, H / 2, W * .62); g.addColorStop(0, 'rgba(255,0,40,0)'); g.addColorStop(1, 'rgba(255,0,40,' + (.18 + Math.sin(G.t * 6) * .1) + ')'); x.fillStyle = g; x.fillRect(0, 0, W, H); }
   if (G.ecl > 0) { const k = Math.min(1, G.ecl), r = 150 + (1.6 - G.ecl) * 60; x.globalAlpha = k * .55; x.fillStyle = '#0d061d'; x.fillRect(0, 0, W, H); x.globalAlpha = k; x.fillStyle = '#ffd45e'; x.beginPath(); x.arc(W / 2, 300, r + 14, 0, 7); x.fill(); x.fillStyle = '#0d061d'; x.beginPath(); x.arc(W / 2 + 10, 296, r, 0, 7); x.fill(); x.globalAlpha = 1; }
   if (G.banner && !G.cine) {
-    const b = G.banner, a = clamp(Math.min(b.t * 2, (2.4 - b.t) * 5), 0, 1), sc = 1 + Math.max(0, 2.2 - (2.4 - b.t) * 8) * .25;
-    x.globalAlpha = a; x.save(); x.translate(W / 2, 250); x.scale(sc, sc);
-    x.fillStyle = 'rgba(13,6,29,.6)'; x.fillRect(-W, -90, W * 2, 130); x.fillStyle = b.boss ? '#ff5a5a' : '#ffd45e'; x.fillRect(-W, -94, W * 2, 6); x.fillRect(-W, 38, W * 2, 6);
-    x.font = '800 130px "Baloo 2",sans-serif'; x.lineWidth = 16; x.strokeStyle = b.boss ? '#4a0010' : '#5a2a00'; x.strokeText(b.s, 0, 20); x.fillStyle = b.boss ? '#ff6a6a' : '#ffd45e'; x.fillText(b.s, 0, 20); x.restore(); x.globalAlpha = 1; x.strokeStyle = '#150a2e';
+    const b = G.banner, a = clamp(Math.min(b.t * 2, (1.7 - b.t) * 5), 0, 1), sc = 1 + Math.max(0, 1.5 - (1.7 - b.t) * 8) * .25;
+    x.globalAlpha = a; x.save(); x.translate(W / 2, 215); x.scale(sc, sc);
+    x.font = '800 ' + (b.boss ? 110 : 84) + 'px "Baloo 2",sans-serif'; x.lineWidth = 13; x.strokeStyle = b.boss ? '#4a0010' : '#5a2a00'; x.strokeText(b.s, 0, 20); x.fillStyle = b.boss ? '#ff6a6a' : '#ffd45e'; x.fillText(b.s, 0, 20); x.restore(); x.globalAlpha = 1; x.strokeStyle = '#150a2e';
   }
-  if (G.ann) { const a = G.ann, k = 1.6 - a.t, sc = k < .15 ? 3 - k * 13.3 : 1, al = clamp(a.t * 3, 0, 1); x.globalAlpha = al; x.save(); x.translate(W / 2, G.banner && !G.cine ? 400 : 240); x.scale(sc, sc); x.rotate(-.04); x.font = '800 96px "Baloo 2",sans-serif'; x.lineWidth = 14; x.strokeStyle = '#1a0c36'; x.strokeText(a.s, 0, 0); x.fillStyle = a.col; x.fillText(a.s, 0, 0); x.restore(); x.globalAlpha = 1; x.strokeStyle = '#150a2e'; }
+  if (G.ann) { const a = G.ann, k = 1.6 - a.t, sc = k < .15 ? 3 - k * 13.3 : 1, al = clamp(a.t * 3, 0, 1); x.globalAlpha = al; x.save(); x.translate(W / 2, G.banner && !G.cine ? 300 : 230); x.scale(sc, sc); x.rotate(-.04); x.font = '800 64px "Baloo 2",sans-serif'; x.lineWidth = 11; x.strokeStyle = '#1a0c36'; x.strokeText(a.s, 0, 0); x.fillStyle = a.col; x.fillText(a.s, 0, 0); x.restore(); x.globalAlpha = 1; x.strokeStyle = '#150a2e'; }
   if (G.cine) {
     const c = G.cine, k = clamp(Math.min(c.age * 5, c.t * 5), 0, 1), bh = 96 * k;
     if (c.gray) { x.fillStyle = 'rgba(20,10,40,' + (.5 * k) + ')'; x.fillRect(0, 0, W, H); }
@@ -450,7 +449,7 @@ function frame(ts) {
     draw(NETROLE === 2 ? raw : G.state === 'pause' || G.state === 'pick' ? 0 : (G.cine ? raw * .3 : G.stop > 0 ? 0 : dt || raw), raw);
   }
   // résolution dynamique : si le téléphone peine, on baisse la finesse du rendu plutôt que la fluidité
-  if (G && SCREEN === 'game' && G.state === 'play' && !G.cine) { FT.s += raw; if (++FT.n >= 50) { const avg = FT.s / FT.n; FT.s = FT.n = 0; if (avg > .023 && (R3.q || 1) > .5) { R3.q = (R3.q || 1) - .15; R3.resize(); } } }
+  if (G && SCREEN === 'game' && G.state === 'play' && !G.cine) { FT.s += raw; if (++FT.n >= 50) { const avg = FT.s / FT.n; FT.s = FT.n = 0; if (avg > .021 && (R3.q || 1) > .4) { R3.q = (R3.q || 1) - .15; R3.resize(); if (R3.q < .6) document.documentElement.classList.add('slow'); } } }
   if (typeof fxTick === 'function') fxTick(raw);
   requestAnimationFrame(frame);
 }

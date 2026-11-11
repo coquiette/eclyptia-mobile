@@ -206,8 +206,25 @@ Object.assign(SONGS, {
     B: { ch: ['A2 C3 E3', 'E3 G3 B3', 'F3 A3 C4', 'B2 D#3 F#3', 'A2 C3 E3', 'G3 B3 D4', 'F#3 A3 C4', 'B2 D#3 F#3'], bass: 'A0 E1 F1 B0 A0 G1 F#1 B0' } }
 });
 /* variété : plusieurs morceaux par ambiance, arrangement qui change toutes les 8 mesures, mélodies improvisées, changements de tonalité */
-const POOL = { game: ['game', 'game3', 'game5'], game2: ['game2', 'game4', 'game3'], menu: ['menu', 'menu2'], pages: ['pages', 'menu2'], boss: ['boss', 'boss2'] };
-const ARRS = { 0: [{ m: 1 }, { m: 1, cm: 1 }, { m: 2 }, { m: 0, arp: 1, d: 0 }, { m: 3, cm: 1 }, { m: 2, arp: 1 }], 1: [{ m: 1 }, { m: 1, cm: 1 }, { d: 3, m: 2 }, { d: 2, m: 0, arp: 1 }, { m: 3, cm: 1 }, { d: 3, m: 2, cm: 1 }, { d: 0, m: 1, arp: 1 }, { d: 3, m: 2 }], 2: [{ m: 1 }, { d: 3, m: 2 }, { m: 3, cm: 1 }, { d: 3, m: 2, cm: 1 }] };
+Object.assign(SONGS, {
+  game6: { bpm: 136, style: 1, form: 'AABA',
+    A: { ch: ['D3 F3 A3', 'Bb2 D3 F3', 'F3 A3 C4', 'C3 E3 G3', 'D3 F3 A3', 'Bb2 D3 F3', 'G2 Bb2 D3', 'A2 C#3 E3'], bass: 'D1 Bb0 F1 C1 D1 Bb0 G1 A1' },
+    B: { ch: ['G2 Bb2 D3', 'D3 F3 A3', 'Bb2 D3 F3', 'A2 C#3 E3', 'G2 Bb2 D3', 'C3 E3 G3', 'F3 A3 C4', 'A2 C#3 E3'], bass: 'G1 D1 Bb0 A1 G1 C1 F1 A1' } },
+  game7: { bpm: 144, style: 1, form: 'ABAB',
+    A: { ch: ['A2 C3 E3', 'F3 A3 C4', 'C3 E3 G3', 'G3 B3 D4', 'A2 C3 E3', 'F3 A3 C4', 'D3 F3 A3', 'E3 G#3 B3'], bass: 'A0 F1 C1 G1 A0 F1 D1 E1' },
+    B: { ch: ['F3 A3 C4', 'G3 B3 D4', 'E3 G3 B3', 'A2 C3 E3', 'D3 F3 A3', 'G3 B3 D4', 'C3 E3 G3', 'E3 G#3 B3'], bass: 'F1 G1 E1 A0 D1 G1 C1 E1' } },
+  game8: { bpm: 128, style: 1, form: 'AABA',
+    A: { ch: ['E3 G3 B3', 'C3 E3 G3', 'G3 B3 D4', 'D3 F#3 A3', 'E3 G3 B3', 'C3 E3 G3', 'A2 C3 E3', 'B2 D#3 F#3'], bass: 'E1 C1 G1 D1 E1 C1 A0 B0' },
+    B: { ch: ['C3 E3 G3', 'D3 F#3 A3', 'B2 D3 F#3', 'E3 G3 B3', 'A2 C3 E3', 'D3 F#3 A3', 'G3 B3 D4', 'B2 D#3 F#3'], bass: 'C1 D1 B0 E1 A0 D1 G1 B0' } },
+  menu3: { bpm: 96, style: 0, form: 'AABA',
+    A: { ch: ['F3 A3 C4 E4', 'D3 F3 A3 C4', 'Bb2 D3 F3 A3', 'C3 E3 G3 Bb3', 'F3 A3 C4 E4', 'D3 F3 A3', 'G3 Bb3 D4', 'C3 E3 G3 Bb3'], bass: 'F1 D1 Bb0 C1 F1 D1 G1 C1' },
+    B: { ch: ['Bb2 D3 F3 A3', 'C3 E3 G3', 'A2 C3 E3 G3', 'D3 F3 A3', 'Bb2 D3 F3', 'G3 Bb3 D4', 'C3 E3 G3', 'C3 E3 G3 Bb3'], bass: 'Bb0 C1 A0 D1 Bb0 G1 C1 C1' } },
+  boss3: { bpm: 152, style: 2, form: 'ABAB',
+    A: { ch: ['C#3 E3 G#3', 'A2 C#3 E3', 'F#2 A2 C#3', 'G#2 C3 D#3', 'C#3 E3 G#3', 'A2 C#3 E3', 'B2 D#3 F#3', 'G#2 C3 D#3'], bass: 'C#1 A0 F#1 G#1 C#1 A0 B0 G#1' },
+    B: { ch: ['F#2 A2 C#3', 'C#3 E3 G#3', 'D3 F#3 A3', 'G#2 C3 D#3', 'F#2 A2 C#3', 'E3 G#3 B3', 'D#3 F#3 A3', 'G#2 C3 D#3'], bass: 'F#1 C#1 D1 G#1 F#1 E1 D#1 G#1' } }
+});
+const POOL = { game: ['game', 'game6', 'game3', 'game8', 'game5'], game2: ['game2', 'game7', 'game4', 'game6', 'game3'], menu: ['menu', 'menu3', 'menu2'], pages: ['pages', 'menu2', 'menu3'], boss: ['boss', 'boss3', 'boss2'] };
+const ARRS = { 0: [{ m: 1 }, { m: 1, cm: 1 }, { m: 2 }, { m: 0, arp: 1, d: 0 }, { m: 3, cm: 1 }, { m: 2, arp: 1 }, { m: 1, d: 0, arp: 1 }, { m: 3 }, { m: 2, cm: 1 }], 1: [{ m: 1 }, { m: 1, cm: 1 }, { d: 3, m: 2 }, { d: 0, m: 0, arp: 1 }, { d: 2, m: 3, arp: 1 }, { m: 3, cm: 1 }, { d: 3, m: 2, cm: 1 }, { d: 0, m: 1, arp: 1 }, { d: 2, m: 2 }, { d: 3, m: 1, cm: 1 }, { d: 3, m: 2 }], 2: [{ m: 1 }, { d: 3, m: 2 }, { m: 3, cm: 1 }, { d: 2, m: 0, arp: 1 }, { d: 3, m: 2, cm: 1 }, { d: 3, m: 3 }] };
 const KEYC = [0, 0, 2, -3, 5, -2, 3, -5]; let musKey = 0, musSeed = (Math.random() * 9999) | 0, MGEN = null, MTHM = null, MPK = '';
 function musMap(i) { musKey = [0, 2, -2, 3, -3, 5, -1, -5, 4][i | 0] || 0; musSeed = ((Math.random() * 9999) | 0) + (i | 0) * 13; }
 function phrase(c, seed, busy) {
@@ -222,7 +239,7 @@ function musTick() {
   if (musT < AC.currentTime - .25) musT = AC.currentTime + .05;
   const o = TRK, lead = DLY || o;
   while (musT < AC.currentTime + .32) {
-    const barAll = musStep >> 4, cyc = barAll >> 5, sec = barAll >> 3, pl = POOL[musMode], sn = pl ? pl[(cyc + (musSeed % pl.length)) % pl.length] : musMode, s = song(sn), sd = 15 / s.bpm;
+    const barAll = musStep >> 4, cyc = barAll >> 4, sec = barAll >> 3, pl = POOL[musMode], sn = pl ? pl[(cyc + (musSeed % pl.length)) % pl.length] : musMode, s = song(sn), sd = 15 / s.bpm;
     const at = Math.max(0, musT - AC.currentTime), st = musStep % 16, bar = barAll % 8, rep = (barAll >> 3) % 4, fk = s.form[rep % s.form.length], part = s[fk], full = barAll >= 8, lv = s.style ? musLv : (full ? .6 : 0);
     const isB = fk === 'B', al = ARRS[s.style], arr = al ? al[sec % al.length] : { m: 1 }, D = arr.d === undefined ? 1 : arr.d, K = Math.pow(2, ((s.style === 3 ? 0 : KEYC[cyc % 8]) + (s.style === 1 || s.style === 2 ? musKey : 0)) / 12);
     const c = part.ch[bar].map(f => f * K), b = part.bass[bar] * K;
@@ -260,6 +277,8 @@ function musTick() {
       if (D) { if (st % 4 === 2) hat(at, .03, o, .06); else if (st % 2 || lv > .5 || D === 3) hat(at, .01, o, .025); }
       if (bar === 7 && st >= 12) snare(at, .03 + (st - 12) * .012, o); if (bar === 3 && st === 14 && lv > .3) { tone(b * 4, sd * 2, 'sawtooth', .04, b * 8, at, o); }
     }
+    if (bar === 7 && st === 0 && s.style) noise(sd * 15, .03, 600, 9000, 2, at, 'bandpass', o);
+    if (bar === 0 && st === 0 && barAll && s.style) { noise(.9, .05, 9000, 2500, 1, at, 'highpass', o); tone(b, .7, 'sine', .14, b / 2, at, o); }
     musT += sd; musStep++;
   }
 }

@@ -1100,3 +1100,30 @@ button.s3e:active{transform:scale(.96)}
 .h2 #team{top:262px}
 .nar .h2 .hhp{width:440px}.nar .h2 .hav{width:92px;height:92px}.nar .h2 .hnm small{display:none}
 .nar .h2 .hwave{width:340px;margin-left:-170px}
+/* v3.5 : en jeu, plus de cadres autour des boutons, tout plus léger */
+.ab{box-shadow:none!important;border:0!important;background:none!important;overflow:visible;filter:drop-shadow(0 6px 8px #0009)}
+.ab em{border-radius:50%;overflow:hidden}
+.ab .cd{border-radius:0 0 999px 999px;left:4%;right:4%;bottom:4%}
+#bd em{background:radial-gradient(circle at 35% 30%,#7d55e0,#2a1650)}
+.ab small{bottom:10px;text-shadow:0 2px 0 #000}
+.ab.rdy{animation:abrdy .5s var(--spring)}
+.ab.rdy:after{content:"";position:absolute;inset:-6px;border-radius:50%;border:6px solid #fff;pointer-events:none;animation:ringo .5s ease-out both}
+@keyframes abrdy{0%{transform:scale(1)}40%{transform:scale(1.22);filter:brightness(1.8) drop-shadow(0 0 18px #ffd45e)}100%{transform:none}}
+.h2 .rnd{border:0;box-shadow:none;background:#1a0c36aa;width:76px;height:76px;font-size:34px}
+.cmb{background:none!important;border:0!important;padding:2px 0!important;text-shadow:0 2px 0 #150a2e,0 0 8px #150a2e;opacity:.9}
+.cmb b{min-width:0!important;margin-right:6px}
+.cmb i{border:0!important;background:#150a2eb0!important;border-radius:10px;min-width:38px!important;height:34px!important;line-height:34px!important}
+.cmb i.ok{background:#ffd45e!important}
+.cmb.go{transform:scale(1.08)}
+#cmbs{gap:4px}
+.h2 .hhp.hit{animation:hhit .3s}
+@keyframes hhit{0%,100%{transform:none}25%{transform:translate(-8px,3px) rotate(-1deg)}60%{transform:translate(7px,-2px) rotate(1deg)}}
+.h2 .hhp.hit .hpb{filter:brightness(2.2)}
+.h2 .hhp.low .hpb i{background:linear-gradient(#ff9a8a,#e0284a 45%,#8a1030)!important;animation:lowp .45s ease-in-out infinite alternate}
+@keyframes lowp{to{filter:brightness(1.6)}}
+.h2 .hhp .hpb i,.h2 .hhp .ulb i{transition:width .25s cubic-bezier(.2,.9,.3,1)}
+.slow .wpips i.cu,.slow .h2 .hhp.low .hpb i{animation:none}
+.slow .ab{filter:none}
+.ab{overflow:hidden!important;border-radius:50%}
+.ab .cd{border-radius:0;left:0;right:0;bottom:0}
+.ab.rdy:after{inset:0;border-width:8px}

@@ -140,7 +140,7 @@ function mythAI(e, p, dt, slow, ux, uy, d) {
   q = q.slice(0, Math.max(8, Math.round(q.length * (boss ? .3 : .55)))); let bid = null;
   if (boss) bid = w >= LAST_WAVE ? G.myth[1] : w === BOSSW[0] ? 'ver' : G.myth[0];
   if (bid) q.push(bid); G.queue = q; G.wtot = q.length; G.bossW = bid;
-  G.banner = { t: 2.4, s: bid ? (w >= LAST_WAVE ? 'BOSS MYTHIQUE !' : 'BOSS !') : 'VAGUE ' + w, boss: bid ? 1 : 0 }; music(bid ? 'boss' : w >= 6 ? 'game2' : 'game');
+  G.banner = { t: 1.7, s: bid ? (w >= LAST_WAVE ? 'BOSS MYTHIQUE !' : 'BOSS !') : 'VAGUE ' + w, boss: bid ? 1 : 0 }; music(bid ? 'boss' : w >= 6 ? 'game2' : 'game');
 }; }
 { const _sp = spawn; spawn = function (id) {
   _sp(id); const m = MON[id]; if (!m || !m.boss) return; const e = G.en[G.en.length - 1]; if (!e || e.id !== id) return;
@@ -369,3 +369,10 @@ let CPG = -1;
       <div class="cx3s"><div class="tile">PV<b>${m.hp}</b></div><div class="tile">Dégâts<b>${m.dmg}</b></div><div class="tile">Vitesse<b>${m.spd}</b></div><div class="tile">Vaincus<b>${S.codex[CSEL]}</b></div><div class="tile">Dès la vague<b>${m.boss ? (m.myth ? 7 : 4) : m.from}</b></div></div>` : `<div class="grow col" style="align-items:center;justify-content:center;text-align:center;gap:20px"><div class="cx3k">${ic('lock')}</div><div class="sub">Vaincs cette créature en partie pour la découvrir.</div></div>`}</div></div>`;
 }; }
 ACT.cpg = v => { const NP = Math.ceil(MON_IDS.length / 10); CPG = (CPG + (+v) + NP) % NP; CSEL = MON_IDS[CPG * 10]; snd('pick'); show('codex'); };
+
+
+/* ================= affichage en jeu : pouvoirs qui flashent quand ils sont prêts, barre de vie qui réagit ================= */
+{ const _ht2 = hudTick, CDP = {}; hudTick = function () { _ht2.apply(this, arguments); if (!G || !G.p) return;
+  for (const k of 'abcdu') { const c = $('#cd' + k), b = $('#b' + k); if (!c || !b) continue; const on = parseFloat(c.style.height) > 1; if (CDP[k] && !on && !b.classList.contains('lk')) { b.classList.remove('rdy'); void b.offsetWidth; b.classList.add('rdy'); } CDP[k] = on; }
+  const hp = $('.hhp'), f = $('#hpf'); if (hp && f) { const low = parseFloat(f.style.width) < 30, hit = G.hurtT > 0; if (hp._l !== low) { hp._l = low; hp.classList.toggle('low', low); } if (hp._h !== hit) { hp._h = hit; hp.classList.toggle('hit', hit); } }
+}; }
