@@ -208,7 +208,7 @@ Object.assign(SONGS, {
 /* variété : plusieurs morceaux par ambiance, arrangement qui change toutes les 8 mesures, mélodies improvisées, changements de tonalité */
 const POOL = { game: ['game', 'game3', 'game5'], game2: ['game2', 'game4', 'game3'], menu: ['menu', 'menu2'], pages: ['pages', 'menu2'], boss: ['boss', 'boss2'] };
 const ARRS = { 0: [{ m: 1 }, { m: 1, cm: 1 }, { m: 2 }, { m: 0, arp: 1, d: 0 }, { m: 3, cm: 1 }, { m: 2, arp: 1 }], 1: [{ m: 1 }, { m: 1, cm: 1 }, { d: 3, m: 2 }, { d: 2, m: 0, arp: 1 }, { m: 3, cm: 1 }, { d: 3, m: 2, cm: 1 }, { d: 0, m: 1, arp: 1 }, { d: 3, m: 2 }], 2: [{ m: 1 }, { d: 3, m: 2 }, { m: 3, cm: 1 }, { d: 3, m: 2, cm: 1 }] };
-const KEYC = [0, 0, 2, -3, 5, -2, 3, -5]; let musKey = 0, musSeed = (Math.random() * 9999) | 0, MGEN = null, MTHM = null;
+const KEYC = [0, 0, 2, -3, 5, -2, 3, -5]; let musKey = 0, musSeed = (Math.random() * 9999) | 0, MGEN = null, MTHM = null, MPK = '';
 function musMap(i) { musKey = [0, 2, -2, 3, -3, 5, -1, -5][i | 0] || 0; musSeed = ((Math.random() * 9999) | 0) + (i | 0) * 13; }
 function phrase(c, seed, busy) {
   let a = (seed * 2654435761) >>> 0; const r = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -226,8 +226,8 @@ function musTick() {
     const at = Math.max(0, musT - AC.currentTime), st = musStep % 16, bar = barAll % 8, rep = (barAll >> 3) % 4, fk = s.form[rep % s.form.length], part = s[fk], full = barAll >= 8, lv = s.style ? musLv : (full ? .6 : 0);
     const isB = fk === 'B', al = ARRS[s.style], arr = al ? al[sec % al.length] : { m: 1 }, D = arr.d === undefined ? 1 : arr.d, K = Math.pow(2, ((s.style === 3 ? 0 : KEYC[cyc % 8]) + (s.style === 1 || s.style === 2 ? musKey : 0)) / 12);
     const c = part.ch[bar].map(f => f * K), b = part.bass[bar] * K;
-    if (st === 0) { MGEN = arr.m === 2 ? phrase(c, musSeed * 131 + sec * 17 + bar * 7 + 1, D === 3) : null; MTHM = part.mel ? null : phrase(c, sn.length * 977 + bar * 31 + (isB ? 500 : 0) + 5, false); }
-    let m = 0; if (!(st % 2) && arr.m) { m = arr.m === 2 ? MGEN[st >> 1] : (part.mel ? part.mel[bar][st >> 1] * K : MTHM[st >> 1]); if (arr.m === 3 && m && m < 900) m *= 2; }
+    const pk = sn + '|' + sec + '|' + bar; if (pk !== MPK) { MPK = pk; MGEN = arr.m === 2 ? phrase(c, musSeed * 131 + sec * 17 + bar * 7 + 1, D === 3) : null; MTHM = part.mel ? null : phrase(c, sn.length * 977 + bar * 31 + (isB ? 500 : 0) + 5, false); }
+    let m = 0; if (!(st % 2) && arr.m) { m = arr.m === 2 ? (MGEN ? MGEN[st >> 1] : 0) : (part.mel ? part.mel[bar][st >> 1] * K : (MTHM ? MTHM[st >> 1] : 0)); if (arr.m === 3 && m && m < 900) m *= 2; }
     const m2 = st % 2 || !arr.cm ? 0 : part.cm[bar][st >> 1] * K;
     if (arr.arp && st % 2 === 0 && s.style !== 3) bell(c[(st >> 1) % c.length] * 4, sd * 2.2, .018, at, lead);
     if (st === 0) CUR = c;

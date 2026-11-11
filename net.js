@@ -8,21 +8,21 @@ const NET = {
   cast(d) { if (this.role !== 1) return; for (let i = 1; i < 3; i++) this.to(i, d); },
   lib(cb) { if (this.test || window.Peer) return cb(); const s = document.createElement('script'); s.src = 'peer.js?v=' + BUILD; s.onload = cb; s.onerror = () => { toast('Connexion impossible : vérifie ton réseau'); NET.leave(); }; document.head.appendChild(s); },
   host() {
-    this.leave(true); this.role = 1; this.me = 0; this.code = Array.from({ length: 5 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[(Math.random() * 32) | 0]).join(''); this.lobby = [myInfo()]; this.conns = [null, null, null]; this.state = 'wait';
+    this.leave(true); this.role = 1; this.me = 0; this.code = !this.noSlug && S.named && pslug(S.name).length >= 3 ? pslug(S.name) : Array.from({ length: 5 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[(Math.random() * 32) | 0]).join(''); this.lobby = [myInfo()]; this.conns = [null, null, null]; this.state = 'wait';
     this.lib(() => {
       if (this.role !== 1) return;
       if (this.test) { this.bc = new BroadcastChannel('ecl-' + this.code); this.bc.onmessage = e => { const m = e.data; if (m.to !== 'H') return; let i = this.conns.findIndex(c => c && c.id === m.f); if (i < 0) { i = this.slot(); if (i < 0) return; this.conns[i] = { id: m.f }; } this.onHost(i, m.d); }; this.state = 'ok'; lobbyUI(); return; }
       const p = this.peer = new Peer('eclyptia-' + this.code);
       p.on('open', () => { this.state = 'ok'; lobbyUI(); });
       p.on('connection', c => { const i = this.slot(); if (i < 0 || (G && SCREEN === 'game')) { c.on('open', () => { c.send({ t: 'full' }); setTimeout(() => c.close(), 300); }); return; } this.conns[i] = c; c.on('data', d => this.onHost(this.conns.indexOf(c), d)); c.on('close', () => this.drop(this.conns.indexOf(c))); c.on('error', () => this.drop(this.conns.indexOf(c))); });
-      p.on('error', e => { if (e && e.type === 'unavailable-id') { this.host(); return; } if (this.state === 'wait') { toast('Impossible de créer le groupe (réseau)'); this.leave(); } });
+      p.on('error', e => { if (e && e.type === 'unavailable-id') { this.noSlug = true; this.host(); return; } if (this.state === 'wait') { toast('Impossible de créer le groupe (réseau)'); this.leave(); } });
       p.on('disconnected', () => { try { p.reconnect(); } catch (e) {} });
     });
     lobbyUI();
   },
   slot() { for (let i = 1; i < 3; i++) if (!this.conns[i]) return i; return -1; },
   join(code) {
-    this.leave(true); this.role = 2; this.code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5); this.lobby = []; this.state = 'wait'; if (this.code.length < 5) { this.role = 0; return toast('Code de groupe incomplet'); }
+    this.leave(true); this.role = 2; this.code = pslug(code); this.lobby = []; this.state = 'wait'; if (this.code.length < 3) { this.role = 0; return toast('Écris le pseudo de ton ami (ou son code)'); }
     this.lib(() => {
       if (this.role !== 2) return;
       const hello = () => { this.state = 'ok'; this.send({ t: 'hi', info: myInfo() }); };
@@ -50,7 +50,7 @@ const NET = {
     else if (!G || SCREEN !== 'game') return;
     else if (d.t === 'i') { const p = G.ps[this.idx(i)]; if (p && !p.dead) { p.x = clamp(+d.x || 0, -AR, AR); p.y = clamp(+d.y || 0, -AR, AR); p.mv = +d.m || 0; p.mvx = +d.a || 0; p.mvy = +d.b || 0; } }
     else if (d.t === 'k') { const p = G.ps[this.idx(i)]; if (p && 'abcdu'.includes(d.k)) skill(d.k, p); }
-    else if (d.t === 'pc') applyPick(G.ps[this.idx(i)], d.i | 0);
+    else if (d.t === 'pc') applyPick(G.ps[this.idx(i)], d.i | 0, d.j | 0);
   },
   idx(i) { return i; },
   start() {

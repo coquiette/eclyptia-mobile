@@ -234,7 +234,8 @@ function update(dt) {
     e.hit -= dt; e.flash -= dt; e.cd -= dt * slow;
     if (e.el && Math.random() < dt * 2.5) addFx(e.x, e.y, e.r * 1.6, '#ffd45e', .35);
     let mv = e.spd * slow, mx = ux, my = uy;
-    if (e.m.boss) {
+    if (e.m.myth) { const r = mythAI(e, p, dt, slow, ux, uy, d); mv = r[0]; mx = r[1]; my = r[2]; }
+    else if (e.m.boss) {
       if (e.wind > 0) { e.wind -= dt; mv = 0; if (e.wind <= 0) { e.chg = .85; gsnd('dash'); } }
       else if (e.chg > 0) { e.chg -= dt; mx = e.cvx; my = e.cvy; mv = 640 * slow; if (Math.random() < .5) addFx(e.x, e.y, 130, '#e2b04a', .3); }
       else {

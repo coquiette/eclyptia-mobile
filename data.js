@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 2.8', BUILD = '29';
+let AR = 1300; const VERSION = 'mobile 3.0', BUILD = '30';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -172,7 +172,8 @@ const TOX_IDS = Object.keys(TOX), TMAX = 10;
 function eqOf(h) { const t = HEROES[h].tox.slice(), e = (S.eq && S.eq[h]) || {}; for (let s = 0; s < 4; s++) { const id = e[s]; if (id && TOX[id] && TOX[id].h === h && TOX[id].s === s && (S.tox[id] || {}).l) t[s] = id; else if (!(S.tox[t[s]] || {}).l) { const o = HTOX[h].find(x => TOX[x].s === s && (S.tox[x] || {}).l); if (o) t[s] = o; } } return t; }
 const pasLv = id => (S.tox[id] || {}).l || 0;
 const wpOf = h => (S.wp && S.wp[h] && S.wpo && S.wpo[h]) ? 1 : 0;
-const tneed = l => [1, 2, 3, 4, 5, 6, 8, 10, 12, 15][l] || 99, tcost = (l, r) => 80 * l * (r + 1);
+/* paliers de copies : 10 copies pour le niveau 2, puis 20 de plus à chaque niveau (30, 50, 70… copies au total) */
+const tneed = l => l < 1 ? 1 : l === 1 ? 10 : 20, tcost = (l, r) => 80 * l * (r + 1);
 const tk = l => 1 + .12 * (Math.max(1, l) - 1), tcd = (t, l) => +(t.cd * (1 - .025 * (Math.max(1, l) - 1))).toFixed(1);
 /* tenues rares, trouvées dans les étoiles légendaires */
 const SKINS = {
@@ -236,6 +237,13 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste'];
 const PATCH = [
+  { v: '3.0', date: '11 novembre 2026', title: 'Boss mythiques, bénédictions et combos', items: [
+    { img: 'm7.jpg', t: 'Boss mythiques', d: 'Des boss moyens aux vagues 4 et 7 et un gros boss mythique à la dernière vague (Xalven, le Cyclope ou Scorch), en plusieurs phases avec cinématiques. Moins de monstres pendant les vagues.' },
+    { img: 'tx/k2.webp', t: 'Bénédictions et mini-boutique de TOX', d: 'À la fin de chaque vague : 1 bénédiction parmi 4, puis 1 TOX de ton gardien parmi 4. La chance fait sortir des TOX plus rares.' },
+    { img: 'h0.jpg', t: 'Combos de gardien', d: 'Chaque gardien a 2 combos : lance tes pouvoirs dans le bon ordre pour déclencher une attaque dévastatrice. Le guide est affiché en jeu.' },
+    { img: 'ui/b_friends.webp', t: 'Pseudo, comptes et amis', d: 'Choisis ton pseudo, tes amis le tapent pour rejoindre ton groupe. Plusieurs comptes possibles depuis le Profil.' },
+    { img: 'ui/bstar.webp', t: 'Classé et paliers de TOX', d: 'Des rangs de Bronze à Mythique, de plus en plus durs. Chaque partie finie à la vague 4 donne 1 étoile de booster, une victoire en donne 2 (4 étoiles = 1 booster). Les TOX montent par paliers : 10, 30, 50, 70 copies…' },
+    { img: 'ui/play.webp', t: 'Nouvel affichage en jeu', d: 'Barre de vie, vagues, barre de boss et compteurs agrandis, avec des « +1 » qui s\'envolent.' } ] },
   { v: '2.8', date: '11 novembre 2026', title: 'Nouvelles animations et musiques', items: [
     { img: 'h3.jpg', t: 'Les gardiens prennent vie', d: 'Animation d\'attente, coup d\'arme ou lancer de sort quand ils attaquent à l\'arrêt, et vraie chute quand ils tombent au combat.' },
     { img: 'ui/play.webp', t: 'Musiques moins répétitives', d: 'Plusieurs morceaux par ambiance, des arrangements qui changent sans arrêt, des mélodies improvisées et une tonalité différente selon la carte.' } ] },
@@ -294,11 +302,15 @@ const PATCH = [
     { img: 'ic/friends.webp', t: 'Groupe à 3', d: 'Crée un groupe, envoie le code : la carte grandit et les vagues durcissent.' },
     { img: 'ic/wave.webp', t: 'Carte et musiques', d: 'Arène plus grande et plus belle, héros plus rapides, élites, frénésie et nouvelles musiques.' } ] }
 ];
-const KEY = 'eclyptia_mobile_v1';
+const KEY0 = 'eclyptia_mobile_v1', ACCK = 'eclyptia_accounts';
+/* plusieurs comptes sur le même appareil : chacun a sa propre sauvegarde */
+let ACC = (() => { try { const a = JSON.parse(localStorage.getItem(ACCK)); if (a && a.list && a.list.length) return a; } catch (e) {} return { cur: 0, list: [{ id: 0 }] }; })();
+let KEY = ACC.cur ? KEY0 + '_' + ACC.cur : KEY0;
+const pslug = s => String(s || '').toUpperCase().normalize('NFD').replace(/[^A-Z0-9]/g, '').slice(0, 14);
 function defSave() {
   const tox = {}; for (const id of TOX_IDS) tox[id] = { l: TOX[id].h && HEROES[TOX[id].h].tox[0] === id ? 1 : 0, c: 0 };
   const hs = {}; for (const h of HERO_IDS) hs[h] = { hp: 0, dmg: 0, spd: 0 };
-  return { v: 2, name: 'Gardien', coins: 200, prisms: 50, xp: 0, passXp: 0, passClaim: [], passClaimP: [], premium: false, owned: ['kaelion', 'elyra'], hero: 'kaelion',
+  return { v: 2, named: false, friends: [], rp: 0, bst: 0, name: 'Gardien', coins: 200, prisms: 50, xp: 0, passXp: 0, passClaim: [], passClaimP: [], premium: false, owned: ['kaelion', 'elyra'], hero: 'kaelion',
     up: { hp: 0, dmg: 0, spd: 0 }, hs, tox, skins: [], skin: {}, eq: {}, wp: {}, wpo: {}, boost: {}, bon: {}, bopen: 0, seen: '',
     stats: { games: 0, wins: 0, maxWave: 0, kills: 0, boss: 0, time: 0 }, codex: {}, orbs: 3, pity: 0,
     q: { day: '', kills: 0, wave: 0, games: 0, claimed: [] }, set: { btn: 1, lefty: false, vib: true, snd: true, mus: true, gfx: 1, fill: 1 } };
