@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 3.5', BUILD = '35';
+let AR = 1300; const VERSION = 'mobile 3.6', BUILD = '36';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,10 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '3.6', date: '11 novembre 2026', title: 'Animations des gardiens', items: [
+    { img: 'tx/k1.webp', t: 'Attaque en courant', d: 'Le haut du corps frappe ou lance ses sorts pendant que les jambes continuent de courir.' },
+    { img: 'tx/k4.webp', t: 'Un geste par pouvoir', d: 'Fente pour le TOX A, petit saut pour le B, appui pour le C et grand saut tournoyant pour l’ultime.' },
+    { img: 'ui/b_shop.webp', t: 'Menu et boutique sans cadres', d: 'Les cadres dorés autour des boutons du menu et de la boutique ont été retirés.' } ] },
   { v: '3.5', date: '11 novembre 2026', title: 'Écran de jeu épuré et nouvelles musiques', items: [
     { img: 'tx/k1.webp', t: 'Boutons sans cadre', d: 'En jeu, les pouvoirs, la pause et les combos n’ont plus de cadre. Un pouvoir flashe quand il est de nouveau prêt.' },
     { img: 'tx/k2.webp', t: 'Annonce de vague discrète', d: 'Plus de grande bande en travers de l’écran : un titre plus petit, qui disparaît plus vite.' },

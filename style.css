@@ -1127,3 +1127,16 @@ button.s3e:active{transform:scale(.96)}
 .ab{overflow:hidden!important;border-radius:50%}
 .ab .cd{border-radius:0;left:0;right:0;bottom:0}
 .ab.rdy:after{inset:0;border-width:8px}
+/* v3.6 : plus de cadres dorés autour des boutons du menu et de la boutique */
+.m3pk{border:0;border-image:none;background:none;padding:0 20px 0 6px;filter:drop-shadow(0 4px 6px #000a)}
+.m3pt b,.m3pt small,.m3day span{text-shadow:0 3px 0 #1a0c36,0 0 12px #1a0c36}
+.m3day,.m3day.free{border:0;background:none;box-shadow:none;padding:0 10px;margin-left:10px}
+.m3day .ici{width:76px;height:76px;filter:drop-shadow(0 4px 6px #000a)}
+.s3b{border:0;border-image:none;background:#1a0c3699;border-radius:28px}
+.s3b.on{border:1px solid transparent;border-image:url(img/kit/bgold.webp) 0 52 fill / 0 50px stretch;background:none;border-radius:0}
+.s3c,.s3e{border:0;border-image:none;background:linear-gradient(#2c1760cc,#190c3ccc);border-radius:30px}
+.s3c.luck{box-shadow:0 0 44px -8px #ffd45e}
+.shxl,.shxs{border:0;border-image:none;background:#150a2ea8;border-radius:30px}
+.shxi{border:0!important;background:#2a1650d9}
+.shxi:not(.sold):not(.poor){box-shadow:inset 6px 0 0 var(--rc)}
+.shxo{border-width:0;box-shadow:0 0 16px -2px var(--rc)}
