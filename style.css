@@ -1048,3 +1048,55 @@ button.s3e:active{transform:scale(.96)}
 .s3n{min-width:58px;height:58px;font-size:32px;line-height:50px;border-radius:29px}
 .m3pt small{font-size:24px}.m3pt b{font-size:38px}.m3day{font-size:34px}.m3day small{font-size:23px}
 .lite .s3c:before,.lite .s3e:before,.lite .s3p,.lite .s3c .btn,.lite .s3e .btn{animation:none!important}
+/* v3.4 : Codex aéré */
+.cx3{gap:22px}
+.cx3m{gap:14px;min-width:0}
+.cx3g{flex:1;min-height:0;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr);gap:20px}
+.cx3c{position:relative;min-width:0;min-height:0;border-radius:26px;overflow:hidden;border:5px solid #7d5ae0;background:#1c0f3c;box-shadow:0 8px 0 #150a2e;transition:transform .1s;animation:popS .4s var(--spring) both;animation-delay:calc(var(--i)*.03s)}
+.cx3c img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.cx3c.lock img{filter:grayscale(1) brightness(.3)}
+.cx3c b{position:absolute;left:0;right:0;bottom:0;padding:26px 8px 10px;font-size:25px;line-height:1.08;text-align:center;background:linear-gradient(transparent,#150a2ef2 45%);text-shadow:0 2px 0 #150a2e}
+.cx3c u{position:absolute;right:8px;top:8px;text-decoration:none;font-size:24px;line-height:1;padding:5px 12px 7px;border-radius:16px;background:#150a2ee6;border:3px solid #ffd45e;color:#ffd45e}
+.cx3c .lk{position:absolute;inset:0 0 30px;display:flex;align-items:center;justify-content:center}.cx3c .lk .ici{width:86px;height:86px}
+.cx3c.on{border-color:#ffd45e;box-shadow:0 0 0 4px #ff9a2e,0 0 34px #ffb84e}
+.cx3c:active{transform:scale(.94)}
+.cx3p{flex:none;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.cx3p .btn{min-width:150px;font-size:44px;min-height:84px}
+.cx3p span{display:flex;align-items:center;gap:12px;font-size:28px}.cx3p span b{margin-left:14px;color:#ffe9a8}
+.cx3p span i{width:22px;height:22px;border-radius:50%;background:#2a1650;border:3px solid #7d5ae0}.cx3p span i.on{background:#ffd45e;border-color:#fff;box-shadow:0 0 12px #ffd45e}
+.cx3d{gap:14px;padding:26px 28px!important}
+.cx3i{flex:1;min-height:120px;border-radius:24px;overflow:hidden;border:5px solid #ffd45e;box-shadow:0 0 26px -4px #ffb84e}
+.cx3i img{width:100%;height:100%;object-fit:cover;display:block}
+.cx3n{font-size:44px;line-height:1.02}
+.cx3d .sub{font-size:25px!important;line-height:1.2}
+.cx3s{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.cx3s .tile{grid-column:span 2;font-size:22px;padding:10px 4px 12px}.cx3s .tile:nth-child(n+4){grid-column:span 3}
+.cx3s .tile b{font-size:42px}
+.cx3k .ici{width:170px;height:170px}
+/* TOX du Codex : plus d'air */
+.cdx{gap:22px}
+.cdx>.pn.grow{gap:22px!important;padding:26px 28px!important}
+.cdx>.pn.grow>.row{gap:16px!important}
+.cdx .chb{height:118px}
+.cdx .cgrid{gap:26px 14px}
+.cdx .cgrid .tcell{width:min(14cqw - 26px,33cqh - 50px);height:min(14cqw - 26px,33cqh - 50px)}
+.cdx .tcard{gap:14px;padding:28px 24px 24px!important}
+.cxl{gap:16px}
+/* v3.4 : bandeau du haut compact en jeu */
+.h2 .hwave{width:400px;margin-left:-200px;padding:4px 20px 10px;font-size:30px;line-height:1.1;border-width:4px;border-radius:0 0 28px 28px;box-shadow:0 6px 0 #1a0c3688;background:linear-gradient(#3a2178e6,#1c0f3ce6)}
+.h2 .hwave #wv{display:block;letter-spacing:2px}
+.h2 .wpips{gap:5px;margin:2px 0 5px}
+.h2 .wpips i{width:22px;height:8px;border-radius:4px;border-width:2px}.h2 .wpips i.bs{height:10px;margin-top:-1px}
+.h2 .wbar{height:24px!important;border-width:2px}
+.h2 .wbar span,.h2 .hwave span#lf{font-size:18px!important;line-height:20px!important}
+.h2 .hhp{width:520px;top:10px;gap:12px;padding:8px 22px 10px 10px;border-image-width:0 58px}
+.h2 .hav{width:104px;height:104px;border-width:5px}
+.h2 .hnm{font-size:32px}.h2 .hnm small{font-size:18px;margin-left:10px}
+.h2 .hhp .hpb{height:38px;margin-top:6px}.h2 .hhp .hpb span{font-size:26px;line-height:30px}
+.h2 .hhp .ulb{height:20px;margin-top:5px}.h2 .hhp .ulb span{font-size:14px;line-height:14px}
+.h2 .htr{top:12px}
+#bossb{top:112px}
+#cmbs{top:150px}
+.h2 #team{top:262px}
+.nar .h2 .hhp{width:440px}.nar .h2 .hav{width:92px;height:92px}.nar .h2 .hnm small{display:none}
+.nar .h2 .hwave{width:340px;margin-left:-170px}

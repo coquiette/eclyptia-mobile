@@ -354,3 +354,18 @@ SCR.menu = () => {
       <button class="m3pk" data-a="orb">${orbImg('myst')}<span class="m3pt"><b>PACKS ÉTOILES</b><span class="m3st">${[0, 1, 2, 3].map(i => `<i class="${i < st ? 'on' : ''}">★</i>`).join('')}</span><small>${4 - st} étoile${4 - st > 1 ? 's' : ''} avant le prochain pack</small></span><u>${S.orbs || 0}</u></button></div>
     <div class="ver">${VERSION}</div></div>`;
 };
+
+/* ================= Codex aéré : monstres par pages de 10, grandes cartes ================= */
+let CPG = -1;
+{ const _cx2 = SCR.codex; SCR.codex = () => {
+  if (CTAB === 'tox') return _cx2();
+  const seen = MON_IDS.filter(i => S.codex[i]).length, tn = TOX_IDS.filter(i => (S.tox[i] || {}).l).length, NP = Math.ceil(MON_IDS.length / 10);
+  if (CPG < 0 || CPG >= NP) CPG = Math.max(0, Math.floor(MON_IDS.indexOf(CSEL) / 10));
+  const ids = MON_IDS.slice(CPG * 10, CPG * 10 + 10), m = MON[CSEL], ok = !!S.codex[CSEL];
+  return head('CODEX') + `<div class="body cdx cx3"><div class="col cxl" style="width:270px;flex:none"><button class="tab on" data-a="ctab" data-v="mon">${ic('skull')}<span>Monstres<small>${seen} / ${MON_IDS.length}</small></span></button><button class="tab" data-a="ctab" data-v="tox">${ic('tox')}<span>TOX<small>${tn} / ${TOX_IDS.length}</small></span></button><div class="pn sub grow">Chaque monstre vaincu en partie est ajouté ici, avec ses forces.</div></div>
+    <div class="col grow cx3m"><div class="cx3g">${ids.map((id, i) => { const o = !!S.codex[id]; return `<button class="cx3c ${id === CSEL ? 'on' : ''} ${o ? '' : 'lock'}" data-a="csel" data-v="${id}" style="--i:${i}"><img src="img/${MON[id].img}.jpg" draggable="false" alt="">${o ? `<u>×${S.codex[id]}</u>` : '<span class="lk">' + ic('lock') + '</span>'}<b>${o ? MON[id].n : '???'}</b></button>`; }).join('')}</div>
+      <div class="cx3p"><button class="btn vio sm" data-a="cpg" data-v="-1">◀</button><span>${Array.from({ length: NP }, (_, i) => `<i class="${i === CPG ? 'on' : ''}"></i>`).join('')}<b>Page ${CPG + 1} / ${NP}</b></span><button class="btn vio sm" data-a="cpg" data-v="1">▶</button></div></div>
+    <div class="pn col cxm cx3d" style="width:470px;flex:none">${ok ? `<div class="cx3i"><img src="img/${m.img}.jpg" draggable="false" alt=""></div><div class="gold cx3n">${m.n.toUpperCase()}</div><div class="sub">${m.d}</div>
+      <div class="cx3s"><div class="tile">PV<b>${m.hp}</b></div><div class="tile">Dégâts<b>${m.dmg}</b></div><div class="tile">Vitesse<b>${m.spd}</b></div><div class="tile">Vaincus<b>${S.codex[CSEL]}</b></div><div class="tile">Dès la vague<b>${m.boss ? (m.myth ? 7 : 4) : m.from}</b></div></div>` : `<div class="grow col" style="align-items:center;justify-content:center;text-align:center;gap:20px"><div class="cx3k">${ic('lock')}</div><div class="sub">Vaincs cette créature en partie pour la découvrir.</div></div>`}</div></div>`;
+}; }
+ACT.cpg = v => { const NP = Math.ceil(MON_IDS.length / 10); CPG = (CPG + (+v) + NP) % NP; CSEL = MON_IDS[CPG * 10]; snd('pick'); show('codex'); };

@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 3.3', BUILD = '33';
+let AR = 1300; const VERSION = 'mobile 3.4', BUILD = '34';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,9 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '3.4', date: '11 novembre 2026', title: 'Codex aéré et affichage en jeu allégé', items: [
+    { img: 'ui/b_codex.webp', t: 'Codex refait', d: 'Les monstres sont sur des pages de 10 grandes cartes, avec une fiche plus lisible. Les TOX ont plus d’espace entre eux.' },
+    { img: 'tx/k2.webp', t: 'Haut de l’écran plus léger en jeu', d: 'Le bandeau de vague et la fiche du gardien prennent beaucoup moins de place.' } ] },
   { v: '3.3', date: '11 novembre 2026', title: 'Nouvelle boutique et TOX du jour', items: [
     { img: 'ui/b_shop.webp', t: 'Boutique refaite', d: 'Quatre onglets avec de gros boutons : TOX du jour, offres, tenues en prismes, boosts et packs.' },
     { img: 'tx/k4.webp', t: 'TOX du jour', d: 'Chaque jour, 4 TOX offerts : tu en prends 1 seul, par lot de 5, 10, 20 ou même 50 copies avec de la chance.' },
