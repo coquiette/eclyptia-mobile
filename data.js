@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 2.1', BUILD = '21';
+let AR = 1300; const VERSION = 'mobile 2.2', BUILD = '22';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -235,6 +235,8 @@ const upCost = l => 100 * (l + 1);
 
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const PATCH = [
+  { v: '2.2', date: '11 novembre 2026', title: 'Kaelion en vraie 3D', items: [
+    { img: 'h0.jpg', t: 'Nouveau modèle 3D de Kaelion', d: 'Kaelion a un vrai modèle 3D détaillé, avec armure dorée et animation de course. Les autres gardiens et les monstres suivront.' } ] },
   { v: '2.1', date: '11 novembre 2026', title: 'Plus lisible, plus rapide', items: [
     { img: 'tx/k1.webp', t: 'Page TOX agrandie', d: 'Textes plus gros et boutons ÉQUIPER, onglets et armes plus faciles à toucher.' },
     { img: 'm0.jpg', t: 'Codex agrandi', d: 'Icônes des TOX et des monstres bien plus grandes, textes plus gros partout dans le Codex.' },
