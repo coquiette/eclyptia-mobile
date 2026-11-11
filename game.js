@@ -20,6 +20,7 @@ function fit() {
   VW = w; VH = h; de.classList.toggle('alone', !!full); de.style.height = full ? h + 'px' : ''; document.body.style.height = full ? h + 'px' : ''; if (full) window.scrollTo(0, 0);
   ROT = h > w; const sw = ROT ? h : w, sh = ROT ? w : h, asp = sw / sh;
   if (asp >= 16 / 9) { H = 941; W = Math.ceil(941 * Math.min(asp, 2.7)); } else { W = 1672; H = Math.ceil(1672 / Math.max(asp, 1.25)); }
+  de.classList.toggle('nar', W < 1900);
   SC = asp >= 1.25 && asp <= 2.7 ? Math.max(sw / W, sh / H) : Math.min(sw / W, sh / H);
   const st = $('#stage'), si = safeInsets(); st.style.width = W + 'px'; st.style.height = H + 'px'; st.style.left = w / 2 + 'px'; st.style.top = h / 2 + 'px';
   st.style.transform = 'translate(-50%,-50%) ' + (ROT ? 'rotate(90deg) ' : '') + 'scale(' + SC + ')';

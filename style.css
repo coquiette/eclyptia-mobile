@@ -697,3 +697,91 @@ html.alone body{position:absolute;left:0;top:0;overflow:visible;width:100%}
 .tcell.eq:after{content:"";position:absolute;right:-2px;top:-2px;width:24px;height:24px;border-radius:50%;background:#ffd45e;border:3px solid #7a3d00}
 .ttab{font-size:30px}.ttab small{font-size:17px}
 .txc .tname{font-size:27px}.txc .sub{font-size:19px}
+
+/* ===== v2.1 : page TOX plus lisible, gros boutons, transitions en glissé ===== */
+.txg{gap:12px}
+.txc{gap:12px;padding:18px 20px 16px 16px;align-items:center}
+.txc .tring{width:96px;height:96px}
+.txc .tring b{font-size:21px;height:32px;line-height:26px;bottom:-14px}
+.txc .txt{gap:5px}
+.txc .tname{font-size:32px;line-height:1.02}
+.txc .sub{font-size:23px;line-height:1.12}
+.txc .bar{height:34px!important}.txc .bar span{font-size:22px;line-height:28px}
+.txc .tnote{font-size:21px}.tnote .ici{width:22px;height:22px}
+.teq{padding:12px 34px 16px;border-radius:30px;font-size:32px;min-width:190px;text-align:center;border-width:4px;box-shadow:0 5px 0 #1a0c36}
+.teq.on{box-shadow:0 5px 0 #a04e00}
+.ttab{height:112px;font-size:34px;padding:0 18px}
+.ttab .tic{width:78px;height:78px}
+.ttab small{font-size:20px}
+.wpb{padding:8px 6px 12px;gap:3px}
+.wpb img{width:96px;height:96px}
+.wpb b{font-size:22px}
+.wpb small{font-size:17px;min-height:38px}
+.wpb em{font-size:27px;padding:8px 14px 10px;border-radius:20px;width:100%;text-align:center}
+.wpb em .ici{width:28px;height:28px}
+.txl .sub{font-size:21px}
+/* transitions : glissé rapide, vers la gauche en avant, vers la droite en arrière */
+#ui.out{animation:slout .1s cubic-bezier(.5,0,1,.6) both}
+#ui.out.bk{animation-name:sloutb}
+#ui.in{animation:slin .3s cubic-bezier(.16,1,.3,1) both}
+#ui.in.bk{animation-name:slinb}
+@keyframes slout{to{opacity:0;transform:translateX(-7%)}}
+@keyframes sloutb{to{opacity:0;transform:translateX(7%)}}
+@keyframes slin{from{opacity:0;transform:translateX(11%)}to{opacity:1;transform:none}}
+@keyframes slinb{from{opacity:0;transform:translateX(-11%)}to{opacity:1;transform:none}}
+.sweep{animation-duration:.4s}
+.enter .top{animation-duration:.4s;animation-delay:0s}
+.enter .body>*{animation:slcard .42s var(--spring) both}
+@keyframes slcard{from{opacity:0;transform:translateX(70px)}to{opacity:1;transform:none}}
+.enter .body>*:nth-child(1){animation-delay:.02s}.enter .body>*:nth-child(2){animation-delay:.05s}.enter .body>*:nth-child(3){animation-delay:.08s}.enter .body>*:nth-child(4){animation-delay:.11s}
+.enter .card,.enter .q,.enter .tile,.enter .txc,.enter .bcard{animation:popS .4s var(--spring) both}
+.enter .txc:nth-child(2),.enter .bcard:nth-child(2){animation-delay:.04s}.enter .txc:nth-child(3),.enter .bcard:nth-child(3){animation-delay:.08s}.enter .txc:nth-child(4),.enter .bcard:nth-child(4){animation-delay:.12s}.enter .txc:nth-child(5),.enter .bcard:nth-child(5){animation-delay:.16s}.enter .txc:nth-child(6),.enter .bcard:nth-child(6){animation-delay:.2s}
+.enter .med{animation-delay:.12s}.enter .ribbon{animation-delay:.14s}.enter .btn{animation-delay:.16s;animation-duration:.4s}
+
+/* écrans 16:9 et plus carrés : la page TOX doit tenir sans rien couper */
+.nar .txl{width:300px!important}
+.nar .txc{padding:14px 14px 12px 12px;gap:10px}
+.nar .txc .tring{width:78px;height:78px}
+.nar .txc .tname{font-size:28px}
+.nar .txc .sub{font-size:20px;line-height:1.08}
+.nar .txc .txt>.sub:first-of-type{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nar .txc .bar{height:30px!important}.nar .txc .bar span{font-size:20px;line-height:24px}
+.nar .teq{font-size:28px;padding:8px 26px 12px;min-width:170px}
+.nar .txc .tnote{font-size:19px}
+/* ===== v2.1 : Codex agrandi ===== */
+.cxl .tab{min-height:120px;font-size:36px;padding:0 18px;gap:14px}
+.cxl .tab .ici{width:68px;height:68px}
+.cxl .tab span{display:flex;flex-direction:column;line-height:1.05}
+.cxl .tab small{font-size:26px;color:#ffd45e}
+.cxl .sub{font-size:26px;line-height:1.18}
+.cdx .chb{height:128px;border-radius:24px}
+.cdx .chb b{font-size:24px;line-height:32px}
+.cdx .chb .ici{width:76px;height:76px;margin-bottom:22px}
+.cdx .cgrid{container-type:size;grid-template-rows:repeat(3,1fr);align-content:stretch;align-items:center;gap:6px 6px}
+.cdx .cgrid .tcell{width:120px;height:120px;width:min(14cqw - 14px,33cqh - 34px);height:min(14cqw - 14px,33cqh - 34px)}
+.cdx .tcell b{font-size:24px;height:36px;line-height:30px;padding:0 12px;border-radius:18px;bottom:-16px;border-width:3px}
+.cdx .tcell.eq:after{width:32px;height:32px}
+.cdx .tcell i{width:30px;height:30px}
+.cdx .tcard{gap:10px}
+.cdx .tring.big{width:230px;height:230px}
+.cdx .tring.big b{font-size:28px;height:42px;line-height:36px;padding:0 16px;border-radius:21px;bottom:-18px}
+.cdx .trar{font-size:24px;margin-top:20px}
+.cdx .tcard .tname{font-size:42px}
+.cdx .tcard .sub{font-size:26px!important;line-height:1.14}
+.cdx .tcard .bar{height:42px!important}.cdx .tcard .bar span{font-size:26px;line-height:34px}
+.cdx .tcard .tnote{font-size:25px}.cdx .tcard .tnote .ici{width:26px;height:26px}
+.cdx .card .tag{font-size:30px;padding:6px 4px}
+.cdx .card .lk .ici{width:110px;height:110px}
+.cxm .sub{font-size:29px;line-height:1.16}
+.cxm .tile{font-size:26px;padding:12px 6px}
+.cxm .tile b{font-size:54px}
+.nar .cdx .tcard,.nar .cxm{width:400px!important}
+.nar .cdx .tring.big{width:180px;height:180px}
+.nar .cdx .tcard .tname{font-size:36px}
+.nar .cdx .tcard .sub{font-size:23px!important}
+.nar .cxl{width:240px!important}.nar .cxl .tab{font-size:31px}.nar .cxl .sub{font-size:23px}
+.nar .cxm .tile b{font-size:44px}.nar .cxm .sub{font-size:25px}
+.cxl .tab{font-size:32px;padding:0 12px;gap:10px}.cxl .tab .ici{width:60px;height:60px}
+.nar .cxl .tab{font-size:27px}.nar .cxl .tab .ici{width:50px;height:50px}.nar .cxl .tab small{font-size:23px}
+.nar .txl .btn{font-size:21px!important;padding:0 2px 4px!important}
+.nar .txl .tname,.nar .txl b{max-width:100%}
