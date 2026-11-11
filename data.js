@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 1.6', BUILD = '16';
+let AR = 1300; const VERSION = 'mobile 1.7', BUILD = '17';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -108,12 +108,33 @@ const SHOP_UP = [
 ];
 const upCost = l => 100 * (l + 1);
 
+/* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
+const PATCH = [
+  { v: '1.7', date: '11 novembre 2026', title: 'Le journal des nouveautés', items: [
+    { img: 'ui/b_codex.webp', t: 'Notes de version', d: 'Après chaque mise à jour, cet écran te montre tout ce qui a changé, en images.' },
+    { img: 'ui/bstar.webp', t: 'Mise à jour annoncée', d: "L'écran de mise à jour indique maintenant ce que contient la nouvelle version." },
+    { img: 'ic/gear.webp', t: 'Toujours disponible', d: 'Retrouve toutes les anciennes notes dans Réglages, bouton « Nouveautés ».' } ] },
+  { v: '1.6', date: '11 novembre 2026', title: 'Mises à jour en un geste', items: [
+    { img: 'ui/bstar.webp', t: 'Mise à jour obligatoire', d: 'Quand une nouvelle version sort, un écran te propose de redémarrer le jeu. Ta progression est conservée.' },
+    { img: 'ic/shield.webp', t: 'Jamais en pleine partie', d: "L'écran attend la fin de ta partie pour ne pas la couper." } ] },
+  { v: '1.5', date: '11 novembre 2026', title: 'Tout est plus lisible', items: [
+    { img: 'ui/b_shop.webp', t: 'Pages nettoyées', d: 'Plus de textes qui se chevauchent dans les boutiques, le pass, le codex et les réglages.' },
+    { img: 'ui/st_2.webp', t: 'Constellations', d: 'Les étiquettes de récompense ne se recouvrent plus.' },
+    { img: 'ic/swords.webp', t: 'En combat', d: 'Les annonces de combo ne passent plus sur le bandeau de vague.' } ] },
+  { v: '1.4', date: '11 novembre 2026', title: 'TOX, constellations et groupe', items: [
+    { img: 'tx/k4.webp', t: 'Les TOX', d: 'Chaque gardien a ses 4 pouvoirs : commun, rare, épique et un ultime légendaire.' },
+    { img: 'ui/st_3.webp', t: 'Étoiles de TOX', d: "La couleur de l'étoile donne la rareté de la carte. Une étoile légendaire peut cacher une tenue rare." },
+    { img: 'ui/b_shop.webp', t: 'Boutiques', d: 'Une boutique par gardien pour améliorer ses TOX, et une boutique de boosts en prismes.' },
+    { img: 'tx/bx_pass.webp', t: 'Pass de saison', d: 'Une ligne gratuite et une ligne Premium qui rapporte plus.' },
+    { img: 'ic/friends.webp', t: 'Groupe à 3', d: 'Crée un groupe, envoie le code : la carte grandit et les vagues durcissent.' },
+    { img: 'ic/wave.webp', t: 'Carte et musiques', d: 'Arène plus grande et plus belle, héros plus rapides, élites, frénésie et nouvelles musiques.' } ] }
+];
 const KEY = 'eclyptia_mobile_v1';
 function defSave() {
   const tox = {}; for (const id of TOX_IDS) tox[id] = { l: TOX[id].r === 0 ? 1 : 0, c: 0 };
   const hs = {}; for (const h of HERO_IDS) hs[h] = { hp: 0, dmg: 0, spd: 0 };
   return { v: 2, name: 'Gardien', coins: 200, prisms: 50, xp: 0, passXp: 0, passClaim: [], passClaimP: [], premium: false, owned: ['kaelion', 'elyra'], hero: 'kaelion',
-    up: { hp: 0, dmg: 0, spd: 0 }, hs, tox, skins: [], skin: {}, boost: {}, bon: {}, bopen: 0,
+    up: { hp: 0, dmg: 0, spd: 0 }, hs, tox, skins: [], skin: {}, boost: {}, bon: {}, bopen: 0, seen: '',
     stats: { games: 0, wins: 0, maxWave: 0, kills: 0, boss: 0, time: 0 }, codex: {}, orbs: 3, pity: 0,
     q: { day: '', kills: 0, wave: 0, games: 0, claimed: [] }, set: { btn: 1, lefty: false, vib: true, snd: true, mus: true, gfx: 1, fill: 1 } };
 }
@@ -121,6 +142,7 @@ function loadSave() {
   const d = defSave();
   try {
     const o = JSON.parse(localStorage.getItem(KEY));
+    if (!o) d.seen = BUILD;   // nouveau joueur : pas de notes de version au premier lancement
     if (o) {
       for (const k in d) if (o[k] !== undefined) d[k] = (d[k] && typeof d[k] === 'object' && !Array.isArray(d[k])) ? Object.assign(d[k], o[k]) : o[k];
       if (!o.v) { d.v = 2; for (const h of HERO_IDS) d.hs[h] = Object.assign({ hp: 0, dmg: 0, spd: 0 }, o.up || {}); d.orbs = (o.orbs || 0) + 3; }   // ancienne sauvegarde : améliorations reportées sur chaque gardien, 3 boosters offerts

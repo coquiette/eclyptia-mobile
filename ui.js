@@ -144,7 +144,7 @@ const SCR = {
       <div class="q"><div class="grow">Sons / Musique</div><button class="btn sm ${S.set.snd ? '' : 'gray'}" data-a="tog" data-v="snd">SONS</button><button class="btn sm ${S.set.mus ? '' : 'gray'}" data-a="tog" data-v="mus">MUSIQUE</button></div>
       <div class="q"><div class="grow">Qualité graphique</div><button class="btn sm ${S.set.gfx ? 'gray' : ''}" data-a="gfx" data-v="0">Fluide</button><button class="btn sm ${S.set.gfx ? '' : 'gray'}" data-a="gfx" data-v="1">Haute</button></div>
       <div class="q"><div class="grow">Affichage<div class="sub">Si l'image est coupée, choisis « Compatible »</div></div><button class="btn sm ${S.set.fill ? 'gray' : ''}" data-a="fill" data-v="0">Compatible</button><button class="btn sm ${S.set.fill ? '' : 'gray'}" data-a="fill" data-v="1">Plein écran</button></div></div>
-      <div class="pn col" style="width:420px;justify-content:space-between;text-align:center"><div class="sub">La progression est enregistrée sur cet appareil, dans ce navigateur.</div><div class="sub">Astuce : « Ajouter à l'écran d'accueil » dans le menu du navigateur lance le jeu en vrai plein écran.</div><div class="sub">ECLYPTIA ${VERSION}</div><button class="btn gray" data-a="reset">RÉINITIALISER</button></div></div>`;
+      <div class="pn col" style="width:420px;justify-content:space-between;text-align:center"><div class="sub">La progression est enregistrée sur cet appareil, dans ce navigateur.</div><div class="sub">Astuce : « Ajouter à l'écran d'accueil » dans le menu du navigateur lance le jeu en vrai plein écran.</div><div class="sub">ECLYPTIA ${VERSION}</div><button class="btn sm vio" data-a="pnotes">NOUVEAUTÉS</button><button class="btn sm gray" data-a="reset">RÉINITIALISER</button></div></div>`;
   },
   game() {
     const L = LAUNCH || { infos: [myInfo()], me: 0 }, f = L.infos[L.me], h = HEROES[f.hero], tb = (k, i, big) => { const id = h.tox[i], lk = !f.tl[i]; return `<button class="ab ${lk ? 'lk' : ''}" id="b${k}" data-k="${k}"><em>${tic(id)}</em>${big ? '<small>ULTIME</small>' : ''}${lk ? '<span class="lkc">' + ic('lock') + '</span>' : ''}<div class="cd" id="cd${k}"></div>${big ? '' : `<div class="ct" id="ct${k}"></div>`}</button>`; };
@@ -162,6 +162,7 @@ const SCR = {
 
 function show(n, enter) {
   SCREEN = n; ui().innerHTML = n === 'game' ? SCR[n]() : `<div class="scr ${enter ? 'enter' : ''}">${SCR[n]()}</div>`; if (n === 'game') bindGame();
+  if (n === 'menu' && S.seen !== BUILD && !$('#pnotes')) setTimeout(() => { if (SCREEN === 'menu' && S.seen !== BUILD) ACT.pnotes(); }, 1500);
   if (n === 'menu' && enter) { for (let i = 0; i < 8; i++) setTimeout(() => { if (SCREEN === 'menu') snd('note', i); }, 400 + i * 55); setTimeout(() => { if (SCREEN === 'menu') snd('slam'); }, 930); }
 }
 function sweep() { const l = fxl(); if (!l || lite()) return; const s = document.createElement('i'); s.className = 'sweep'; l.appendChild(s); setTimeout(() => s.remove(), 650); }
@@ -193,20 +194,28 @@ function report(e) { if (REP) return; REP = 1; setTimeout(() => REP = 0, 400); t
 function report2(e) { const m = (e && (e.message || e.reason && e.reason.message || e.reason)) || String(e); console.error(e); BUSY = false; const el = ui(); if (el) el.classList.remove('out'); toast('Erreur : ' + String(m).slice(0, 70)); }
 addEventListener('error', report); addEventListener('unhandledrejection', report);
 /* mise à jour obligatoire : dès qu'une nouvelle version est en ligne, un écran bloquant propose de redémarrer le jeu (après la partie en cours) */
-let UPD = 0, NEWB = null;
+let UPD = 0, NEWB = null, NEWN = null, PNI = 0;
 function checkUpdate() {
   const now = Date.now(); if (now - UPD < 15000) return; UPD = now;
   fetch('version.json?t=' + now, { cache: 'no-store' }).then(r => r.json()).then(j => {
     if (!j || !j.build || String(j.build) === BUILD) return;
     try { if (sessionStorage.getItem('ecl_upd') === String(j.build)) return; } catch (e) {}   // déjà tenté pendant cette visite : on évite de tourner en rond
-    NEWB = String(j.build); askUpdate();
+    NEWB = String(j.build); NEWN = j; askUpdate();
   }).catch(() => {});
+}
+/* notes de version */
+function patchUI() {
+  let d = $('#pnotes'); if (!d) { d = document.createElement('div'); d.id = 'pnotes'; $('#stage').appendChild(d); } const p = PATCH[PNI];
+  d.innerHTML = `<div class="pn col pnp"><div class="row pnh"><img class="pnlogo" src="img/ui/logo.webp" draggable="false" alt=""><div class="grow"><div class="pnt">NOUVEAUTÉS · VERSION ${p.v}</div><div class="pns">${p.title}</div><div class="sub">${p.date}</div></div>
+    <div class="row">${PNI < PATCH.length - 1 ? '<button class="btn sm vio" data-a="pnGo" data-v="1">◀ Avant</button>' : ''}${PNI > 0 ? '<button class="btn sm vio" data-a="pnGo" data-v="-1">Après ▶</button>' : ''}</div></div>
+    <div class="pngrid n${Math.min(6, p.items.length)}">${p.items.map((x, i) => `<div class="pni" style="--i:${i}"><img src="img/${x.img}" draggable="false" alt=""><div><b>${x.t}</b><span>${x.d}</span></div></div>`).join('')}</div>
+    <button class="btn big" data-a="pnClose">C'EST PARTI !</button></div>`;
 }
 function askUpdate() {
   if (!NEWB || document.getElementById('upd')) return;
   if (G && SCREEN === 'game' && G.state !== 'end') return;
   const d = document.createElement('div'); d.id = 'upd';
-  d.innerHTML = `<div class="pn col updp"><img src="img/ui/bstar.webp" draggable="false" alt=""><div class="gold" style="font-size:60px;line-height:1">MISE À JOUR DISPONIBLE</div><div class="sub" style="font-size:30px">Une nouvelle version d'ECLYPTIA est prête. Le jeu va redémarrer ; ta progression est conservée.</div><button class="btn big" data-a="update">METTRE À JOUR</button></div>`;
+  d.innerHTML = `<div class="pn col updp"><img src="img/ui/bstar.webp" draggable="false" alt=""><div class="gold" style="font-size:60px;line-height:1">MISE À JOUR DISPONIBLE</div><div class="sub" style="font-size:30px">${NEWN && NEWN.v ? 'La version ' + esc(NEWN.v) + ' est prête.' : "Une nouvelle version d'ECLYPTIA est prête."} Le jeu va redémarrer ; ta progression est conservée.</div>${NEWN && NEWN.notes && NEWN.notes.length ? '<div class="updn">' + NEWN.notes.slice(0, 4).map(n => '<div>✦ ' + esc(n) + '</div>').join('') + '</div>' : ''}<button class="btn big" data-a="update">METTRE À JOUR</button></div>`;
   $('#stage').appendChild(d); snd('pick');
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { fitSoon(); checkUpdate(); } });
@@ -274,12 +283,15 @@ const ACT = {
   orbClose() { closeOrb(); },
   orbAgain() { closeOrb(true); },
   buyOrb() { if (S.prisms < 80) return no('Pas assez de prismes'); S.prisms -= 80; S.orbs = (S.orbs || 0) + 1; save(); snd('buy'); toast('+1 booster'); show('shop'); },
+  pnotes() { PNI = 0; patchUI(); snd('claim'); },
+  pnGo(v) { PNI = clamp(PNI + (+v), 0, PATCH.length - 1); patchUI(); },
+  pnClose() { const d = $('#pnotes'); if (d) d.remove(); S.seen = BUILD; save(); },
   update() { try { sessionStorage.setItem('ecl_upd', NEWB); } catch (e) {} if (NET.role) NET.leave(true); location.replace(location.pathname + '?v=' + NEWB); },
   start() { audio(); goFull(); snd('start'); music('menu'); nav('menu'); const m = /[?&]g=([A-Za-z0-9]{5})/.exec(location.search); if (m) setTimeout(() => { BUSY = false; nav('friends'); NET.join(m[1]); }, 1500); },
   reset() { if (ACT._r) { localStorage.removeItem(KEY); S = loadSave(); ACT._r = 0; toast('Sauvegarde effacée'); show('menu'); } else { ACT._r = 1; toast('Touche encore une fois pour tout effacer'); setTimeout(() => ACT._r = 0, 3000); } },
   share() { const d = { title: 'ECLYPTIA Mobile', text: 'Viens jouer à ECLYPTIA sur mobile !', url: location.href }; if (navigator.share) navigator.share(d).catch(() => {}); else if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(() => toast('Lien copié')).catch(() => toast(location.href)); else toast(location.href); }
 };
-document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (!b || (BUSY && b.dataset.a !== 'update')) return; audio(); snd(b.classList.contains('back') ? 'back' : 'click', b.dataset.a + (b.dataset.v || '')); if (b.matches('.btn,.card,.tab,.m2b,.pick,.back,.m2prof,.orbbtn')) { b.classList.remove('tp'); void b.offsetWidth; b.classList.add('tp'); } ACT[b.dataset.a](b.dataset.v); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (!b || (BUSY && !/^(update|pn)/.test(b.dataset.a))) return; audio(); snd(b.classList.contains('back') ? 'back' : 'click', b.dataset.a + (b.dataset.v || '')); if (b.matches('.btn,.card,.tab,.m2b,.pick,.back,.m2prof,.orbbtn')) { b.classList.remove('tp'); void b.offsetWidth; b.classList.add('tp'); } ACT[b.dataset.a](b.dataset.v); });
 document.addEventListener('change', e => { if (e.target.id === 'nm') { S.name = e.target.value.trim().slice(0, 14) || 'Gardien'; save(); } });
 
 /* ---------- écran de lancement ---------- */
