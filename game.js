@@ -34,9 +34,10 @@ function clampR(o, R) { const d = hyp(o.x, o.y); if (d > R) { o.x *= R / d; o.y 
 /* ---------- partie : 1 à 3 joueurs. En groupe, l'hôte calcule tout ; les invités envoient leur position et leurs touches. ---------- */
 let NETROLE = 0;   // 0 solo, 1 hôte, 2 invité
 const multi = () => G && G.n > 1;
+let LASTMAP = -1; function nextMap() { let m; do { m = (Math.random() * MAPS.length) | 0; } while (m === LASTMAP); return m; }
 function myInfo() {
   const h = S.hero, bon = {}; for (const b of BOOSTS) if (S.bon[b.id] && (S.boost[b.id] || 0) > 0) bon[b.id] = 1;
-  return { hero: h, name: S.name, skin: skinOf(h), hs: S.hs[h] || { hp: 0, dmg: 0, spd: 0 }, tx: eqOf(h), tl: eqOf(h).map(id => (S.tox[id] || {}).l || 0), ps: PASSIVE.map(pasLv), wp: wpOf(h), bon };
+  return { hero: h, name: S.name, skin: skinOf(h), hs: S.hs[h] || { hp: 0, dmg: 0, spd: 0 }, tx: eqOf(h), tl: eqOf(h).map(id => (S.tox[id] || {}).l || 0), ps: PASSIVE.map(pasLv), wp: wpOf(h), bon, map: nextMap() };
 }
 function mkPlayer(info, i, n) {
   const h = HEROES[info.hero] || HEROES.kaelion, hs = info.hs || {}, bon = info.bon || {}, tl = info.tl || [1, 0, 0, 0], tx = (info.tx || h.tox).map((id, i) => TOX[id] && TOX[id].h === info.hero ? id : h.tox[i]), ps = info.ps || [0, 0, 0, 0], T3 = tx.map(id => TOX[id]), wm = (info.wp && WEAPONS[info.hero] ? WEAPONS[info.hero][1].m : {});
@@ -53,7 +54,7 @@ function startRun(infos, me, role) {
   G = { n, me, ps: infos.map((f, i) => mkPlayer(f, i, n)), get p() { return this.ps[this.me]; }, state: 'play', t: 0, wave: 0, en: [], sh: [], gems: [], fx: [], txt: [], queue: [], tasks: [], spawnT: 0, kills: 0, shards: 0, boss: 0, kc: {},
     inter: 0, all: false, shake: 0, flash: 0, slow: 0, banner: null, combo: 0, comboT: 0, frenzy: 0, pil: [], ts: 1, slowmo: 0, stop: 0, stopCd: 0, zoomP: 0, cine: null, ann: null, uid: 1, evq: [], ql: 0, pickT: 0, bon: infos[me].bon || {} };
   G.ps.forEach((p, i) => { p.remote = i !== me; });
-  J.x = J.y = 0; J.id = null; R3.reset(AR);
+  J.x = J.y = 0; J.id = null; G.map = ((infos[0] && infos[0].map) | 0) % MAPS.length; LASTMAP = G.map; R3.reset(AR, G.map); G.ann = { s: MAPS[G.map].toUpperCase(), col: '#ffd45e', t: 1.6 };
   if (NETROLE !== 2) { nextWave(); G.spawnT = 1.5; } else G.banner = { t: 2.4, s: 'VAGUE 1', boss: 0 };
 }
 const alive = () => G.ps.filter(p => !p.dead && !p.gone);

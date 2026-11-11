@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 2.3', BUILD = '23';
+let AR = 1300; const VERSION = 'mobile 2.4', BUILD = '24';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -234,7 +234,12 @@ const SHOP_UP = [
 const upCost = l => 100 * (l + 1);
 
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
+const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste'];
 const PATCH = [
+  { v: '2.4', date: '11 novembre 2026', title: '8 cartes différentes', items: [
+    { img: 'bg.jpg', t: 'Une nouvelle carte à chaque partie', d: 'Sanctuaire astral, Forêt enchantée, Désert solaire, Glacier éternel, Volcan de braise, Grotte de cristal, Cimetière des ombres et Jardin céleste : sol, ciel, lumière et décors changent.' },
+    { img: 'h1.jpg', t: 'Elyra en 3D', d: 'La mage de feu a son vrai modèle 3D animé.' },
+    { img: 'h0.jpg', t: 'Cape de Kaelion corrigée', d: 'Retravaillée dans Blender : elle ne se déforme plus et flotte quand il court.' } ] },
   { v: '2.3', date: '11 novembre 2026', title: 'Elyra en 3D, capes qui flottent', items: [
     { img: 'h1.jpg', t: 'Nouveau modèle 3D d\'Elyra', d: 'La mage de feu a son vrai modèle 3D animé, avec sa chevelure de flammes.' },
     { img: 'h0.jpg', t: 'Cape de Kaelion corrigée', d: 'Retravaillée dans Blender : la cape et les pans d\'armure ne se déforment plus et flottent quand il court.' } ] },
