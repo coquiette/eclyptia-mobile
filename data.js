@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 2.6', BUILD = '26';
+let AR = 1300; const VERSION = 'mobile 2.7', BUILD = '27';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -236,6 +236,8 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste'];
 const PATCH = [
+  { v: '2.7', date: '11 novembre 2026', title: 'Tous les gardiens en vraie 3D', items: [
+    { img: 'h2.jpg', t: 'Aria, Vesper, Brakkor et Nyxara', d: 'Les quatre derniers gardiens ont leur vrai modèle 3D animé. Les six héros et les sept monstres sont maintenant tous en 3D détaillée.' } ] },
   { v: '2.6', date: '11 novembre 2026', title: 'Les monstres en vraie 3D', items: [
     { img: 'm0.jpg', t: '7 nouveaux modèles de monstres', d: 'Larve d\'ombre, Chauve-souris, Esprit de glace, Bombe vivante, Mage corrompu, Garde de pierre et le boss Ver des sables ont chacun un vrai modèle 3D détaillé.' } ] },
   { v: '2.5', date: '11 novembre 2026', title: 'Animations corrigées', items: [
