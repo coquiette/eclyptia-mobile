@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 3.0', BUILD = '30';
+let AR = 1300; const VERSION = 'mobile 3.1', BUILD = '31';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -235,8 +235,12 @@ const SHOP_UP = [
 const upCost = l => 100 * (l + 1);
 
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
-const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste'];
+const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '3.1', date: '11 novembre 2026', title: 'Les cartes refaites', items: [
+    { img: 'bg.jpg', t: '9 cartes retravaillées', d: 'Bordure de pierre autour de l\'arène, décors plus nombreux, et un sol animé sur chaque carte : lave qui pulse, eau qui ondule, feuilles, sable, givre…' },
+    { img: 'm1.jpg', t: 'Des monstres selon la carte', d: '18 nouveaux monstres : créatures de la forêt et du désert, monstres marins dans les Abysses et le Glacier, monstres de lave dans le Volcan.' },
+    { img: 'ui/play.webp', t: 'Nouvelle carte : Abysses marins', d: 'Coraux, algues, coquillages et monstres marins.' } ] },
   { v: '3.0', date: '11 novembre 2026', title: 'Boss mythiques, bénédictions et combos', items: [
     { img: 'm7.jpg', t: 'Boss mythiques', d: 'Des boss moyens aux vagues 4 et 7 et un gros boss mythique à la dernière vague (Xalven, le Cyclope ou Scorch), en plusieurs phases avec cinématiques. Moins de monstres pendant les vagues.' },
     { img: 'tx/k2.webp', t: 'Bénédictions et mini-boutique de TOX', d: 'À la fin de chaque vague : 1 bénédiction parmi 4, puis 1 TOX de ton gardien parmi 4. La chance fait sortir des TOX plus rares.' },
