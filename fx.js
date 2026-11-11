@@ -35,7 +35,7 @@ function orbImg(k, cls) { return `<img class="orbimg ${cls || ''}" src="img/ui/$
 /* une étoile = une carte de TOX de la même rareté (ou des pièces / prismes) ; une étoile légendaire peut cacher une tenue rare */
 /* une étoile = une carte de TOX de la même rareté (ou des pièces / prismes) ; une étoile légendaire peut cacher une tenue rare */
 function starRw(rar) {
-  let rw; const early = (S.bopen || 0) <= 3, card = n => { const id = randCard(rar, early ? S.hero : undefined, early); return { card: id, n, unl: addCard(id, n) }; };
+  let rw; const early = (S.bopen || 0) <= 3, card = n => { const id = randCard(rar, early ? S.hero : undefined, early); const unl = addCard(id, n); return { card: id, n, unl, up: LASTUP }; };
   if (rar === 0) rw = Math.random() < .25 ? { coins: 60 + ((Math.random() * 5) | 0) * 10 } : card(Math.random() < .3 ? 2 : 1);
   else if (rar === 1) rw = Math.random() < .15 ? { prisms: 15 } : card(1);
   else if (rar === 2) rw = Math.random() < .12 ? { prisms: 40 } : card(1);
@@ -50,7 +50,7 @@ function starCard(rw, rar) {
   if (rw.card) {
     const T = TOX[rw.card], s = S.tox[rw.card], max = s.l >= TMAX, need = tneed(s.l);
     return `<div class="ccard" ${rc}><div class="cr">${T.r === 3 ? 'ULTIME · ' : ''}${R.n}</div><div class="cimg">${tic(rw.card)}${rw.n > 1 ? `<b>×${rw.n}</b>` : ''}</div><div class="cn">${T.n}</div><div class="ch">${T.h ? HEROES[T.h].n : 'Passif · tous les gardiens'} · Niveau ${s.l}</div><div class="cd">${T.d}</div>
-      ${rw.unl ? '<div class="cunl">TOX DÉBLOQUÉ !</div>' : ''}<div class="bar"><i style="width:${max ? 100 : Math.min(100, 100 * s.c / need)}%"></i><span>${max ? 'Niveau max' : 'Copies : ' + s.c + ' / ' + need}</span></div>${!max && s.c >= need ? '<div class="cup">Amélioration prête !</div>' : ''}${rw.prisms ? `<div class="cbonus">${ic('prism')} +${rw.prisms}</div>` : ''}</div>`;
+      ${rw.unl ? '<div class="cunl">TOX DÉBLOQUÉ !</div>' : rw.up ? '<div class="cunl up">NIVEAU ' + s.l + ' !</div>' : ''}<div class="bar"><i style="width:${max ? 100 : Math.min(100, 100 * s.c / need)}%"></i><span>${max ? 'Niveau max' : 'Copies : ' + s.c + ' / ' + need}</span></div>${rw.prisms ? `<div class="cbonus">${ic('prism')} +${rw.prisms}</div>` : ''}</div>`;
   }
   return `<div class="ccard" ${rc}><div class="cr">${R.n}</div><div class="cimg">${ic(rw.prisms ? 'prism' : 'coin')}</div><div class="cn">+${rw.prisms || rw.coins} ${rw.prisms ? 'PRISMES' : 'PIÈCES'}</div><div class="cd">${rw.prisms ? 'La monnaie précieuse : boosts et boosters.' : 'Pour améliorer tes gardiens et leurs TOX.'}</div></div>`;
 }
@@ -87,7 +87,7 @@ function starHit(x, y) {
   if (b.rar === 3) { o.epic = { t: 0, s: b, end: 4.6, boom: 0, fw: 0 }; snd('orbCharge'); duck(.1); vib(80); $('#orb').classList.add('epic'); return; }
   o.flash = Math.max(o.flash, .14 + b.rar * .16); vib(40 + b.rar * 50); cSpark(o, b.x, b.y, (lite() ? 20 : 40) + b.rar * 30, R.c, 600 + b.rar * 300);
   for (let i = 0; i <= b.rar; i++) o.rings.push({ x: b.x, y: b.y, r: 50, v: 500 + i * 320, l: .7, c: R.c });
-  snd('star', [b.rar, o.n - 1]); placeCard(b);
+  snd('star', [b.rar, o.n - 1]); if (rw.up) setTimeout(() => snd('lvl'), 350); placeCard(b);
 }
 function placeCard(b) {
   const o = OB, l = $('#clabs'); if (l) l.insertAdjacentHTML('beforeend', `<div class="cslot" style="left:${b.x}px;top:${o.cy + 44}px">${starCard(b.rw, b.rar)}</div>`);

@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 1.8', BUILD = '18';
+let AR = 1300; const VERSION = 'mobile 1.9', BUILD = '19';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -135,6 +135,10 @@ const upCost = l => 100 * (l + 1);
 
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const PATCH = [
+  { v: '1.9', date: '11 novembre 2026', title: 'Les étoiles font tout', items: [
+    { img: 'ui/st_2.webp', t: 'TOX améliorés par les étoiles', d: 'Fini les pièces : un TOX monte de niveau tout seul dès que tu as assez de copies.' },
+    { img: 'tx/k1.webp', t: 'Bouton « TOX »', d: 'Chaque gardien a sa page TOX : ses 6 pouvoirs, leur niveau, tes copies et ce qui est équipé.' },
+    { img: 'ui/b_shop.webp', t: 'Boutiques de gardien retirées', d: "Plus d'amélioration de statistiques à acheter. Tes bonus déjà achetés sont conservés." } ] },
   { v: '1.8', date: '11 novembre 2026', title: 'Étoiles, hordes et nouveaux pouvoirs', items: [
     { img: 'ui/st_3.webp', t: 'Boosters à 4 étoiles', d: "Chaque étoile révèle une carte : l'image du TOX, ce qu'il fait et tes copies." },
     { img: 'tx/k4.webp', t: 'Légendaire spectaculaire', d: 'Un TOX légendaire ou une tenue rare déclenche une grande révélation.' },
@@ -180,6 +184,7 @@ function loadSave() {
       if (!o.v) { d.v = 2; for (const h of HERO_IDS) d.hs[h] = Object.assign({ hp: 0, dmg: 0, spd: 0 }, o.up || {}); d.orbs = (o.orbs || 0) + 3; }   // ancienne sauvegarde : améliorations reportées sur chaque gardien, 3 boosters offerts
     }
   } catch (e) {}
+  for (const id in d.tox) if (d.tox[id] && typeof TOX !== 'undefined' && TOX[id]) autoLv(d.tox[id]);
   return d;
 }
 let S = loadSave();
@@ -192,7 +197,10 @@ function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e
 function dayCheck() { const d = new Date().toDateString(); if (S.q.day !== d) { S.q = { day: d, kills: 0, wave: 0, games: 0, claimed: [] }; save(); } }
 const level = () => 1 + Math.floor(S.xp / 400);
 /* cartes de TOX : la première débloque le pouvoir, les suivantes servent à l'améliorer */
-function addCard(id, n) { const t = S.tox[id] || (S.tox[id] = { l: 0, c: 0 }); t.c += n || 1; let unlocked = false; if (t.l === 0) { t.l = 1; t.c -= 1; unlocked = true; } return unlocked; }
+/* les TOX montent de niveau tout seuls dès qu'il y a assez de copies : seules les étoiles des boosters les améliorent */
+function autoLv(t) { let up = 0; while (t.l >= 1 && t.l < TMAX && t.c >= tneed(t.l)) { t.c -= tneed(t.l); t.l++; up++; } return up; }
+let LASTUP = 0;
+function addCard(id, n) { const t = S.tox[id] || (S.tox[id] = { l: 0, c: 0 }); t.c += n || 1; let unlocked = false; if (t.l === 0) { t.l = 1; t.c -= 1; unlocked = true; } LASTUP = autoLv(t); return unlocked; }
 function randCard(rar, hero, main) {
   const own = S.owned, h = hero || (Math.random() < .6 ? S.hero : own[(Math.random() * own.length) | 0]);
   let r = rar; if (r === undefined) { const x = Math.random(); r = x < .5 ? 0 : x < .8 ? 1 : x < .95 ? 2 : 3; }

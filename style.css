@@ -629,3 +629,45 @@ html.alone body{position:absolute;left:0;top:0;overflow:visible;width:100%}
 .ccard .cbonus{right:auto;left:50%;top:auto;bottom:-24px;transform:translateX(-50%);white-space:nowrap}
 #orb.epic .ohint,#orb.epic .opips{visibility:hidden}
 .ccard .cbonus{bottom:-34px}
+
+/* ===== v1.9 : page TOX du gardien ===== */
+.txg{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:14px}
+.txc{position:relative;display:flex;gap:14px;align-items:center;padding:18px 20px 16px 16px;min-width:0;border:3px solid transparent;border-image:url(img/kit/panel.webp) 62 fill / 34px / 3px stretch}
+.txc.on{filter:drop-shadow(0 0 14px var(--rc))}
+.txc .tring{width:124px;height:124px;animation:none}
+.txc .txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.txc .trar{margin:0;font-size:16px;letter-spacing:2px}
+.txc .tname{font-size:27px}
+.txc .sub{font-size:18px;line-height:1.14}
+.txc .bar{height:26px!important}.txc .bar span{font-size:17px;line-height:20px}
+.txc.lk .tic{filter:grayscale(.9) brightness(.5)}
+.tnote{font-size:17px;line-height:1.1;color:#cdb8ff;font-weight:600;text-align:left}.tnote .ici{width:18px;height:18px;display:inline-block;vertical-align:-3px}
+.tcard .tnote{text-align:center;margin-top:auto;font-size:20px}
+.teq{flex:none;padding:3px 14px 5px;border-radius:16px;font-size:18px;background:linear-gradient(#7d55e0,#4d2aa8);border:3px solid #d9c2ff;color:#fff}
+.teq.on{background:linear-gradient(#ffdc6a,#ff9a2e);border-color:#7a3d00;color:#4a2200}
+.teq:active{transform:scale(.92)}
+.ccard .cunl.up{color:#ffd45e;text-shadow:0 0 14px #ff9a2e}
+
+/* gros boutons : c'est un jeu mobile */
+.bcard{position:relative;gap:2px;padding:12px 22px 16px!important}
+.bcard .bimg{height:92px}
+.bcard .ribbon{font-size:28px;padding:5px 18px 9px}
+.bcard .sub{font-size:21px}
+.bcard .btn{width:100%;min-height:104px;font-size:42px;border-image-width:0 52px}
+.bcard .btn .ici{width:50px;height:50px}
+.bstock{position:absolute;right:18px;top:16px;min-width:62px;height:62px;padding:0 10px;border-radius:31px;background:#ff3d5a;border:4px solid #fff;font-size:34px;line-height:52px;text-align:center}
+.orbp .btn{width:100%;min-height:104px;font-size:38px}
+.orbp .orbrow{height:170px}
+.orbp .orbrow .orbimg.b{width:210px;height:210px}.orbp .orbrow .orbimg.s{width:120px;height:120px}
+.btn.sm{min-height:88px;font-size:34px}
+.setl .q .btn.sm{min-height:76px;font-size:30px;border-image-width:0 38px}
+.txc{gap:12px;padding:16px 18px 14px 14px}
+.txc .tring{width:108px;height:108px}
+.txc .sub{font-size:17px}
+.txc .tname{font-size:25px;line-height:1.05}
+.teq{align-self:flex-end;padding:8px 26px 11px;border-radius:24px;font-size:26px;margin-top:2px}
+.txc .tnote{font-size:17px}
+.bcard{min-width:0;overflow:hidden}
+.bcard .btn{min-width:0;padding:0 14px 6px;font-size:36px;gap:8px}
+.bcard .btn .ici{width:42px;height:42px}
+.body>.grid{min-width:0}

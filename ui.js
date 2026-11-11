@@ -18,15 +18,9 @@ function tfx(T, l) {
   if (T.t === 'slow') return 'Ralentit ' + T.dur + ' s · dégâts ' + x(T.dk) + cd; if (T.t === 'drain') return 'Dégâts ' + x(T.dk) + ' · soin par ennemi' + cd;
   return 'Tous les ennemis · dégâts ' + x(T.dk) + ' · barre d\'ultime';
 }
-/* bouton d'amélioration d'un TOX (utilisé dans la boutique du gardien et dans le codex) */
-function tbtn(id) {
-  const T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }, own = !T.h || S.owned.includes(T.h);
-  if (!s.l) return `<button class="btn sm gray" data-a="tinfo">CARTE REQUISE</button>`;
-  if (s.l >= TMAX) return `<button class="btn sm gray">NIVEAU MAX</button>`;
-  const need = tneed(s.l), cost = tcost(s.l, T.r), ok = s.c >= need && S.coins >= cost && own;
-  return `<button class="btn sm ${ok ? '' : 'gray'}" data-a="tup" data-v="${id}">${s.c >= need ? 'AMÉLIORER<br>' + cost + ' ' + ic('coin') : s.c + ' / ' + need + ' cartes'}</button>`;
-}
-const tbar = id => { const s = S.tox[id] || { l: 0, c: 0 }, need = s.l ? tneed(s.l) : 1; return s.l >= TMAX ? '' : `<div class="bar" style="height:26px"><i style="width:${Math.min(100, 100 * s.c / need)}%"></i><span>${s.c} / ${need} cartes</span></div>`; };
+/* état d'un TOX : il s'améliore tout seul avec les copies trouvées dans les étoiles */
+function tbtn(id) { const s = S.tox[id] || { l: 0, c: 0 }; return `<div class="tnote">${!s.l ? ic('lock') + ' À trouver dans une étoile' : s.l >= TMAX ? 'Niveau maximum' : 'Encore ' + (tneed(s.l) - s.c) + ' copie' + (tneed(s.l) - s.c > 1 ? 's' : '') + ' pour le niveau ' + (s.l + 1)}</div>`; }
+const tbar = id => { const s = S.tox[id] || { l: 0, c: 0 }, need = s.l ? tneed(s.l) : 1; return s.l >= TMAX ? '' : `<div class="bar" style="height:26px"><i style="width:${Math.min(100, 100 * s.c / need)}%"></i><span>Copies : ${s.c} / ${need}</span></div>`; };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 const SCR = {
@@ -50,7 +44,7 @@ const SCR = {
         <div style="font-size:50px;line-height:1" class="gold">${h.n.toUpperCase()}</div><div class="sub">${h.cls}</div>
         <div class="row" style="gap:10px">${eqOf(SEL).map(id => `<span class="tmini ${(S.tox[id] || {}).l ? '' : 'lk'}" style="--rc:${RARC[TOX[id].r]}">${tic(id)}<b>${(S.tox[id] || {}).l || ic('lock')}</b></span>`).join('')}</div>
         <div class="col" style="width:100%;gap:8px">${st('PV', h.hp * (1 + .08 * (hs.hp || 0)), 250)}${st('Dégâts', h.dmg * (1 + .06 * (hs.dmg || 0)), 30)}${st('Vitesse', h.spd * (1 + .03 * (hs.spd || 0)), 500)}</div>
-        ${own ? `<button class="btn sm vio" data-a="go" data-v="hshop" style="width:100%">BOUTIQUE DE ${h.n.toUpperCase()}</button>` : ''}
+        <button class="btn vio" data-a="go" data-v="htox" style="width:100%;font-size:32px;padding:0 20px 6px">${ic('tox')} TOX DE ${h.n.toUpperCase()}</button>
       </div>
       <div class="col grow">
         <div class="grid grow" style="grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr)">${HERO_IDS.map(id => { const x = HEROES[id], o = S.owned.includes(id); return `<button class="card ${id === SEL ? 'on' : ''} ${o ? '' : 'lock'}" data-a="sel" data-v="${id}">${himg(id)}${o ? '' : '<div class="lk">' + ic('lock') + '</div>'}<div class="tag">${x.n}${o ? '' : ' · ' + x.cost + ' ' + ic(x.curr === 'prisms' ? 'prism' : 'coin')}</div></button>`; }).join('')}</div>
@@ -58,26 +52,28 @@ const SCR = {
         ${own ? `<button class="btn big" data-a="play">▶ JOUER</button>` : `<button class="btn big" data-a="buyHero" data-v="${SEL}">ACHETER ${h.cost} ${ic(h.curr === 'prisms' ? 'prism' : 'coin')}</button>`}</div>
       </div></div>`;
   },
-  /* la boutique propre à chaque gardien : ses 4 TOX, ses statistiques, sa tenue */
-  hshop() {
-    SEL = SEL || S.hero; const h = HEROES[SEL], hs = S.hs[SEL] || (S.hs[SEL] = { hp: 0, dmg: 0, spd: 0 }), sk = SKINS[SEL], hasSk = S.skins.includes(SEL);
-    return head('BOUTIQUE DE ' + h.n.toUpperCase(), 'hero') + `<div class="body">
-      <div class="pn col" style="width:450px;flex:none;align-items:center;text-align:center;gap:10px">
-        <div class="card on heroshow" style="width:170px;height:170px;border-radius:50%">${himg(SEL)}</div>
-        <div class="row" style="gap:8px;width:100%"><button class="btn sm grow ${skinOf(SEL) ? 'gray' : ''}" data-a="skin" data-v="0" style="font-size:24px;padding:0 10px 4px;min-height:64px">Classique</button><button class="btn sm grow ${skinOf(SEL) ? '' : 'gray'}" data-a="skin" data-v="1" style="font-size:24px;padding:0 10px 4px;min-height:64px">${hasSk ? 'Tenue rare' : 'Verrouillée'}</button></div><div class="sub" style="font-size:20px;line-height:1.1">${hasSk ? 'Tenue : ' + sk.n : 'Tenue rare : étoile légendaire'}</div>
-        ${SHOP_UP.map(x => { const l = hs[x.id] || 0, max = l >= 10; return `<div class="q hst"><div class="med sm">${ic(x.ic)}</div><div class="grow"><div class="l1">${x.n}</div><div class="sub"><span class="gold">${l}/10</span> · ${x.d}</div></div><button class="btn sm ${max || S.coins < upCost(l) ? 'gray' : ''}" data-a="hup" data-v="${x.id}">${max ? 'MAX' : upCost(l) + ' ' + ic('coin')}</button></div>`; }).join('')}
+  /* les TOX d'un gardien : ses 6 pouvoirs, leur niveau, les copies possédées, ce qui est équipé */
+  htox() {
+    SEL = SEL || S.hero; const h = HEROES[SEL], sk = SKINS[SEL], hasSk = S.skins.includes(SEL), eq = eqOf(SEL), ids = h.tox.concat(ALT[SEL]), slot = ['A', 'B', 'C', 'Ultime', 'B', 'C'], own = ids.filter(id => (S.tox[id] || {}).l).length;
+    return head('TOX DE ' + h.n.toUpperCase(), 'hero') + `<div class="body">
+      <div class="pn col" style="width:350px;flex:none;align-items:center;text-align:center;gap:12px">
+        <div class="card on heroshow" style="width:190px;height:190px;border-radius:50%">${himg(SEL)}</div>
+        <div style="font-size:40px;line-height:1" class="gold">${h.n.toUpperCase()}</div><div class="sub">${own} / ${ids.length} TOX débloqués</div>
+        <div class="sub" style="font-size:21px">Les TOX se trouvent dans les étoiles des boosters. Chaque copie les fait progresser, et ils montent de niveau tout seuls.</div>
+        <div class="row" style="gap:8px;width:100%;margin-top:auto"><button class="btn sm grow ${skinOf(SEL) ? 'gray' : ''}" data-a="skin" data-v="0" style="font-size:25px;padding:0 8px 4px;min-height:80px">Classique</button><button class="btn sm grow ${skinOf(SEL) ? '' : 'gray'}" data-a="skin" data-v="1" style="font-size:25px;padding:0 8px 4px;min-height:80px">${hasSk ? 'Tenue rare' : 'Verrouillée'}</button></div>
+        <button class="btn sm ${S.orbs > 0 ? '' : 'gray'}" data-a="orb" style="width:100%">${bst()} OUVRIR (${S.orbs || 0})</button>
       </div>
-      <div class="row grow" style="align-items:stretch;gap:16px">${h.tox.map((id0, si) => { const two = si === 1 || si === 2, eq = eqOf(SEL)[si], id = two ? (TVIEW[SEL + si] || eq) : id0, T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }; return `<div class="pn col grow tcard ${s.l ? '' : 'lk'}" style="--rc:${RARC[T.r]}">
-        ${two ? `<button class="tsw" data-a="tsw" data-v="${si}">⇄ ${id === eq ? 'ÉQUIPÉ' : 'NON ÉQUIPÉ'} · ${id === id0 ? '1' : '2'}/2</button>` : ''}<div class="tring">${tic(id)}${s.l ? `<b>Niv. ${s.l}</b>` : `<b>${ic('lock')}</b>`}</div>
-        <div class="trar">${T.r === 3 ? 'ULTIME · ' : ''}${RARN[T.r]}</div><div class="tname">${T.n}</div><div class="sub" style="font-size:22px">${T.d}</div>
-        <div class="sub gold" style="font-size:21px">${tfx(T, s.l || 1)}</div><div style="width:100%">${tbar(id)}</div>${tbtn(id)}</div>`; }).join('')}</div></div>`;
+      <div class="grid grow txg">${ids.map((id, i) => { const T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }, two = i === 1 || i === 2 || i > 3, on = eq.includes(id); return `<div class="txc ${s.l ? '' : 'lk'} ${on ? 'on' : ''}" style="--rc:${RARC[T.r]}">
+        <div class="tring">${tic(id)}${s.l ? `<b>Niv. ${s.l}</b>` : `<b>${ic('lock')}</b>`}</div>
+        <div class="txt"><div class="trar">${slot[i] === 'Ultime' ? 'ULTIME' : 'EMPLACEMENT ' + slot[i]} · ${RARN[T.r]}</div><div class="tname">${T.n}</div><div class="sub">${T.d}</div><div class="sub gold">${tfx(T, s.l || 1)}</div>${tbar(id)}
+          ${!s.l || s.l >= TMAX ? tbtn(id) : ''}${two && s.l ? (on ? '<span class="teq on">ÉQUIPÉ</span>' : `<button class="teq" data-a="teq" data-v="${id}">ÉQUIPER</button>`) : ''}</div></div>`; }).join('')}</div></div>`;
   },
   /* la boutique générale : uniquement des boosts (payés en prismes) et les boosters de constellation */
   shop() {
     return head('BOUTIQUE') + `<div class="body"><div class="grid grow" style="grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr)">${BOOSTS.map(b => `<div class="pn col shopc bcard">
       <img class="bimg" src="img/tx/${b.ic}.webp" draggable="false" alt=""><div class="ribbon">${b.n}</div><div class="sub" style="font-size:23px">${b.d}</div>
-      <div class="row" style="width:100%;justify-content:space-between"><span class="sub">En stock : <b class="gold">${S.boost[b.id] || 0}</b></span><button class="btn sm ${S.prisms < b.cost ? 'gray' : ''}" data-a="buyBoost" data-v="${b.id}">${b.cost} ${ic('prism')}</button></div></div>`).join('')}</div>
-      <div class="pn col shopc orbp" style="width:380px"><div class="orbrow">${orbImg(0, 's')}${orbImg(1, 's')}${orbImg('myst', 'b')}${orbImg(2, 's')}${orbImg(3, 's')}</div><div class="ribbon">Constellations</div><div class="sub">4 étoiles à choisir par booster. La couleur de l'étoile donne la rareté du TOX… ou une tenue rare.</div><button class="btn ${S.orbs > 0 ? '' : 'gray'}" data-a="orb">OUVRIR (${S.orbs || 0})</button><button class="btn sm vio" data-a="buyOrb">ACHETER 80 ${ic('prism')}</button></div></div>`;
+      <button class="btn ${S.prisms < b.cost ? 'gray' : ''}" data-a="buyBoost" data-v="${b.id}">ACHETER ${b.cost} ${ic('prism')}</button><b class="bstock">${S.boost[b.id] || 0}</b></div>`).join('')}</div>
+      <div class="pn col shopc orbp" style="width:380px"><div class="orbrow">${orbImg(0, 's')}${orbImg(1, 's')}${orbImg('myst', 'b')}${orbImg(2, 's')}${orbImg(3, 's')}</div><div class="ribbon">Constellations</div><div class="sub">4 étoiles à choisir par booster. La couleur de l'étoile donne la rareté du TOX… ou une tenue rare.</div><button class="btn ${S.orbs > 0 ? '' : 'gray'}" data-a="orb">OUVRIR (${S.orbs || 0})</button><button class="btn vio" data-a="buyOrb">ACHETER 80 ${ic('prism')}</button></div></div>`;
   },
   quests() {
     dayCheck();
@@ -88,10 +84,10 @@ const SCR = {
   /* codex : les monstres découverts et tous les TOX possédés avec leur niveau */
   codex() {
     const seen = MON_IDS.filter(i => S.codex[i]).length, tn = TOX_IDS.filter(i => (S.tox[i] || {}).l).length;
-    const tabs = `<div class="col" style="width:280px"><button class="tab ${CTAB === 'mon' ? 'on' : ''}" data-a="ctab" data-v="mon">${ic('skull')} Monstres<span class="grow"></span>${seen}/${MON_IDS.length}</button><button class="tab ${CTAB === 'tox' ? 'on' : ''}" data-a="ctab" data-v="tox">${ic('tox')} TOX<span class="grow"></span>${tn}/${TOX_IDS.length}</button><div class="pn sub grow" style="font-size:22px">${CTAB === 'mon' ? 'Chaque monstre vaincu en partie est ajouté ici, avec ses forces.' : 'Tes pouvoirs. Les étoiles des boosters donnent des cartes pour les débloquer et les améliorer.'}</div></div>`;
+    const tabs = `<div class="col" style="width:280px"><button class="tab ${CTAB === 'mon' ? 'on' : ''}" data-a="ctab" data-v="mon">${ic('skull')} Monstres<span class="grow"></span>${seen}/${MON_IDS.length}</button><button class="tab ${CTAB === 'tox' ? 'on' : ''}" data-a="ctab" data-v="tox">${ic('tox')} TOX<span class="grow"></span>${tn}/${TOX_IDS.length}</button><div class="pn sub grow" style="font-size:22px">${CTAB === 'mon' ? 'Chaque monstre vaincu en partie est ajouté ici, avec ses forces.' : 'Tes pouvoirs. Seules les étoiles des boosters les débloquent et les font monter de niveau.'}</div></div>`;
     if (CTAB === 'tox') {
       const T = TOX[TSEL], s = S.tox[TSEL] || { l: 0, c: 0 };
-      return head('CODEX') + `<div class="body">${tabs}<div class="pn col grow" style="gap:6px;padding:20px 26px">${HERO_IDS.map(h => `<div class="row grow" style="gap:12px;opacity:${S.owned.includes(h) ? 1 : .45}"><span class="hmini">${himg(h)}</span><span style="width:130px;font-size:24px">${HEROES[h].n}</span>${HEROES[h].tox.concat(ALT[h]).map(id => { const x = S.tox[id] || { l: 0, c: 0 }; return `<button class="tcell ${id === TSEL ? 'on' : ''} ${x.l ? '' : 'lk'}" data-a="tsel" data-v="${id}" style="--rc:${RARC[TOX[id].r]}">${tic(id)}<b>${x.l ? 'Niv. ' + x.l : ''}</b>${S.owned.includes(h) && x.l && x.l < TMAX && x.c >= tneed(x.l) ? '<i></i>' : ''}</button>`; }).join('')}</div>`).join('')}<div class="row grow" style="gap:12px"><span class="hmini" style="border-color:#8cff7a">${ic('star')}</span><span style="width:130px;font-size:24px">Passifs</span>${PASSIVE.map(id => { const x = S.tox[id] || { l: 0, c: 0 }; return `<button class="tcell ${id === TSEL ? 'on' : ''} ${x.l ? '' : 'lk'}" data-a="tsel" data-v="${id}" style="--rc:${RARC[TOX[id].r]}">${tic(id)}<b>${x.l ? 'Niv. ' + x.l : ''}</b>${x.l && x.l < TMAX && x.c >= tneed(x.l) ? '<i></i>' : ''}</button>`; }).join('')}</div></div>
+      return head('CODEX') + `<div class="body">${tabs}<div class="pn col grow" style="gap:6px;padding:20px 26px">${HERO_IDS.map(h => `<div class="row grow" style="gap:12px;opacity:${S.owned.includes(h) ? 1 : .45}"><span class="hmini">${himg(h)}</span><span style="width:130px;font-size:24px">${HEROES[h].n}</span>${HEROES[h].tox.concat(ALT[h]).map(id => { const x = S.tox[id] || { l: 0, c: 0 }; return `<button class="tcell ${id === TSEL ? 'on' : ''} ${x.l ? '' : 'lk'}" data-a="tsel" data-v="${id}" style="--rc:${RARC[TOX[id].r]}">${tic(id)}<b>${x.l ? 'Niv. ' + x.l : ''}</b></button>`; }).join('')}</div>`).join('')}<div class="row grow" style="gap:12px"><span class="hmini" style="border-color:#8cff7a">${ic('star')}</span><span style="width:130px;font-size:24px">Passifs</span>${PASSIVE.map(id => { const x = S.tox[id] || { l: 0, c: 0 }; return `<button class="tcell ${id === TSEL ? 'on' : ''} ${x.l ? '' : 'lk'}" data-a="tsel" data-v="${id}" style="--rc:${RARC[TOX[id].r]}">${tic(id)}<b>${x.l ? 'Niv. ' + x.l : ''}</b></button>`; }).join('')}</div></div>
         <div class="pn col tcard ${s.l ? '' : 'lk'}" style="width:430px;--rc:${RARC[T.r]}"><div class="tring big">${tic(TSEL)}${s.l ? `<b>Niv. ${s.l}</b>` : `<b>${ic('lock')}</b>`}</div><div class="trar">${T.r === 3 ? 'ULTIME · ' : ''}${RARN[T.r]}</div><div class="tname">${T.n}</div><div class="sub">${T.h ? HEROES[T.h].n + ' · ' + HEROES[T.h].cls + (T.alt ? ' · rechange' : '') : 'Passif · tous les gardiens'}</div><div class="sub">${T.d}</div><div class="gold sub">${tfx(T, s.l || 1)}</div>${s.l && s.l < TMAX ? `<div class="sub">Niveau suivant : ${tfx(T, s.l + 1)}</div>` : ''}<div style="width:100%">${tbar(TSEL)}</div>${tbtn(TSEL)}</div></div>`;
     }
     const m = MON[CSEL], ok = !!S.codex[CSEL];
@@ -247,17 +243,15 @@ function goFull() { try { const d = document.documentElement; if (document.fulls
 const no = s => { snd('err'); toast(s); };
 
 const ACT = {
-  go(v) { if (v === 'friends' && NET.role === 1) setTimeout(() => NET.sync(), 300); if (v === 'hshop' && !SEL) SEL = S.hero; nav(v); },
+  go(v) { if (v === 'friends' && NET.role === 1) setTimeout(() => NET.sync(), 300); if (v === 'htox' && !SEL) SEL = S.hero; nav(v); },
   sel(v) { SEL = v; if (S.owned.includes(v)) { S.hero = v; save(); } show('hero'); },
   pick(v) { if (S.owned.includes(v)) { S.hero = v; save(); show('collection'); } else { SEL = v; nav('hero'); setTimeout(() => SEL = v, 370); } },
   buyHero(v) { const h = HEROES[v], c = h.curr; if (S[c] < h.cost) return no('Pas assez de ' + (c === 'prisms' ? 'prismes' : 'pièces')); S[c] -= h.cost; S.owned.push(v); S.hero = v; save(); snd('buy'); toast(h.n + ' débloqué !'); show('hero'); },
-  hup(v) { const hs = S.hs[SEL], l = hs[v] || 0; if (l >= 10) return; if (S.coins < upCost(l)) return no('Pas assez de pièces'); S.coins -= upCost(l); hs[v] = l + 1; save(); snd('buy'); show('hshop'); },
-  tup(v) { const T = TOX[v], s = S.tox[v]; if (!s || !s.l || s.l >= TMAX) return; if (T.h && !S.owned.includes(T.h)) return no('Débloque d\'abord ' + HEROES[T.h].n); const need = tneed(s.l), cost = tcost(s.l, T.r); if (s.c < need) return no('Il manque ' + (need - s.c) + ' carte' + (need - s.c > 1 ? 's' : '') + ' : ouvre des boosters'); if (S.coins < cost) return no('Pas assez de pièces'); S.coins -= cost; s.c -= need; s.l++; save(); snd('lvl'); toast(T.n + ' passe au niveau ' + s.l + ' !'); show(SCREEN); },
-  tsw(v) { const si = +v, h = SEL, a = HEROES[h].tox[si], b = ALT[h][si - 1], cur = TVIEW[h + si] || eqOf(h)[si], nx = cur === a ? b : a; TVIEW[h + si] = nx; if ((S.tox[nx] || {}).l) { (S.eq[h] = S.eq[h] || {})[si] = nx; save(); snd('pick'); toast(TOX[nx].n + ' équipé'); } show('hshop'); },
+  teq(v) { const T = TOX[v], si = T.r; if (!(S.tox[v] || {}).l) return no('Trouve d\'abord ce TOX dans une étoile'); (S.eq[T.h] = S.eq[T.h] || {})[si] = v; save(); snd('pick'); toast(T.n + ' équipé'); show('htox'); },
   tinfo() { no('Trouve la carte de ce TOX dans une étoile de booster'); },
   tsel(v) { TSEL = v; show('codex'); },
   ctab(v) { CTAB = v; show('codex'); },
-  skin(v) { if (+v && !S.skins.includes(SEL)) return no('Tenue rare : elle se cache dans les étoiles légendaires'); S.skin[SEL] = +v; save(); snd('pick'); show('hshop'); },
+  skin(v) { if (+v && !S.skins.includes(SEL)) return no('Tenue rare : elle se cache dans les étoiles légendaires'); S.skin[SEL] = +v; save(); snd('pick'); show('htox'); },
   bon(v) { S.bon[v] = !S.bon[v]; save(); snd('pop'); show('hero'); },
   buyBoost(v) { const b = BOOSTS.find(x => x.id === v); if (S.prisms < b.cost) return no('Pas assez de prismes'); S.prisms -= b.cost; S.boost[v] = (S.boost[v] || 0) + 1; S.bon[v] = true; save(); snd('buy'); toast(b.n + ' ajouté : il sera utilisé à ta prochaine partie'); show('shop'); },
   buyPass() { no('Le paiement en ligne n\'est pas encore branché : le Pass Premium arrive bientôt'); },
