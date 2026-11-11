@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 1.7', BUILD = '17';
+let AR = 1300; const VERSION = 'mobile 1.8', BUILD = '18';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -45,8 +45,33 @@ const TOX = {
   n3: { n: 'Drain vital', t: 'drain', cd: 11, rad: 340, dk: 2.2, heal: .05, d: 'Blesse les ennemis proches et te soigne pour chacun.' },
   n4: { n: 'Éclipse totale', t: 'ult', dk: 9, bk: 13, slow: 4, d: "L'éclipse frappe tout et ralentit les survivants." }
 };
-for (const h of HERO_IDS) HEROES[h].tox.forEach((id, i) => { TOX[id].h = h; TOX[id].r = i; TOX[id].id = id; });
+/* TOX de rechange : chaque gardien a un 2e pouvoir rare (emplacement B) et un 2e pouvoir épique (emplacement C), à équiper à la place des premiers */
+Object.assign(TOX, {
+  k5: { n: 'Marteau de lumière', t: 'rain', cd: 9, num: 5, dk: 3.4, rad: 170, d: 'Cinq marteaux de lumière tombent sur les ennemis.' },
+  k6: { n: 'Ferveur', t: 'buff', cd: 14, dur: 6, rate: 1.7, spd: 1.2, d: 'Tu tires bien plus vite pendant quelques secondes.' },
+  e5: { n: 'Pas de braise', t: 'blink', cd: 6.5, dist: 400, rad: 260, dk: 3, d: 'Tu te téléportes dans une explosion de feu.' },
+  e6: { n: 'Cœur de braise', t: 'buff', cd: 13, dur: 5, rate: 1.9, spd: 1.15, d: 'Ta cadence de tir explose un court instant.' },
+  a5: { n: 'Geyser', t: 'slow', cd: 9, rad: 420, dur: 4, dk: 2, d: 'Un geyser blesse et ralentit tout autour de toi.' },
+  a6: { n: 'Pluie de notes', t: 'rain', cd: 12, num: 10, dk: 2.2, rad: 140, d: 'Dix notes tombent en rafale sur les ennemis.' },
+  v5: { n: "Voile d'ombre", t: 'slow', cd: 8, rad: 380, dur: 3.5, dk: 2.6, d: 'Un voile blesse et ralentit les ennemis proches.' },
+  v6: { n: 'Soif de sang', t: 'drain', cd: 10, rad: 320, dk: 2.8, heal: .06, d: 'Tranche autour de toi et te soigne pour chaque ennemi.' },
+  b5: { n: 'Charge du bélier', t: 'blink', cd: 7, dist: 460, rad: 280, dk: 4, d: "Tu fonces et tu écrases tout à l'arrivée." },
+  b6: { n: "Pluie d'étincelles", t: 'rain', cd: 12, num: 7, dk: 3.2, rad: 170, d: 'Sept gerbes de forge explosent sur les ennemis.' },
+  n5: { n: "Nova d'ombre", t: 'onde', cd: 8, rad: 400, dk: 3, kb: 500, d: "Une explosion d'ombre repousse les ennemis." },
+  n6: { n: 'Pacte sombre', t: 'buff', cd: 14, dur: 6, rate: 1.6, spd: 1.35, d: 'Tu tires et tu cours plus vite.' },
+  /* TOX passifs : toujours actifs, pour tous les gardiens */
+  p1: { n: 'Cœur vaillant', t: 'pas', k: 'hp', v: 4, d: 'PV max augmentés pour tous tes gardiens.' },
+  p2: { n: 'Œil du faucon', t: 'pas', k: 'crit', v: 2, d: 'Chance de coup critique augmentée.' },
+  p3: { n: 'Bottes du vent', t: 'pas', k: 'spd', v: 2, d: 'Vitesse de déplacement augmentée.' },
+  p4: { n: 'Trèfle doré', t: 'pas', k: 'coins', v: 5, d: 'Plus de pièces à la fin de chaque partie.' }
+});
+const ALT = { kaelion: ['k5', 'k6'], elyra: ['e5', 'e6'], aria: ['a5', 'a6'], vesper: ['v5', 'v6'], brakkor: ['b5', 'b6'], nyxara: ['n5', 'n6'] }, PASSIVE = ['p1', 'p2', 'p3', 'p4'];
+for (const h of HERO_IDS) { HEROES[h].tox.forEach((id, i) => { TOX[id].h = h; TOX[id].r = i; TOX[id].id = id; }); ALT[h].forEach((id, i) => { TOX[id].h = h; TOX[id].r = i + 1; TOX[id].id = id; TOX[id].alt = 1; }); }
+PASSIVE.forEach((id, i) => { TOX[id].r = i < 2 ? 1 : 2; TOX[id].id = id; });
 const TOX_IDS = Object.keys(TOX), TMAX = 10;
+/* les 4 TOX équipés d'un gardien (A, B, C, ultime) */
+function eqOf(h) { const t = HEROES[h].tox.slice(), e = (S.eq && S.eq[h]) || {}; for (const s of [1, 2]) { const id = e[s]; if (id && TOX[id] && TOX[id].h === h && (S.tox[id] || {}).l) t[s] = id; } return t; }
+const pasLv = id => (S.tox[id] || {}).l || 0;
 const tneed = l => [1, 2, 3, 4, 5, 6, 8, 10, 12, 15][l] || 99, tcost = (l, r) => 80 * l * (r + 1);
 const tk = l => 1 + .12 * (Math.max(1, l) - 1), tcd = (t, l) => +(t.cd * (1 - .025 * (Math.max(1, l) - 1))).toFixed(1);
 /* tenues rares, trouvées dans les étoiles légendaires */
@@ -110,6 +135,13 @@ const upCost = l => 100 * (l + 1);
 
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const PATCH = [
+  { v: '1.8', date: '11 novembre 2026', title: 'Étoiles, hordes et nouveaux pouvoirs', items: [
+    { img: 'ui/st_3.webp', t: 'Boosters à 4 étoiles', d: "Chaque étoile révèle une carte : l'image du TOX, ce qu'il fait et tes copies." },
+    { img: 'tx/k4.webp', t: 'Légendaire spectaculaire', d: 'Un TOX légendaire ou une tenue rare déclenche une grande révélation.' },
+    { img: 'tx/n5.webp', t: '16 nouveaux TOX', d: 'Un 2e pouvoir rare et épique par gardien, à équiper dans sa boutique, et 4 passifs.' },
+    { img: 'm0.jpg', t: 'Des hordes de monstres', d: 'Beaucoup plus de monstres dès la première vague, mais ils cognent moins fort.' },
+    { img: 'ic/wave.webp', t: 'Nouvelles musiques', d: 'Trois musiques de plus : pages, combat avancé et constellations. Sons plus riches.' },
+    { img: 'h0.jpg', t: 'Images plus nettes', d: 'Portraits des gardiens et des monstres redessinés, icônes en haute définition.' } ] },
   { v: '1.7', date: '11 novembre 2026', title: 'Le journal des nouveautés', items: [
     { img: 'ui/b_codex.webp', t: 'Notes de version', d: 'Après chaque mise à jour, cet écran te montre tout ce qui a changé, en images.' },
     { img: 'ui/bstar.webp', t: 'Mise à jour annoncée', d: "L'écran de mise à jour indique maintenant ce que contient la nouvelle version." },
@@ -134,7 +166,7 @@ function defSave() {
   const tox = {}; for (const id of TOX_IDS) tox[id] = { l: TOX[id].r === 0 ? 1 : 0, c: 0 };
   const hs = {}; for (const h of HERO_IDS) hs[h] = { hp: 0, dmg: 0, spd: 0 };
   return { v: 2, name: 'Gardien', coins: 200, prisms: 50, xp: 0, passXp: 0, passClaim: [], passClaimP: [], premium: false, owned: ['kaelion', 'elyra'], hero: 'kaelion',
-    up: { hp: 0, dmg: 0, spd: 0 }, hs, tox, skins: [], skin: {}, boost: {}, bon: {}, bopen: 0, seen: '',
+    up: { hp: 0, dmg: 0, spd: 0 }, hs, tox, skins: [], skin: {}, eq: {}, boost: {}, bon: {}, bopen: 0, seen: '',
     stats: { games: 0, wins: 0, maxWave: 0, kills: 0, boss: 0, time: 0 }, codex: {}, orbs: 3, pity: 0,
     q: { day: '', kills: 0, wave: 0, games: 0, claimed: [] }, set: { btn: 1, lefty: false, vib: true, snd: true, mus: true, gfx: 1, fill: 1 } };
 }
@@ -161,10 +193,11 @@ function dayCheck() { const d = new Date().toDateString(); if (S.q.day !== d) { 
 const level = () => 1 + Math.floor(S.xp / 400);
 /* cartes de TOX : la première débloque le pouvoir, les suivantes servent à l'améliorer */
 function addCard(id, n) { const t = S.tox[id] || (S.tox[id] = { l: 0, c: 0 }); t.c += n || 1; let unlocked = false; if (t.l === 0) { t.l = 1; t.c -= 1; unlocked = true; } return unlocked; }
-function randCard(rar, hero) {
+function randCard(rar, hero, main) {
   const own = S.owned, h = hero || (Math.random() < .6 ? S.hero : own[(Math.random() * own.length) | 0]);
   let r = rar; if (r === undefined) { const x = Math.random(); r = x < .5 ? 0 : x < .8 ? 1 : x < .95 ? 2 : 3; }
-  return HEROES[h].tox[r];
+  const c = [HEROES[h].tox[r]]; if (!main && (r === 1 || r === 2)) { c.push(HEROES[h].tox[r], ALT[h][r - 1], ALT[h][r - 1]); for (const p of PASSIVE) if (TOX[p].r === r) c.push(p); }
+  return c[(Math.random() * c.length) | 0];
 }
 function give(r) {
   let t = [];

@@ -591,3 +591,41 @@ html.alone body{position:absolute;left:0;top:0;overflow:visible;width:100%}
 .pni b{display:block;font-size:29px;line-height:1.1;color:#ffd45e;margin-bottom:4px}
 .pni span{display:block;font-size:22px;line-height:1.18;color:#e0d0ff;font-weight:600}
 .updn{font-size:27px;line-height:1.3;color:#fff;text-align:left;font-weight:600;padding:14px 26px;border-radius:22px;background:#150a2ecc;border:3px solid #7d5ae0}
+
+/* ===== v1.8 : boosters à 4 étoiles, une carte détaillée par étoile ===== */
+.cslot{position:absolute;width:0;height:0}
+.ccard{position:absolute;left:-166px;top:-190px;width:332px;height:440px;padding:14px 18px 16px;border-radius:30px;background:linear-gradient(#3f2590,#1c0e44);border:6px solid var(--rc);box-shadow:0 0 0 5px #0d061d,0 0 44px 2px var(--rc),inset 0 4px 0 #ffffff33;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;animation:ccin .7s var(--spring) both}
+@keyframes ccin{from{opacity:0;transform:perspective(900px) rotateY(100deg) scale(.5)}to{opacity:1;transform:none}}
+.ccard .cr{font-size:20px;letter-spacing:4px;color:var(--rc);text-shadow:0 0 14px var(--rc)}
+.ccard .cimg{position:relative;width:132px;height:132px;flex:none;filter:drop-shadow(0 0 14px var(--rc));animation:bob 1.6s ease-in-out infinite alternate}
+.ccard .cimg .tic,.ccard .cimg .ici{width:100%;height:100%;vertical-align:0}
+.ccard .cimg b{position:absolute;right:-14px;bottom:-4px;min-width:50px;height:44px;padding:0 8px;border-radius:22px;background:#ff3d5a;border:3px solid #fff;font-size:26px;line-height:38px}
+.ccard .cimg.hp{border-radius:50%;overflow:hidden;border:5px solid var(--rc)}.ccard .cimg.hp img{width:100%;height:100%;object-fit:cover;display:block}
+.ccard .cn{font-size:30px;line-height:1.05;color:#fff;text-shadow:0 3px 0 #1a0c36}
+.ccard .ch{font-size:20px;color:#ffd45e;line-height:1.1}
+.ccard .cd{font-size:20px;line-height:1.18;color:#e0d0ff;font-weight:600;flex:1;display:flex;align-items:center}
+.ccard .cunl{font-size:24px;color:#8cff7a;text-shadow:0 0 14px #27b84a;animation:blink .6s infinite alternate}
+.ccard .cup{font-size:19px;color:#ffd45e;line-height:1}
+.ccard .bar{width:100%;height:32px;flex:none}.ccard .bar span{font-size:20px;line-height:26px}
+.ccard .cbonus{position:absolute;right:-10px;top:-16px;padding:2px 14px 4px;border-radius:18px;background:#150a2e;border:3px solid #ffd45e;font-size:24px}.ccard .cbonus .ici{width:30px;height:30px;display:inline-block;vertical-align:-6px}
+.cbig{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;z-index:5}
+.cbig .cbt{font-size:120px;line-height:1;color:#ffd45e;text-shadow:0 10px 0 #7a3d00,0 0 60px #ffb84e;animation:slam .7s var(--spring) both;margin-top:-30px}
+.cbig .ccard{position:relative;left:auto;top:auto;transform-origin:50% 40%;animation:cbigin 1s var(--spring) both;margin:40px 0 70px;box-shadow:0 0 0 5px #0d061d,0 0 120px 30px #ffd45e,inset 0 4px 0 #ffffff55}
+@keyframes cbigin{from{opacity:0;transform:scale(.1) rotate(-25deg)}to{opacity:1;transform:scale(1.42)}}
+.cbig .ccard:after{content:"";position:absolute;inset:0;border-radius:24px;background:linear-gradient(110deg,transparent 35%,#ffffff88 50%,transparent 65%);background-size:300% 100%;animation:cshine 1.4s linear infinite;pointer-events:none}
+@keyframes cshine{from{background-position:120% 0}to{background-position:-60% 0}}
+.ctitle{top:auto;bottom:128px;font-size:50px}.ctitle small{font-size:20px;letter-spacing:10px}
+#ocard{padding-bottom:16px}
+.ohint.otop{top:18px}.opips.otop{top:84px}
+
+/* TOX de rechange et passifs */
+.tsw{position:absolute;left:50%;top:-4px;transform:translateX(-50%);z-index:3;padding:2px 14px 4px;border-radius:16px;background:#150a2e;border:3px solid #ffd45e;font-size:18px;white-space:nowrap;color:#ffd45e}
+.tsw:active{transform:translateX(-50%) scale(.92)}
+.tcell{width:84px;height:84px}
+.hmini{width:64px;height:64px}.hmini .ici{width:100%;height:100%}
+.pni img{border-radius:18px}
+#orb.epic #clabs,#orb.epic .ohint,#orb.epic .opips{opacity:0;transition:opacity .3s}
+#clabs{transition:opacity .3s}
+.ccard .cbonus{right:auto;left:50%;top:auto;bottom:-24px;transform:translateX(-50%);white-space:nowrap}
+#orb.epic .ohint,#orb.epic .opips{visibility:hidden}
+.ccard .cbonus{bottom:-34px}

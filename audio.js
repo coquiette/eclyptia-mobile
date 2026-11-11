@@ -1,5 +1,5 @@
 /* ===== ECLYPTIA — moteur audio v2 : instruments synthétisés, réverbération, vraies musiques (aucun fichier audio) ===== */
-let AC = null, OUT = null, MG = null, MUS = null, RV = null, NB = null, TRK = null, VOX = 0, CUR = [440, 523.25, 659.25];
+let SB = null, AC = null, OUT = null, MG = null, MUS = null, RV = null, NB = null, TRK = null, VOX = 0, CUR = [440, 523.25, 659.25];
 let musT = 0, musStep = 0, musMode = '', musTimer = 0, duckK = 1, musLv = 0, DLY = null, clickI = 0;
 function musLevel(v) { musLv = Math.max(0, Math.min(1, v || 0)); }
 const MUSV = .5;
@@ -32,17 +32,18 @@ function osc(type, f, t, d, dest, slide, det) {
   const o = AC.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t); if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(20, slide), t + d); if (det) o.detune.value = det;
   o.connect(dest); o.start(t); o.stop(t + d + .05); VOX++; o.onended = vend; return o;
 }
-function genv(v, t, a, d, out) { const g = AC.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + d); g.connect(out || MG); return g; }
+function genv(v, t, a, d, out) { const g = AC.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + d); g.connect(out || SB || MG); return g; }
 function tone(f, d, type, v, slide, at, out) { const t = AC.currentTime + (at || 0); osc(type || 'sine', f, t, d, genv(v, t, Math.min(.02, d / 4), d, out), slide); }
 function noise(d, v, f0, f1, q, at, type, out) {
   const t = AC.currentTime + (at || 0), s = AC.createBufferSource(), fl = AC.createBiquadFilter(), g = AC.createGain();
   s.buffer = NB; s.loop = true; fl.type = type || 'bandpass'; fl.Q.value = q || 1; fl.frequency.setValueAtTime(f0, t); if (f1) fl.frequency.exponentialRampToValueAtTime(f1, t + d);
-  g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); s.connect(fl); fl.connect(g); g.connect(out || MG); s.start(t, Math.random()); s.stop(t + d + .03); VOX++; s.onended = vend;
+  g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); s.connect(fl); fl.connect(g); g.connect(out || SB || MG); s.start(t, Math.random()); s.stop(t + d + .03); VOX++; s.onended = vend;
 }
 /* cloche / célesta (synthèse FM) */
 function bell(f, d, v, at, out) {
   const t = AC.currentTime + (at || 0), g = genv(v, t, .004, d, out), c = osc('sine', f, t, d, g), mg = AC.createGain();
   mg.gain.setValueAtTime(f * 2.4, t); mg.gain.exponentialRampToValueAtTime(1, t + d * .55); osc('sine', f * 3.01, t, d, mg); mg.connect(c.frequency);
+  if (v > .03) osc('sine', f * 1.004, t, d * .8, genv(v * .35, t, .006, d * .8, out));   // léger chœur : son plus riche
 }
 /* corde pincée */
 function pluck(f, d, v, at, out, type) {
@@ -53,7 +54,7 @@ function pluck(f, d, v, at, out, type) {
 function pad(fs, d, v, at, out) {
   const t = AC.currentTime + (at || 0), fl = AC.createBiquadFilter(), g = AC.createGain(); fl.type = 'lowpass'; fl.frequency.value = 1500; fl.Q.value = .6;
   g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(v, t + Math.min(.35, d * .3)); g.gain.setValueAtTime(v, t + d * .7); g.gain.linearRampToValueAtTime(.0001, t + d);
-  fl.connect(g); g.connect(out || MG); for (const f of fs) { osc('sawtooth', f, t, d, fl, 0, -8); osc('sawtooth', f, t, d, fl, 0, 8); }
+  fl.connect(g); g.connect(out || SB || MG); for (const f of fs) { osc('sawtooth', f, t, d, fl, 0, -8); osc('sawtooth', f, t, d, fl, 0, 8); }
 }
 function kick(at, v, out) { const t = AC.currentTime + (at || 0); osc('sine', 150, t, .22, genv(v, t, .003, .24, out), 42); noise(.02, v * .25, 3000, 0, 1, at, 'highpass', out); }
 function snare(at, v, out) { noise(.15, v, 1900, 1200, .9, at, 'bandpass', out); tone(200, .08, 'triangle', v * .7, 130, at, out); }
@@ -74,7 +75,7 @@ const SFX = {
   click(key) {
     let h = 0; for (const ch of String(key || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
     const seq = [0, 2, 4, 5, 7, 5, 4, 2, 3, 5, 7, 9], i = clickI++, f = pen((seq[i % seq.length] + h % 4) % 10, 523.25), k = (i + h) % 4;
-    tone(rr(420, 520), .06, 'sine', .07, rr(800, 950));
+    tone(rr(420, 520), .06, 'sine', .07, rr(800, 950)); tone(170, .05, 'sine', .05, 90);
     if (k === 0) bell(f * 2, .16, .04, .01); else if (k === 1) pluck(f, .14, .05, .008, 0, 'triangle'); else if (k === 2) { bell(f, .12, .035, .008); bell(f * 1.5, .14, .025, .05); } else { tone(f, .09, 'triangle', .05, f * 1.02, .008); noise(.03, .02, 3000, 1200, 1); }
   },
   back() { const f = [784, 698.46, 659.25, 587.33][clickI++ % 4]; tone(f, .09, 'sine', .08, f * .55); bell(f, .12, .025, .02); },
@@ -140,7 +141,7 @@ let sfxLast = {};
 function snd(name, a) {
   if (!S.set.snd || !audio() || !SFX[name] || VOX > 90) return;
   const n = AC.currentTime; if (sfxLast[name] && n - sfxLast[name] < (GAP[name] || .04)) return; sfxLast[name] = n;
-  try { SFX[name](a); } catch (e) {}
+  try { if (AC.createStereoPanner) { const p = AC.createStereoPanner(); p.pan.value = rr(-.38, .38); p.connect(MG); SB = p; } SFX[name](a); } catch (e) {} SB = null;
 }
 
 /* ---------- musiques : chaque morceau a deux parties (A et B), jouées A A B A, avec des couches qui s'ajoutent ---------- */
@@ -167,16 +168,43 @@ const SONGS = {
       mel: ['G5 Bb5 D6 G6 - D6 Bb5 -', 'F6 - D6 - A5 - F5 -', 'Eb6 - G6 - Bb6 - G6 Eb6', 'E6 - C#6 - A5 - - -', 'G6 - D6 - Bb5 - D6 G6', 'A6 - F6 - D6 - A5 -', 'G6 - E6 - Bb5 - G5 -', 'A5 C#6 E6 A6 - - - -'],
       cm: ['- - - - - - - -', '- A6 - - - - - -', '- - - - - - - -', '- - - - - E5 A5 C#6', '- - - - - - - -', '- - - - - - - D6', '- - - - - - - -', '- - - - C#7 A6 E6 A5'] } }
 };
-function song(m) { const s = SONGS[m]; if (!s.p) { s.p = 1; for (const k of ['A', 'B']) { const x = s[k], nt = b => b.split(' ').map(v => v === '-' ? 0 : nf(v)); x.ch = x.ch.map(c => c.split(' ').map(nf)); x.bass = x.bass.split(' ').map(nf); x.mel = x.mel.map(nt); x.cm = x.cm.map(nt); } } return s; }
+Object.assign(SONGS, {
+  /* pages (boutique, codex, pass…) : calme et chaleureux */
+  pages: { bpm: 92, style: 0, form: 'AABA',
+    A: { ch: ['D3 F#3 A3', 'A2 C#3 E3', 'B2 D3 F#3', 'G2 B2 D3', 'D3 F#3 A3', 'A2 C#3 E3', 'G2 B2 D3', 'A2 C#3 E3'], bass: 'D2 A1 B1 G1 D2 A1 G1 A1',
+      mel: ['F#5 - A5 - D6 - A5 -', 'E5 - A5 - C#6 - - -', 'D5 - F#5 - B5 - A5 F#5', 'G5 - - - B5 - D6 -', 'F#5 A5 D6 - F#6 - D6 -', 'E6 - C#6 - A5 - - -', 'B5 - D6 - G5 - B5 -', 'A5 - - - C#6 - E6 -'] },
+    B: { ch: ['B2 D3 F#3', 'G2 B2 D3', 'D3 F#3 A3', 'A2 C#3 E3', 'B2 D3 F#3', 'G2 B2 D3', 'D3 F#3 A3', 'A2 C#3 E3'], bass: 'B1 G1 D2 A1 B1 G1 D2 A1',
+      mel: ['B5 - D6 - F#6 - D6 -', 'B5 - G5 - D6 - B5 -', 'A5 - F#5 - D6 - A5 -', 'C#6 - - - E6 - - -', 'D6 - F#6 - B6 - F#6 -', 'G6 - D6 - B5 - G5 -', 'F#5 A5 D6 F#6 - - A6 -', 'E6 - C#6 - A5 - - -'] } },
+  /* combat, deuxième moitié de la partie : plus tendu */
+  game2: { bpm: 146, style: 1, form: 'AABA',
+    A: { ch: ['E3 G3 B3', 'C3 E3 G3', 'G3 B3 D4', 'D3 F#3 A3', 'E3 G3 B3', 'C3 E3 G3', 'B2 D#3 F#3', 'B2 D#3 F#3'], bass: 'E1 C1 G1 D1 E1 C1 B0 B0',
+      mel: ['E5 - B5 - E6 - D6 B5', 'C6 - G5 - E6 - D6 C6', 'B5 - D6 - G6 - F#6 D6', 'A5 - D6 - F#6 - E6 D6', 'E6 - - B5 E6 F#6 G6 -', 'E6 - - C6 E6 D6 C6 -', 'D#6 - B5 - F#6 - D#6 -', 'B5 D#6 F#6 B6 - - - -'] },
+    B: { ch: ['A2 C3 E3', 'D3 F#3 A3', 'G3 B3 D4', 'C3 E3 G3', 'A2 C3 E3', 'D3 F#3 A3', 'B2 D#3 F#3', 'B2 D#3 F#3'], bass: 'A1 D1 G1 C1 A1 D1 B0 B0',
+      mel: ['A5 C6 E6 A6 - E6 C6 -', 'A6 - F#6 - D6 - F#6 A6', 'B6 - G6 - D6 - G6 B6', 'G6 E6 C6 G5 - - C6 -', 'A5 - C6 - E6 - A6 -', 'F#6 A6 D7 - A6 - F#6 -', 'F#6 - - D#6 B5 - D#6 -', 'B5 - D#6 - F#6 - B6 -'] } },
+  /* constellations : mystérieux, sans batterie */
+  booster: { bpm: 84, style: 3, form: 'AB',
+    A: { ch: ['A3 C4 E4 B4', 'F3 A3 C4 G4', 'C4 E4 G4 D5', 'G3 B3 D4 A4', 'A3 C4 E4 B4', 'F3 A3 C4 G4', 'C4 E4 G4 D5', 'G3 B3 D4 A4'], bass: 'A1 F1 C2 G1 A1 F1 C2 G1',
+      mel: ['E6 - - - B5 - - -', 'C6 - - - G5 - A5 -', 'G5 - - - D6 - E6 -', 'D6 - - - B5 - - -', 'E6 - A6 - B6 - - -', 'A6 - G6 - E6 - - -', 'G6 - E6 - D6 - C6 -', 'B5 - - - D6 - - -'] },
+    B: { ch: ['D3 F3 A3 E4', 'A3 C4 E4 B4', 'F3 A3 C4 G4', 'E3 G#3 B3 E4', 'D3 F3 A3 E4', 'A3 C4 E4 B4', 'F3 A3 C4 G4', 'E3 G#3 B3 E4'], bass: 'D2 A1 F1 E1 D2 A1 F1 E1',
+      mel: ['F6 - - - A6 - - -', 'E6 - - - C6 - B5 -', 'A5 - C6 - F6 - - -', 'E6 - - - G#6 - B6 -', 'A6 - F6 - D6 - - -', 'C6 - E6 - A6 - - -', 'C7 - A6 - F6 - C6 -', 'B5 - - - E6 - - -'] } }
+});
+function song(m) { const s = SONGS[m]; if (!s.p) { s.p = 1; for (const k of ['A', 'B']) { const x = s[k], nt = b => b.split(' ').map(v => v === '-' ? 0 : nf(v)); x.ch = x.ch.map(c => c.split(' ').map(nf)); x.bass = x.bass.split(' ').map(nf); x.mel = x.mel.map(nt); x.cm = (x.cm || x.mel.map(() => '- - - - - - - -')).map(nt); } } return s; }
 function musTick() {
   if (!AC || !S.set.mus || !TRK || !SONGS[musMode] || AC.state !== 'running') return;
   if (musT < AC.currentTime - .25) musT = AC.currentTime + .05;
   const s = song(musMode), sd = 15 / s.bpm, o = TRK, lead = DLY || o;
   while (musT < AC.currentTime + .32) {
-    const at = Math.max(0, musT - AC.currentTime), st = musStep % 16, barAll = musStep >> 4, bar = barAll % 8, rep = (barAll >> 3) % 4, part = s[s.form[rep]], full = barAll >= 8, lv = s.style ? musLv : (full ? .6 : 0);
-    const c = part.ch[bar], b = part.bass[bar], m = st % 2 ? 0 : part.mel[bar][st >> 1], m2 = st % 2 ? 0 : part.cm[bar][st >> 1], isB = s.form[rep] === 'B';
+    const at = Math.max(0, musT - AC.currentTime), st = musStep % 16, barAll = musStep >> 4, bar = barAll % 8, rep = (barAll >> 3) % 4, fk = s.form[rep % s.form.length], part = s[fk], full = barAll >= 8, lv = s.style ? musLv : (full ? .6 : 0);
+    const c = part.ch[bar], b = part.bass[bar], m = st % 2 ? 0 : part.mel[bar][st >> 1], m2 = st % 2 ? 0 : part.cm[bar][st >> 1], isB = fk === 'B';
     if (st === 0) CUR = c;
-    if (s.style === 0) {
+    if (s.style === 3) {
+      if (st === 0) { pad(c, sd * 16.5, .034, at, o); tone(b, sd * 14, 'sine', .11, 0, at, o); tone(b * 2, sd * 12, 'triangle', .03, 0, at, o); }
+      if (st % 2 === 0) bell(c[[0, 1, 2, 3, 2, 1, 3, 2][st >> 1] % c.length] * 2, sd * 5, .026, at, lead);
+      if (st % 4 === 2) bell(c[(bar + (st >> 2)) % c.length] * 4, sd * 3, .01, at, lead);
+      if (m) { bell(m, sd * 7, .05, at, lead); bell(m * 2, sd * 5, .012, at, o); }
+      if (st === 0 || st === 3) tone(55, .16, 'sine', st ? .09 : .13, 38, at, o);
+      if (st === 8) noise(sd * 6, .012, 5000, 9000, 1, at, 'highpass', o);
+    } else if (s.style === 0) {
       if (st === 0) pad(c, sd * 16.5, .024, at, o);
       if (st === 0 || st === 6 || st === 8 || st === 14 || (isB && st === 11)) { tone(b, sd * 3, 'triangle', .1, 0, at, o); tone(b, sd * 3, 'sine', .08, 0, at, o); }
       if (st % 2 === 0 || (full && st % 4 === 3)) pluck(c[[0, 2, 1, 2, 3 % c.length, 2, 1, c.length - 1][(st >> 1) % 8]] * 2, sd * 2.4, .019, at, o, 'triangle');

@@ -35,15 +35,15 @@ let NETROLE = 0;   // 0 solo, 1 hôte, 2 invité
 const multi = () => G && G.n > 1;
 function myInfo() {
   const h = S.hero, bon = {}; for (const b of BOOSTS) if (S.bon[b.id] && (S.boost[b.id] || 0) > 0) bon[b.id] = 1;
-  return { hero: h, name: S.name, skin: skinOf(h), hs: S.hs[h] || { hp: 0, dmg: 0, spd: 0 }, tl: HEROES[h].tox.map(id => (S.tox[id] || {}).l || 0), bon };
+  return { hero: h, name: S.name, skin: skinOf(h), hs: S.hs[h] || { hp: 0, dmg: 0, spd: 0 }, tx: eqOf(h), tl: eqOf(h).map(id => (S.tox[id] || {}).l || 0), ps: PASSIVE.map(pasLv), bon };
 }
 function mkPlayer(info, i, n) {
-  const h = HEROES[info.hero] || HEROES.kaelion, hs = info.hs || {}, bon = info.bon || {}, tl = info.tl || [1, 0, 0, 0], T3 = h.tox.map(id => TOX[id]);
-  const maxhp = Math.round(h.hp * (1 + .08 * (hs.hp || 0)) * (bon.shield ? 1.25 : 1)), a = i / n * 6.283;
-  return { i, hero: info.hero, h, name: info.name || 'Gardien', skin: info.skin || 0, tl, bon, x: n > 1 ? Math.cos(a) * 110 : 0, y: n > 1 ? Math.sin(a) * 110 : 0, r: 52, hp: maxhp, maxhp, fx: 0, fy: 1, inv: 1.4, sh: 0, fireT: 1.2, dash: 0, ddx: 0, ddy: 1, atk: 0, blink: 0,
+  const h = HEROES[info.hero] || HEROES.kaelion, hs = info.hs || {}, bon = info.bon || {}, tl = info.tl || [1, 0, 0, 0], tx = (info.tx || h.tox).map((id, i) => TOX[id] && TOX[id].h === info.hero ? id : h.tox[i]), ps = info.ps || [0, 0, 0, 0], T3 = tx.map(id => TOX[id]);
+  const maxhp = Math.round(h.hp * (1 + .08 * (hs.hp || 0)) * (1 + .04 * ps[0]) * (bon.shield ? 1.25 : 1)), a = i / n * 6.283;
+  return { i, hero: info.hero, h, name: info.name || 'Gardien', skin: info.skin || 0, tl, tx, bon, x: n > 1 ? Math.cos(a) * 110 : 0, y: n > 1 ? Math.sin(a) * 110 : 0, r: 52, hp: maxhp, maxhp, fx: 0, fy: 1, inv: 1.4, sh: 0, fireT: 1.2, dash: 0, ddx: 0, ddy: 1, atk: 0, blink: 0,
     mv: 0, mvx: 0, mvy: 1, ix: 0, iy: 0, ult: bon.start ? 100 : 0, cd: { a: 0, b: 0, c: 0, d: 0 }, cdm: { a: tcd(T3[0], tl[0]), b: tcd(T3[1], tl[1]), c: tcd(T3[2], tl[2]), d: 2.2 },
-    base: h.dmg * (1 + .06 * (hs.dmg || 0)), spd0: h.spd * (1 + .03 * (hs.spd || 0)), buff: null, dead: false, gone: false, revive: bon.revive ? 1 : 0, picked: true, remote: false,
-    mods: { dmg: 1, rate: 1, spd: 1, multi: h.multi || 1, pierce: h.pierce || 0, magnet: bon.magnet ? 520 : 190, cdr: 1, leech: 0, crit: h.crit || .05 } };
+    base: h.dmg * (1 + .06 * (hs.dmg || 0)), spd0: h.spd * (1 + .03 * (hs.spd || 0)) * (1 + .02 * ps[2]), buff: null, dead: false, gone: false, revive: bon.revive ? 1 : 0, picked: true, remote: false,
+    mods: { dmg: 1, rate: 1, spd: 1, multi: h.multi || 1, pierce: h.pierce || 0, magnet: bon.magnet ? 560 : 240, cdr: 1, leech: 0, crit: (h.crit || .05) + .02 * ps[1] } };
 }
 function startRun(infos, me, role) {
   NETROLE = role || 0; infos = infos || [myInfo()]; me = me || 0; const n = infos.length;
@@ -53,7 +53,7 @@ function startRun(infos, me, role) {
     inter: 0, all: false, shake: 0, flash: 0, slow: 0, banner: null, combo: 0, comboT: 0, frenzy: 0, pil: [], ts: 1, slowmo: 0, stop: 0, stopCd: 0, zoomP: 0, cine: null, ann: null, uid: 1, evq: [], ql: 0, pickT: 0, bon: infos[me].bon || {} };
   G.ps.forEach((p, i) => { p.remote = i !== me; });
   J.x = J.y = 0; J.id = null; R3.reset(AR);
-  if (NETROLE !== 2) { nextWave(); G.spawnT = 2.2; } else G.banner = { t: 2.4, s: 'VAGUE 1', boss: 0 };
+  if (NETROLE !== 2) { nextWave(); G.spawnT = 1.5; } else G.banner = { t: 2.4, s: 'VAGUE 1', boss: 0 };
 }
 const alive = () => G.ps.filter(p => !p.dead && !p.gone);
 function nearest(x, y) { let b = null, bd = 1e9; for (const p of G.ps) { if (p.dead || p.gone) continue; const d = hyp(p.x - x, p.y - y); if (d < bd) { bd = d; b = p; } } return b; }
@@ -62,17 +62,17 @@ function nextWave() {
   for (const p of G.ps) if (p.dead && !p.gone) { p.dead = false; p.hp = Math.round(p.maxhp * .4); p.inv = 2.5; addFx(p.x, p.y, 200, '#8cff7a', .6); addPil(p.x, p.y, 90, 900, '#8cff7a', .9); }
   const w = G.wave, boss = w % 5 === 0, pool = [], k = 1 + .7 * (G.n - 1);
   for (const id of MON_IDS) { const m = MON[id]; if (!m.boss && m.from <= w) for (let i = 0; i < m.w; i++) pool.push(id); }
-  let n = Math.round((10 + 6 * w) * k); if (boss) n = Math.floor(n * .5);
+  let n = Math.round((26 + 10 * w) * k); if (boss) n = Math.floor(n * .55);
   G.queue = []; for (let i = 0; i < n; i++) G.queue.push(pool[(Math.random() * pool.length) | 0]);
   if (boss) G.queue.push('ver');
-  G.spawnT = 1.2; G.banner = { t: 2.4, s: boss ? 'BOSS !' : 'VAGUE ' + w, boss }; gsnd(boss ? 'boss' : 'wave'); music(boss ? 'boss' : 'game'); musLevel(w / LAST_WAVE);
+  G.spawnT = 1.2; G.banner = { t: 2.4, s: boss ? 'BOSS !' : 'VAGUE ' + w, boss }; gsnd(boss ? 'boss' : 'wave'); music(boss ? 'boss' : w >= 6 ? 'game2' : 'game'); musLevel(w / LAST_WAVE);
 }
 function spawn(id) {
   const m = MON[id], w = G.wave, k = 1 + .3 * (G.n - 1); let a, x, y, n = 0, pn;
   do { a = rnd(0, 6.283); const r = AR - rnd(60, 220); x = Math.cos(a) * r; y = Math.sin(a) * r; pn = nearest(x, y); } while (pn && hyp(x - pn.x, y - pn.y) < 520 && ++n < 14);
-  const el = !m.boss && w >= 3 && Math.random() < .06;
-  const hp = (m.boss ? m.hp * (w / 5) * 1.5 * G.n : m.hp * (1 + .2 * (w - 1)) * k) * (el ? 4.5 : 1);
-  const e = { uid: G.uid++, id, m, x, y, r: Math.round(m.r * 1.45 * (el ? 1.35 : 1)), hp, max: hp, spd: m.spd * rnd(.9, 1.1) * (el ? 1.1 : 1), dmg: m.dmg * (1 + .09 * (w - 1)) * (el ? 1.4 : 1), cd: rnd(1.2, 2.6), cc: 2.5, hit: 0, flash: 0, kx: 0, ky: 0, wind: 0, chg: 0, cvx: 0, cvy: 1, bob: rnd(0, 6), o: null, el, slowT: 0 };
+  const el = !m.boss && w >= 3 && Math.random() < .045;
+  const hp = (m.boss ? m.hp * (w / 5) * 1.8 * G.n : m.hp * .8 * (1 + .18 * (w - 1)) * k) * (el ? 5 : 1);
+  const e = { uid: G.uid++, id, m, x, y, r: Math.round(m.r * 1.45 * (el ? 1.35 : 1)), hp, max: hp, spd: m.spd * rnd(.9, 1.1) * (el ? 1.1 : 1), dmg: m.dmg * .8 * (1 + .08 * (w - 1)) * (el ? 1.4 : 1), cd: rnd(1.2, 2.6), cc: 2.5, hit: 0, flash: 0, kx: 0, ky: 0, wind: 0, chg: 0, cvx: 0, cvy: 1, bob: rnd(0, 6), o: null, el, slowT: 0 };
   G.en.push(e);
   addFx(x, y, m.boss ? 320 : 120, el ? '#ffd45e' : '#b06bff', .55); addPil(x, y, m.boss ? 160 : 46, m.boss ? 900 : 420, el ? '#ffd45e' : '#b06bff', m.boss ? 1.4 : .6); gsnd('spawn');
   if (m.boss) { G.shake = .5; cine({ t: 2.8, f: e, zoom: 1.45, title: m.n.toUpperCase(), sub: 'BOSS · VAGUE ' + w, col: '#ff5a5a' }); gsnd('boss'); vib(120); }
@@ -97,7 +97,7 @@ function playEv(a) {
 
 function hurt(p, d) {
   if (!p || p.dead || p.gone || p.inv > 0 || G.state !== 'play') return;
-  p.hp -= d; p.inv = .5; p.blink = .5; G.combo = 0; spark(p.x, p.y, '#ff5a5a', 8); gsnd('hurt');
+  p.hp -= d; p.inv = .7; p.blink = .7; G.combo = 0; spark(p.x, p.y, '#ff5a5a', 8); gsnd('hurt');
   if (p === G.p) { G.shake = .28; G.hurtT = .35; if (!multi()) G.stop = .07; vib(40); } else evp(['hu', p.i]);
   addTxt(p.x, p.y, 170, '-' + Math.round(d), '#ff6a6a', 1);
   if (p.hp <= 0) {
@@ -114,7 +114,7 @@ function dmgE(e, d, crit, by) {
 }
 function kill(e) {
   const by = e.by || G.p;
-  e.dead = true; G.kills++; G.kc[e.id] = (G.kc[e.id] || 0) + 1; for (const p of G.ps) p.ult = Math.min(100, p.ult + (p === by ? 4 : 2)); G.combo++; G.comboT = 2.8;
+  e.dead = true; G.kills++; G.kc[e.id] = (G.kc[e.id] || 0) + 1; for (const p of G.ps) p.ult = Math.min(100, p.ult + (p === by ? 2.2 : 1.1)); G.combo++; G.comboT = 2.8;
   const n = e.m.boss ? 30 : e.el ? 9 : e.id === 'garde' ? 4 : e.id === 'mage' ? 2 : 1;
   for (let i = 0; i < n; i++) G.gems.push({ x: e.x + rnd(-e.r, e.r), y: e.y + rnd(-e.r, e.r) });
   if (by.mods.leech && !by.dead) by.hp = Math.min(by.maxhp, by.hp + by.mods.leech);
@@ -147,7 +147,7 @@ function skill(k, p) {
     p.dash = .16; p.inv = Math.max(p.inv, .32); addFx(p.x, p.y, 90, '#ffffff', .25); gsnd('dash'); return;
   }
   const lv = p.tl[slot]; if (!lv) { if (p === G.p) { snd('err'); toast('TOX verrouillé : trouve sa carte dans un booster'); } return; }
-  const T = TOX[p.h.tox[slot]], K = tk(lv);
+  const T = TOX[p.tx[slot]], K = tk(lv);
   if (k === 'u') {
     if (p.ult < 100) return;
     p.ult = 0; gsnd('ultc'); if (p === G.p) vib(60);
@@ -217,7 +217,7 @@ function update(dt) {
     p.fireT -= dt; if (p.fireT <= 0) { if (fire(p)) { p.fireT = 1 / (p.h.rate * p.mods.rate * (p.buff ? p.buff.rate : 1) * (G.frenzy > 0 ? 1.4 : 1)); gsnd('shoot'); } else p.fireT = .1; }
   }
   const me = G.p; if (!me.dead && me.hp < me.maxhp * .3) { G.hb = (G.hb || 0) - dt; if (G.hb <= 0) { G.hb = .85; snd('heart'); } }
-  if (G.queue.length && G.en.length < 30 + 14 * (G.n - 1)) { G.spawnT -= dt; if (G.spawnT <= 0) { spawn(G.queue.pop()); G.spawnT = Math.max(.16, (.75 - .05 * G.wave) / (1 + .6 * (G.n - 1))); } }
+  if (G.queue.length && G.en.length < (lite() ? 42 : 56) + 18 * (G.n - 1)) { G.spawnT -= dt; if (G.spawnT <= 0) { spawn(G.queue.pop()); if (G.queue.length && Math.random() < .5) spawn(G.queue.pop()); G.spawnT = Math.max(.08, (.36 - .02 * G.wave) / (1 + .6 * (G.n - 1))); } }
   for (let i = G.tasks.length - 1; i >= 0; i--) { const k = G.tasks[i]; k.t -= dt; if (k.t <= 0) { G.tasks.splice(i, 1); aoe(k.p, k.x, k.y, k.rad, k.dmg, 200); addFx(k.x, k.y, k.rad * 1.2, k.col, .4); addFx(k.x, k.y, k.rad * .7, '#ffe07a', .3); addPil(k.x, k.y, k.rad * .5, 900, k.col, .5); spark(k.x, k.y, k.col, 10); G.shake = Math.max(G.shake, .2); gsnd('boom'); } }
   const gs = G.slow > 0 ? .4 : 1;
   for (const e of G.en) {
@@ -245,6 +245,7 @@ function update(dt) {
       else if (e.hit <= 0) { hurt(p, e.dmg); e.hit = .8; }
     }
   }
+  for (let i = 0, L = G.en.length; i < L; i++) { const a = G.en[i]; for (const o of [1, 5]) { const b = G.en[(i + o + ((G.t * 30) | 0)) % L]; if (b === a || a.m.boss || b.m.boss) continue; const dx = b.x - a.x, dy = b.y - a.y, d = hyp(dx, dy) || 1, m = (a.r + b.r) * .8; if (d < m) { const p = (m - d) / d * .5; a.x -= dx * p; a.y -= dy * p; b.x += dx * p; b.y += dy * p; } } }
   for (const s of G.sh) {
     s.x += s.vx * dt * (s.foe ? gs : 1); s.y += s.vy * dt * (s.foe ? gs : 1); s.life -= dt;
     if (s.foe) { for (const p of G.ps) { if (p.dead || p.gone) continue; if (hyp(s.x - p.x, s.y - p.y) < p.r + s.r - 8) { hurt(p, s.dmg); s.life = 0; break; } } continue; }
@@ -287,7 +288,7 @@ function updateGuest(dt) {
   for (const p of G.ps) {
     p.atk -= dt; p.blink = (p.blink || 0) - dt; p.sh -= dt; for (const k in p.cd) if (p.cd[k] > 0) p.cd[k] -= dt;
     if (p === me) { if (!p.dead) localInput(p, dt); else p.mv = 0; }
-    else if (p.tx !== undefined) { const k = Math.min(1, dt * 14); p.x += (p.tx - p.x) * k; p.y += (p.ty - p.y) * k; }
+    else if (p.gx !== undefined) { const k = Math.min(1, dt * 14); p.x += (p.gx - p.x) * k; p.y += (p.gy - p.y) * k; }
   }
   for (const e of G.en) { if (e.tx !== undefined) { const k = Math.min(1, dt * 12); e.x += (e.tx - e.x) * k; e.y += (e.ty - e.y) * k; } e.flash -= dt; e.cd -= dt; }
   for (const s of G.sh) { s.x += s.vx * dt; s.y += s.vy * dt; }
@@ -311,7 +312,7 @@ function applySnap(d) {
   if (G.state !== 'end' && (d.st === 'play' || d.st === 'pick') && !(G.state === 'pick' && d.st === 'pick')) { if (G.state === 'pick' && d.st === 'play') over(''); if (d.st === 'play') G.state = 'play'; }
   d.ps.forEach((a, i) => {
     const p = G.ps[i]; if (!p) return;
-    if (p !== me) { p.tx = a[0]; p.ty = a[1]; if (hyp(p.x - a[0], p.y - a[1]) > 500) { p.x = a[0]; p.y = a[1]; } p.fx = a[4]; p.fy = a[5]; p.mv = a[14]; p.mvx = a[15]; p.mvy = a[16]; p.dash = a[18] ? .1 : 0; }
+    if (p !== me) { p.gx = a[0]; p.gy = a[1]; if (hyp(p.x - a[0], p.y - a[1]) > 500) { p.x = a[0]; p.y = a[1]; } p.fx = a[4]; p.fy = a[5]; p.mv = a[14]; p.mvx = a[15]; p.mvy = a[16]; p.dash = a[18] ? .1 : 0; }
     else { if (hyp(p.x - a[0], p.y - a[1]) > 700) { p.x = a[0]; p.y = a[1]; } if (p.mv < .1) { p.fx = a[4]; p.fy = a[5]; } p.spd0 = a[17]; p.mods.spd = 1; p.buff = null; }
     p.hp = a[2]; p.maxhp = a[3]; if (a[6]) p.atk = .15; if (a[7] && p.blink <= 0) p.blink = .4; p.sh = a[8]; p.ult = a[9]; p.cd.a = a[10]; p.cd.b = a[11]; p.cd.c = a[12]; p.dead = a[13] === 1; p.gone = a[13] === 2;
   });
@@ -335,7 +336,7 @@ function tickFx(dt) {
 }
 function grant(res) {
   dayCheck(); const b = G.bon || {}; res.orb = res.win ? 1 : 0;
-  res.coins = (res.shards + res.wave * 20 + (res.win ? 200 : 0)) * (b.coins ? 2 : 1); res.prisms = res.win ? 40 : Math.floor(res.wave / 3) * 5; res.xp = (res.kills + res.wave * 40 + (res.win ? 200 : 0)) * (b.xp ? 2 : 1); res.passXp = (res.wave * 30 + (res.win ? 100 : 0)) * (b.xp ? 2 : 1);
+  res.coins = Math.round((res.shards + res.wave * 20 + (res.win ? 200 : 0)) * (b.coins ? 2 : 1) * (1 + .05 * pasLv('p4'))); res.prisms = res.win ? 40 : Math.floor(res.wave / 3) * 5; res.xp = (res.kills + res.wave * 40 + (res.win ? 200 : 0)) * (b.xp ? 2 : 1); res.passXp = (res.wave * 30 + (res.win ? 100 : 0)) * (b.xp ? 2 : 1);
   const l0 = level();
   S.coins += res.coins; S.prisms += res.prisms; S.xp += res.xp; S.passXp += res.passXp;
   S.stats.games++; if (res.win) S.stats.wins++; S.stats.maxWave = Math.max(S.stats.maxWave, res.wave); S.stats.kills += res.kills; S.stats.boss += res.boss || 0; S.stats.time += res.time;

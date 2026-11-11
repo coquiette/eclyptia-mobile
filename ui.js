@@ -1,5 +1,5 @@
 'use strict';
-let SCREEN = 'load', SEL = null, CSEL = 'larve', CTAB = 'mon', TSEL = 'k1', LAUNCH = null, toastT = 0;
+let TVIEW = {}; let SCREEN = 'load', SEL = null, CSEL = 'larve', CTAB = 'mon', TSEL = 'k1', LAUNCH = null, toastT = 0;
 const ui = () => $('#ui');
 function toast(s) { const t = $('#toast'); t.textContent = s; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2200); }
 const spk = n => Array.from({ length: n }, (_, i) => `<i class="spk" style="left:${(i * 137.5) % 100}%;top:${20 + (i * 61) % 75}%;animation-delay:${(i * .37) % 3}s;animation-duration:${2.4 + (i % 4) * .5}s"></i>`).join('');
@@ -11,6 +11,7 @@ const rewTxt = r => [r.coins ? r.coins + ' ' + ic('coin') : '', r.prisms ? r.pri
 const pips = l => `<div class="pips">${Array.from({ length: 10 }, (_, i) => `<i class="${i < l ? 'on' : ''}"></i>`).join('')}</div>`;
 function tfx(T, l) {
   const K = tk(l), x = v => '×' + (v * K).toFixed(1), cd = T.cd ? ' · recharge ' + tcd(T, l) + ' s' : '';
+  if (T.t === 'pas') return 'Niveau ' + l + ' : +' + T.v * l + ' % · toujours actif';
   if (T.t === 'salve') return T.num + ' projectiles · dégâts ' + x(T.dk) + cd; if (T.t === 'onde') return 'Zone ' + T.rad + ' · dégâts ' + x(T.dk) + cd;
   if (T.t === 'heal') return '+' + Math.round(T.pct * K * 100) + ' % PV · bouclier ' + T.sh + ' s' + cd; if (T.t === 'rain') return T.num + ' météores · dégâts ' + x(T.dk) + cd;
   if (T.t === 'buff') return 'Dure ' + (T.dur * (1 + .05 * (l - 1))).toFixed(1) + ' s' + cd; if (T.t === 'blink') return 'Saut ' + T.dist + ' · dégâts ' + x(T.dk) + cd;
@@ -19,7 +20,7 @@ function tfx(T, l) {
 }
 /* bouton d'amélioration d'un TOX (utilisé dans la boutique du gardien et dans le codex) */
 function tbtn(id) {
-  const T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }, own = S.owned.includes(T.h);
+  const T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }, own = !T.h || S.owned.includes(T.h);
   if (!s.l) return `<button class="btn sm gray" data-a="tinfo">CARTE REQUISE</button>`;
   if (s.l >= TMAX) return `<button class="btn sm gray">NIVEAU MAX</button>`;
   const need = tneed(s.l), cost = tcost(s.l, T.r), ok = s.c >= need && S.coins >= cost && own;
@@ -47,7 +48,7 @@ const SCR = {
       <div class="pn col" style="width:430px;align-items:center;text-align:center;gap:12px">
         <div class="card on heroshow" style="width:220px;height:220px;border-radius:50%">${himg(SEL)}</div>
         <div style="font-size:50px;line-height:1" class="gold">${h.n.toUpperCase()}</div><div class="sub">${h.cls}</div>
-        <div class="row" style="gap:10px">${h.tox.map(id => `<span class="tmini ${(S.tox[id] || {}).l ? '' : 'lk'}" style="--rc:${RARC[TOX[id].r]}">${tic(id)}<b>${(S.tox[id] || {}).l || ic('lock')}</b></span>`).join('')}</div>
+        <div class="row" style="gap:10px">${eqOf(SEL).map(id => `<span class="tmini ${(S.tox[id] || {}).l ? '' : 'lk'}" style="--rc:${RARC[TOX[id].r]}">${tic(id)}<b>${(S.tox[id] || {}).l || ic('lock')}</b></span>`).join('')}</div>
         <div class="col" style="width:100%;gap:8px">${st('PV', h.hp * (1 + .08 * (hs.hp || 0)), 250)}${st('Dégâts', h.dmg * (1 + .06 * (hs.dmg || 0)), 30)}${st('Vitesse', h.spd * (1 + .03 * (hs.spd || 0)), 500)}</div>
         ${own ? `<button class="btn sm vio" data-a="go" data-v="hshop" style="width:100%">BOUTIQUE DE ${h.n.toUpperCase()}</button>` : ''}
       </div>
@@ -66,8 +67,8 @@ const SCR = {
         <div class="row" style="gap:8px;width:100%"><button class="btn sm grow ${skinOf(SEL) ? 'gray' : ''}" data-a="skin" data-v="0" style="font-size:24px;padding:0 10px 4px;min-height:64px">Classique</button><button class="btn sm grow ${skinOf(SEL) ? '' : 'gray'}" data-a="skin" data-v="1" style="font-size:24px;padding:0 10px 4px;min-height:64px">${hasSk ? 'Tenue rare' : 'Verrouillée'}</button></div><div class="sub" style="font-size:20px;line-height:1.1">${hasSk ? 'Tenue : ' + sk.n : 'Tenue rare : étoile légendaire'}</div>
         ${SHOP_UP.map(x => { const l = hs[x.id] || 0, max = l >= 10; return `<div class="q hst"><div class="med sm">${ic(x.ic)}</div><div class="grow"><div class="l1">${x.n}</div><div class="sub"><span class="gold">${l}/10</span> · ${x.d}</div></div><button class="btn sm ${max || S.coins < upCost(l) ? 'gray' : ''}" data-a="hup" data-v="${x.id}">${max ? 'MAX' : upCost(l) + ' ' + ic('coin')}</button></div>`; }).join('')}
       </div>
-      <div class="row grow" style="align-items:stretch;gap:16px">${h.tox.map(id => { const T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }; return `<div class="pn col grow tcard ${s.l ? '' : 'lk'}" style="--rc:${RARC[T.r]}">
-        <div class="tring">${tic(id)}${s.l ? `<b>Niv. ${s.l}</b>` : `<b>${ic('lock')}</b>`}</div>
+      <div class="row grow" style="align-items:stretch;gap:16px">${h.tox.map((id0, si) => { const two = si === 1 || si === 2, eq = eqOf(SEL)[si], id = two ? (TVIEW[SEL + si] || eq) : id0, T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }; return `<div class="pn col grow tcard ${s.l ? '' : 'lk'}" style="--rc:${RARC[T.r]}">
+        ${two ? `<button class="tsw" data-a="tsw" data-v="${si}">⇄ ${id === eq ? 'ÉQUIPÉ' : 'NON ÉQUIPÉ'} · ${id === id0 ? '1' : '2'}/2</button>` : ''}<div class="tring">${tic(id)}${s.l ? `<b>Niv. ${s.l}</b>` : `<b>${ic('lock')}</b>`}</div>
         <div class="trar">${T.r === 3 ? 'ULTIME · ' : ''}${RARN[T.r]}</div><div class="tname">${T.n}</div><div class="sub" style="font-size:22px">${T.d}</div>
         <div class="sub gold" style="font-size:21px">${tfx(T, s.l || 1)}</div><div style="width:100%">${tbar(id)}</div>${tbtn(id)}</div>`; }).join('')}</div></div>`;
   },
@@ -90,8 +91,8 @@ const SCR = {
     const tabs = `<div class="col" style="width:280px"><button class="tab ${CTAB === 'mon' ? 'on' : ''}" data-a="ctab" data-v="mon">${ic('skull')} Monstres<span class="grow"></span>${seen}/${MON_IDS.length}</button><button class="tab ${CTAB === 'tox' ? 'on' : ''}" data-a="ctab" data-v="tox">${ic('tox')} TOX<span class="grow"></span>${tn}/${TOX_IDS.length}</button><div class="pn sub grow" style="font-size:22px">${CTAB === 'mon' ? 'Chaque monstre vaincu en partie est ajouté ici, avec ses forces.' : 'Tes pouvoirs. Les étoiles des boosters donnent des cartes pour les débloquer et les améliorer.'}</div></div>`;
     if (CTAB === 'tox') {
       const T = TOX[TSEL], s = S.tox[TSEL] || { l: 0, c: 0 };
-      return head('CODEX') + `<div class="body">${tabs}<div class="pn col grow" style="gap:6px;padding:20px 26px">${HERO_IDS.map(h => `<div class="row grow" style="gap:12px;opacity:${S.owned.includes(h) ? 1 : .45}"><span class="hmini">${himg(h)}</span><span style="width:130px;font-size:24px">${HEROES[h].n}</span>${HEROES[h].tox.map(id => { const x = S.tox[id] || { l: 0, c: 0 }; return `<button class="tcell ${id === TSEL ? 'on' : ''} ${x.l ? '' : 'lk'}" data-a="tsel" data-v="${id}" style="--rc:${RARC[TOX[id].r]}">${tic(id)}<b>${x.l ? 'Niv. ' + x.l : ''}</b>${S.owned.includes(h) && x.l && x.l < TMAX && x.c >= tneed(x.l) ? '<i></i>' : ''}</button>`; }).join('')}</div>`).join('')}</div>
-        <div class="pn col tcard ${s.l ? '' : 'lk'}" style="width:430px;--rc:${RARC[T.r]}"><div class="tring big">${tic(TSEL)}${s.l ? `<b>Niv. ${s.l}</b>` : `<b>${ic('lock')}</b>`}</div><div class="trar">${T.r === 3 ? 'ULTIME · ' : ''}${RARN[T.r]}</div><div class="tname">${T.n}</div><div class="sub">${HEROES[T.h].n} · ${HEROES[T.h].cls}</div><div class="sub">${T.d}</div><div class="gold sub">${tfx(T, s.l || 1)}</div>${s.l && s.l < TMAX ? `<div class="sub">Niveau suivant : ${tfx(T, s.l + 1)}</div>` : ''}<div style="width:100%">${tbar(TSEL)}</div>${tbtn(TSEL)}</div></div>`;
+      return head('CODEX') + `<div class="body">${tabs}<div class="pn col grow" style="gap:6px;padding:20px 26px">${HERO_IDS.map(h => `<div class="row grow" style="gap:12px;opacity:${S.owned.includes(h) ? 1 : .45}"><span class="hmini">${himg(h)}</span><span style="width:130px;font-size:24px">${HEROES[h].n}</span>${HEROES[h].tox.concat(ALT[h]).map(id => { const x = S.tox[id] || { l: 0, c: 0 }; return `<button class="tcell ${id === TSEL ? 'on' : ''} ${x.l ? '' : 'lk'}" data-a="tsel" data-v="${id}" style="--rc:${RARC[TOX[id].r]}">${tic(id)}<b>${x.l ? 'Niv. ' + x.l : ''}</b>${S.owned.includes(h) && x.l && x.l < TMAX && x.c >= tneed(x.l) ? '<i></i>' : ''}</button>`; }).join('')}</div>`).join('')}<div class="row grow" style="gap:12px"><span class="hmini" style="border-color:#8cff7a">${ic('star')}</span><span style="width:130px;font-size:24px">Passifs</span>${PASSIVE.map(id => { const x = S.tox[id] || { l: 0, c: 0 }; return `<button class="tcell ${id === TSEL ? 'on' : ''} ${x.l ? '' : 'lk'}" data-a="tsel" data-v="${id}" style="--rc:${RARC[TOX[id].r]}">${tic(id)}<b>${x.l ? 'Niv. ' + x.l : ''}</b>${x.l && x.l < TMAX && x.c >= tneed(x.l) ? '<i></i>' : ''}</button>`; }).join('')}</div></div>
+        <div class="pn col tcard ${s.l ? '' : 'lk'}" style="width:430px;--rc:${RARC[T.r]}"><div class="tring big">${tic(TSEL)}${s.l ? `<b>Niv. ${s.l}</b>` : `<b>${ic('lock')}</b>`}</div><div class="trar">${T.r === 3 ? 'ULTIME · ' : ''}${RARN[T.r]}</div><div class="tname">${T.n}</div><div class="sub">${T.h ? HEROES[T.h].n + ' · ' + HEROES[T.h].cls + (T.alt ? ' · rechange' : '') : 'Passif · tous les gardiens'}</div><div class="sub">${T.d}</div><div class="gold sub">${tfx(T, s.l || 1)}</div>${s.l && s.l < TMAX ? `<div class="sub">Niveau suivant : ${tfx(T, s.l + 1)}</div>` : ''}<div style="width:100%">${tbar(TSEL)}</div>${tbtn(TSEL)}</div></div>`;
     }
     const m = MON[CSEL], ok = !!S.codex[CSEL];
     return head('CODEX') + `<div class="body">${tabs}<div class="pn col grow">
@@ -147,7 +148,7 @@ const SCR = {
       <div class="pn col" style="width:420px;justify-content:space-between;text-align:center"><div class="sub">La progression est enregistrée sur cet appareil, dans ce navigateur.</div><div class="sub">Astuce : « Ajouter à l'écran d'accueil » dans le menu du navigateur lance le jeu en vrai plein écran.</div><div class="sub">ECLYPTIA ${VERSION}</div><button class="btn sm vio" data-a="pnotes">NOUVEAUTÉS</button><button class="btn sm gray" data-a="reset">RÉINITIALISER</button></div></div>`;
   },
   game() {
-    const L = LAUNCH || { infos: [myInfo()], me: 0 }, f = L.infos[L.me], h = HEROES[f.hero], tb = (k, i, big) => { const id = h.tox[i], lk = !f.tl[i]; return `<button class="ab ${lk ? 'lk' : ''}" id="b${k}" data-k="${k}"><em>${tic(id)}</em>${big ? '<small>ULTIME</small>' : ''}${lk ? '<span class="lkc">' + ic('lock') + '</span>' : ''}<div class="cd" id="cd${k}"></div>${big ? '' : `<div class="ct" id="ct${k}"></div>`}</button>`; };
+    const L = LAUNCH || { infos: [myInfo()], me: 0 }, f = L.infos[L.me], h = HEROES[f.hero], tb = (k, i, big) => { const id = (f.tx || h.tox)[i], lk = !f.tl[i]; return `<button class="ab ${lk ? 'lk' : ''}" id="b${k}" data-k="${k}"><em>${tic(id)}</em>${big ? '<small>ULTIME</small>' : ''}${lk ? '<span class="lkc">' + ic('lock') + '</span>' : ''}<div class="cd" id="cd${k}"></div>${big ? '' : `<div class="ct" id="ct${k}"></div>`}</button>`; };
     return `<div id="g3"><div class="neb"></div><div class="neb b"></div>${stars(40)}<div class="ecl"></div></div><canvas id="cv2" width="${W}" height="${H}"></canvas><div id="hud" class="${S.set.lefty ? 'lefty' : ''}">
       <div id="joyzone"><div id="joyb"><div id="joyk"></div></div></div>
       <div class="hhp">${himg(f.hero, f.skin)}<div class="grow"><div style="font-size:30px;line-height:1">${h.n}</div><div class="bar hpb"><i id="hpf"></i><span id="hpt"></span></div><div class="bar ulb"><i id="ulf"></i></div></div></div>
@@ -182,7 +183,7 @@ let NAVK = 0;
 function nav(n) {
   if (BUSY) return; BUSY = true; const el = ui(), bk = n === 'menu', k = ++NAVK; el.classList.remove('in'); el.classList.toggle('bk', bk); el.classList.add('out'); snd('whoosh'); sweep();
   setTimeout(() => {
-    try { if (n !== 'game') { G = null; NETROLE = 0; music('menu'); } if (n === 'hero') SEL = S.hero; show(n, true); }
+    try { if (n !== 'game') { G = null; NETROLE = 0; music(n === 'menu' ? 'menu' : 'pages'); } if (n === 'hero') SEL = S.hero; show(n, true); }
     catch (e) { report(e); }
     el.classList.remove('out'); void el.offsetWidth; el.classList.add('in'); if (n !== 'menu') snd('open');
     setTimeout(() => { BUSY = false; }, 220); setTimeout(() => { if (k === NAVK) el.classList.remove('in', 'bk'); }, 480);
@@ -228,7 +229,7 @@ function launch(infos, me, role) {
   setTimeout(() => { startRun(infos, me, role); w.classList.remove('in'); snd('pick'); setTimeout(() => BUSY = false, 300); }, 1500);
 }
 function over(html) { const o = $('#over'); if (!o) return; if (html && G) { G.ann = null; G.banner = null; } o.classList.remove('on'); o.innerHTML = html; if (html) { void o.offsetWidth; o.classList.add('on'); } }
-function pauseGame() { if (!G || G.state !== 'play' || multi()) return; G.state = 'pause'; const h = G.p.h; over(`<div class="big2">PAUSE</div><div class="row"><button class="btn big" data-a="resume">▶ REPRENDRE</button><button class="btn gray" data-a="quit">ABANDONNER</button></div><div class="row" style="gap:26px;font-size:28px">${h.tox.map((id, i) => `<span class="sub" style="opacity:${G.p.tl[i] ? 1 : .4}">${tic(id, 'in')} ${TOX[id].n}</span>`).join('')}<span class="sub">${ic('dash')} Esquive</span></div>`); }
+function pauseGame() { if (!G || G.state !== 'play' || multi()) return; G.state = 'pause'; const h = G.p.h; over(`<div class="big2">PAUSE</div><div class="row"><button class="btn big" data-a="resume">▶ REPRENDRE</button><button class="btn gray" data-a="quit">ABANDONNER</button></div><div class="row" style="gap:26px;font-size:28px">${G.p.tx.map((id, i) => `<span class="sub" style="opacity:${G.p.tl[i] ? 1 : .4}">${tic(id, 'in')} ${TOX[id].n}</span>`).join('')}<span class="sub">${ic('dash')} Esquive</span></div>`); }
 function openPick(ch) {
   G.state = 'pick'; G.choices = ch || rollChoices(); snd('pick');
   over(`<div style="font-size:60px" class="gold">VAGUE ${G.wave} TERMINÉE — CHOISIS UNE BÉNÉDICTION</div><div class="row" style="gap:36px;animation:none">${G.choices.map((c, i) => `<button class="pick" data-a="upg" data-v="${i}"><em>${ic(UPG[c].ic)}</em>${UPG[c].n}</button>`).join('')}</div>`);
@@ -251,7 +252,8 @@ const ACT = {
   pick(v) { if (S.owned.includes(v)) { S.hero = v; save(); show('collection'); } else { SEL = v; nav('hero'); setTimeout(() => SEL = v, 370); } },
   buyHero(v) { const h = HEROES[v], c = h.curr; if (S[c] < h.cost) return no('Pas assez de ' + (c === 'prisms' ? 'prismes' : 'pièces')); S[c] -= h.cost; S.owned.push(v); S.hero = v; save(); snd('buy'); toast(h.n + ' débloqué !'); show('hero'); },
   hup(v) { const hs = S.hs[SEL], l = hs[v] || 0; if (l >= 10) return; if (S.coins < upCost(l)) return no('Pas assez de pièces'); S.coins -= upCost(l); hs[v] = l + 1; save(); snd('buy'); show('hshop'); },
-  tup(v) { const T = TOX[v], s = S.tox[v]; if (!s || !s.l || s.l >= TMAX) return; if (!S.owned.includes(T.h)) return no('Débloque d\'abord ' + HEROES[T.h].n); const need = tneed(s.l), cost = tcost(s.l, T.r); if (s.c < need) return no('Il manque ' + (need - s.c) + ' carte' + (need - s.c > 1 ? 's' : '') + ' : ouvre des boosters'); if (S.coins < cost) return no('Pas assez de pièces'); S.coins -= cost; s.c -= need; s.l++; save(); snd('lvl'); toast(T.n + ' passe au niveau ' + s.l + ' !'); show(SCREEN); },
+  tup(v) { const T = TOX[v], s = S.tox[v]; if (!s || !s.l || s.l >= TMAX) return; if (T.h && !S.owned.includes(T.h)) return no('Débloque d\'abord ' + HEROES[T.h].n); const need = tneed(s.l), cost = tcost(s.l, T.r); if (s.c < need) return no('Il manque ' + (need - s.c) + ' carte' + (need - s.c > 1 ? 's' : '') + ' : ouvre des boosters'); if (S.coins < cost) return no('Pas assez de pièces'); S.coins -= cost; s.c -= need; s.l++; save(); snd('lvl'); toast(T.n + ' passe au niveau ' + s.l + ' !'); show(SCREEN); },
+  tsw(v) { const si = +v, h = SEL, a = HEROES[h].tox[si], b = ALT[h][si - 1], cur = TVIEW[h + si] || eqOf(h)[si], nx = cur === a ? b : a; TVIEW[h + si] = nx; if ((S.tox[nx] || {}).l) { (S.eq[h] = S.eq[h] || {})[si] = nx; save(); snd('pick'); toast(TOX[nx].n + ' équipé'); } show('hshop'); },
   tinfo() { no('Trouve la carte de ce TOX dans une étoile de booster'); },
   tsel(v) { TSEL = v; show('codex'); },
   ctab(v) { CTAB = v; show('codex'); },
