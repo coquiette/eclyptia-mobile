@@ -192,18 +192,25 @@ let REP = 0;
 function report(e) { if (REP) return; REP = 1; setTimeout(() => REP = 0, 400); try { report2(e); } catch (_) {} }
 function report2(e) { const m = (e && (e.message || e.reason && e.reason.message || e.reason)) || String(e); console.error(e); BUSY = false; const el = ui(); if (el) el.classList.remove('out'); toast('Erreur : ' + String(m).slice(0, 70)); }
 addEventListener('error', report); addEventListener('unhandledrejection', report);
-let UPD = 0;
+/* mise à jour obligatoire : dès qu'une nouvelle version est en ligne, un écran bloquant propose de redémarrer le jeu (après la partie en cours) */
+let UPD = 0, NEWB = null;
 function checkUpdate() {
   const now = Date.now(); if (now - UPD < 15000) return; UPD = now;
   fetch('version.json?t=' + now, { cache: 'no-store' }).then(r => r.json()).then(j => {
-    if (!j || !j.build || String(j.build) === BUILD || location.search.indexOf('v=' + j.build) >= 0) return;
-    if (G && SCREEN === 'game' && (G.state === 'play' || G.state === 'pick' || G.state === 'pause')) { UPD = 0; return; }
-    try { if (sessionStorage.getItem('ecl_upd') === String(j.build)) return; sessionStorage.setItem('ecl_upd', String(j.build)); } catch (e) { return; }
-    toast('Mise à jour du jeu…'); setTimeout(() => location.replace(location.pathname + '?v=' + j.build), 500);
+    if (!j || !j.build || String(j.build) === BUILD) return;
+    try { if (sessionStorage.getItem('ecl_upd') === String(j.build)) return; } catch (e) {}   // déjà tenté pendant cette visite : on évite de tourner en rond
+    NEWB = String(j.build); askUpdate();
   }).catch(() => {});
 }
+function askUpdate() {
+  if (!NEWB || document.getElementById('upd')) return;
+  if (G && SCREEN === 'game' && G.state !== 'end') return;
+  const d = document.createElement('div'); d.id = 'upd';
+  d.innerHTML = `<div class="pn col updp"><img src="img/ui/bstar.webp" draggable="false" alt=""><div class="gold" style="font-size:60px;line-height:1">MISE À JOUR DISPONIBLE</div><div class="sub" style="font-size:30px">Une nouvelle version d'ECLYPTIA est prête. Le jeu va redémarrer ; ta progression est conservée.</div><button class="btn big" data-a="update">METTRE À JOUR</button></div>`;
+  $('#stage').appendChild(d); snd('pick');
+}
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { fitSoon(); checkUpdate(); } });
-addEventListener('pageshow', checkUpdate); setInterval(() => { if (!document.hidden) checkUpdate(); }, 120000);
+addEventListener('pageshow', checkUpdate); setInterval(() => { if (!document.hidden) checkUpdate(); }, 60000); setInterval(askUpdate, 4000);
 function launch(infos, me, role) {
   if (!infos) { if (!S.owned.includes(S.hero)) S.hero = S.owned[0]; if (SEL && S.owned.includes(SEL)) S.hero = SEL; save(); infos = [myInfo()]; me = 0; role = 0; }
   goFull(); LAUNCH = { infos, me }; const f = infos[me], h = HEROES[f.hero];
@@ -267,11 +274,12 @@ const ACT = {
   orbClose() { closeOrb(); },
   orbAgain() { closeOrb(true); },
   buyOrb() { if (S.prisms < 80) return no('Pas assez de prismes'); S.prisms -= 80; S.orbs = (S.orbs || 0) + 1; save(); snd('buy'); toast('+1 booster'); show('shop'); },
+  update() { try { sessionStorage.setItem('ecl_upd', NEWB); } catch (e) {} if (NET.role) NET.leave(true); location.replace(location.pathname + '?v=' + NEWB); },
   start() { audio(); goFull(); snd('start'); music('menu'); nav('menu'); const m = /[?&]g=([A-Za-z0-9]{5})/.exec(location.search); if (m) setTimeout(() => { BUSY = false; nav('friends'); NET.join(m[1]); }, 1500); },
   reset() { if (ACT._r) { localStorage.removeItem(KEY); S = loadSave(); ACT._r = 0; toast('Sauvegarde effacée'); show('menu'); } else { ACT._r = 1; toast('Touche encore une fois pour tout effacer'); setTimeout(() => ACT._r = 0, 3000); } },
   share() { const d = { title: 'ECLYPTIA Mobile', text: 'Viens jouer à ECLYPTIA sur mobile !', url: location.href }; if (navigator.share) navigator.share(d).catch(() => {}); else if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(() => toast('Lien copié')).catch(() => toast(location.href)); else toast(location.href); }
 };
-document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (!b || BUSY) return; audio(); snd(b.classList.contains('back') ? 'back' : 'click', b.dataset.a + (b.dataset.v || '')); if (b.matches('.btn,.card,.tab,.m2b,.pick,.back,.m2prof,.orbbtn')) { b.classList.remove('tp'); void b.offsetWidth; b.classList.add('tp'); } ACT[b.dataset.a](b.dataset.v); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (!b || (BUSY && b.dataset.a !== 'update')) return; audio(); snd(b.classList.contains('back') ? 'back' : 'click', b.dataset.a + (b.dataset.v || '')); if (b.matches('.btn,.card,.tab,.m2b,.pick,.back,.m2prof,.orbbtn')) { b.classList.remove('tp'); void b.offsetWidth; b.classList.add('tp'); } ACT[b.dataset.a](b.dataset.v); });
 document.addEventListener('change', e => { if (e.target.id === 'nm') { S.name = e.target.value.trim().slice(0, 14) || 'Gardien'; save(); } });
 
 /* ---------- écran de lancement ---------- */
