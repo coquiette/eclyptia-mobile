@@ -55,8 +55,8 @@ const SCR = {
   },
   /* les TOX d'un gardien : 20 pouvoirs répartis sur 4 emplacements, leur niveau, les copies possédées, ce qui est équipé, et ses 2 armes */
   htox() {
-    SEL = SEL || S.hero; const h = HEROES[SEL], hasSk = S.skins.includes(SEL), eq = eqOf(SEL), all = HTOX[SEL], ids = all.filter(id => TOX[id].s === TTAB), own = all.filter(id => (S.tox[id] || {}).l).length, W2 = WEAPONS[SEL], wo = !!(S.wpo && S.wpo[SEL]), wc = wpOf(SEL);
-    const tabs = ['A', 'B', 'C', 'ULTIME', 'OBJETS'].map((t, i) => { const l = all.filter(id => TOX[id].s === i); return `<button class="ttab ${i === TTAB ? 'on' : ''}" data-a="ttab" data-v="${i}" style="--rc:${RARC[i] || '#8cff7a'}">${tic(eq[i] || l[0])}<span>${i < 3 ? 'TOX ' + t : t}<small>${RARN[i] || 'PASSIFS'} · ${l.filter(id => (S.tox[id] || {}).l).length}/${l.length}</small></span></button>`; }).join('');
+    SEL = SEL || S.hero; const h = HEROES[SEL], hasSk = S.skins.includes(SEL), eq = eqOf(SEL), all = HTOX[SEL], ids = all.filter(id => TTAB === 4 ? TOX[id].s === 4 : TOX[id].s < 4), own = all.filter(id => (S.tox[id] || {}).l).length, W2 = WEAPONS[SEL], wo = !!(S.wpo && S.wpo[SEL]), wc = wpOf(SEL);
+    if (TTAB !== 4) TTAB = 0; const tabs = ['POUVOIRS', '', '', '', 'OBJETS'].map((t, i) => { if (i > 0 && i < 4) return ''; const l = all.filter(id => i === 4 ? TOX[id].s === 4 : TOX[id].s < 4); return `<button class="ttab ${i === TTAB ? 'on' : ''}" data-a="ttab" data-v="${i}" style="--rc:${RARC[i] || '#8cff7a'}">${tic(eq[i] || l[0])}<span>${t}<small>${i ? 'RENFORTS' : 'DE BASE'} · ${l.filter(id => (S.tox[id] || {}).l).length}/${l.length}</small></span></button>`; }).join('');
     return head('TOX DE ' + h.n.toUpperCase(), 'hero') + `<div class="body">
       <div class="pn col txl" style="width:340px;flex:none;align-items:center;text-align:center;gap:8px;padding:22px 20px 20px">
         <div class="row" style="gap:14px;width:100%"><div class="card on heroshow" style="width:120px;height:120px;border-radius:50%;flex:none">${himg(SEL)}</div><div style="text-align:left"><div style="font-size:36px;line-height:1" class="gold">${h.n.toUpperCase()}</div><div class="sub" style="font-size:22px">${own} / ${all.length} TOX</div></div></div>
@@ -68,7 +68,7 @@ const SCR = {
       <div class="grid grow txg ${TTAB === 4 ? 't8' : ''}">${ids.map(id => { const T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }, on = eq.includes(id); return `<div class="txc ${s.l ? '' : 'lk'} ${on ? 'on' : ''}" style="--rc:${RARC[T.r]}">
         <div class="tring">${tic(id)}${s.l ? `<b>Niv. ${s.l}</b>` : `<b>${ic('lock')}</b>`}</div>
         <div class="txt">${T.it ? `<div class="ifx">${tfx(T, s.l || 1)}</div><div class="sub">${T.n}</div>` : `<div class="tname">${T.n}</div><div class="sub">${T.d}</div><div class="sub gold">${tfx(T, s.l || 1)}</div>`}${s.l ? tbar(id) : ''}
-          ${!s.l || s.l >= TMAX ? tbtn(id) : ''}${T.it ? (s.l ? '<span class="teq on">TOUJOURS ACTIF</span>' : '') : s.l ? (on ? '<span class="teq on">ÉQUIPÉ</span>' : `<button class="teq" data-a="teq" data-v="${id}">ÉQUIPER</button>`) : ''}</div></div>`; }).join('')}</div></div></div>`;
+          ${!s.l || s.l >= TMAX ? tbtn(id) : ''}${T.it ? (s.l ? '<span class="teq on">TOUJOURS ACTIF</span>' : '') : s.l ? `<span class="teq on">${T.s === 3 ? 'ULTIME' : 'POUVOIR ' + 'ABC'[T.s]}</span>` : ''}</div></div>`; }).join('')}</div></div></div>`;
   },
   /* la boutique générale : uniquement des boosts (payés en prismes) et les boosters de constellation */
   shop() {

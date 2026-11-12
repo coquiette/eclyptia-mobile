@@ -386,7 +386,7 @@ let SV2CARD = null, SV2BL = () => '';
   const c = G.choices, p = G.p, w = wallet(), rc = rollCost(), bl = (p.bl || []).concat(NETROLE === 2 || !BLESS[c.b[G.pb]] ? [] : [BLESS[c.b[G.pb]].n]);
   const card = (id, i) => { const T = TOX[id], cur = p.tx[T.s], has = !!p.tl[T.s], same = has && cur === id, lv = T.it ? 1 : same ? p.tl[T.s] + 1 : Math.max(1, p.tl[T.s] || 0), pr = shopPrice(id), sold = G.sold[i], poor = !sold && wallet() < pr, n0 = (p.itn && p.itn[id]) || 0;
     const chg = T.it ? (n0 ? `<span class="sv2c up"><small>TU EN AS ${n0}</small></span>` : '') : same ? `<span class="sv2c up"><i>Niv. ${lv - 1}</i><u>▸</u><b>Niv. ${lv}</b><small>AMÉLIORE</small></span>` : has ? `<span class="sv2c sw">${tic(cur)}<u>▸</u>${tic(id)}<small>REMPLACE</small></span>` : `<span class="sv2c nw">${ic('lock')}<u>▸</u>${tic(id)}<small>DÉBLOQUE</small></span>`;
-    const lk = !sold && (p.lock || []).includes(id); return `<div class="sv2w ${lk ? 'lk' : ''} ${T.it ? 'itm' : ''}" style="--i:${i}"><button class="sv2k ${sold ? 'sold' : ''} ${poor ? 'poor' : ''} ${G.justB === i ? 'just' : ''}" data-a="shopBuy" data-v="${i}" style="--rc:${RARC[T.r]};--i:${i}"><i class="sv2s">${T.it ? 'OBJET' : T.s === 3 ? 'ULTIME' : 'TOX ' + 'ABC'[T.s]}</i><i class="sv2r">${RARN[T.r]}</i><em>${tic(id)}</em><small class="sv2d ${T.it ? 'big' : ''}">${tfx(T, lv)}</small>${T.it ? `<i class="sv2n">${T.n}</i>` : `<b>${T.n}</b>`}${chg}<span class="sv2p">${sold ? 'ACHETÉ ✓' : pr + ' ' + ic('shard')}</span></button>${sold ? '' : `<button class="sv2lk ${lk ? 'on' : ''}" data-a="shopLock" data-v="${i}"><img src="img/kit/r_lock.webp" draggable="false" alt="Garder"></button>`}</div>`; };
+    const lk = !sold && (p.lock || []).includes(id); return `<div class="sv2w ${lk ? 'lk' : ''} ${T.it ? 'itm' : ''}" style="--i:${i}"><button class="sv2k ${sold ? 'sold' : ''} ${poor ? 'poor' : ''} ${G.justB === i ? 'just' : ''}" data-a="shopBuy" data-v="${i}" style="--rc:${RARC[T.r]};--i:${i}"><i class="sv2s">${T.it ? 'OBJET' : T.s === 3 ? 'ULTIME +1' : 'POUVOIR +1'}</i><i class="sv2r">${RARN[T.r]}</i><em>${tic(id)}</em><small class="sv2d ${T.it ? 'big' : ''}">${tfx(T, lv)}</small>${T.it ? `<i class="sv2n">${T.n}</i>` : `<b>${T.n}</b>`}${chg}<span class="sv2p">${sold ? 'ACHETÉ ✓' : pr + ' ' + ic('shard')}</span></button>${sold ? '' : `<button class="sv2lk ${lk ? 'on' : ''}" data-a="shopLock" data-v="${i}"><img src="img/kit/r_lock.webp" draggable="false" alt="Garder"></button>`}</div>`; };
   SV2CARD = card; SV2BL = () => Object.keys(p.itn || {}).map(id => `<i class="it">${tic(id)}×${p.itn[id]}</i>`).join('') + (bl.length ? bl.slice(-5).map(n => `<i>${n}</i>`).join('') : (p.itn && Object.keys(p.itn).length ? '' : '<i class="none">Aucun pour l’instant</i>'));
   over(`<div class="sv2"><div class="sv2t"><span class="pill shxw ${G.justP ? 'spent' : ''}">${ic('shard')} <b>${w}</b>${G.justP ? `<i class="minus">-${G.justP}</i>` : ''}</span><div class="sv2h"><b class="gold">BOUTIQUE</b><small>Vague ${G.wave} terminée · achète ce que tu veux · le cadenas garde une carte</small></div><button class="shxr ${w < rc ? 'poor' : ''}" data-a="shopRoll"><img class="sv2dice" src="img/kit/r_dice.webp" draggable="false" alt="">RELANCER <b>${rc}</b> ${ic('shard')}</button></div>
     <div class="sv2g ${G.justR ? 'rl' : ''}">${c.t.map(card).join('')}</div>
@@ -658,9 +658,9 @@ SCR.collection = () => {
 ACT.clHero = v => { SEL = v; TTAB = 0; nav('htox'); };
 
 /* ================= clavier du jeu : pour taper un pseudo, sans le clavier du téléphone ================= */
-const VKIDS = { askin: 'TON PSEUDO', nm: 'TON PSEUDO', gcode: 'PSEUDO DE TON AMI', refin: 'PSEUDO DE TON PARRAIN', frin: 'PSEUDO DE L’AMI À AJOUTER' }, VKROWS = ['1234567890', 'AZERTYUIOP', 'QSDFGHJKLM', 'WXCVBN'];
+const VKIDS = { askin: 'TON PSEUDO', nm: 'TON PSEUDO', gcode: 'PSEUDO DE TON AMI', refin: 'PSEUDO DE TON PARRAIN', frin: 'PSEUDO DE L’AMI À AJOUTER', chin: 'TON MESSAGE' }, VKROWS = ['1234567890', 'AZERTYUIOP', 'QSDFGHJKLM', "WXCVBN'!?"], vkBad = () => VK.el && VK.el.id === 'chin' ? !VK.v.trim().length : pslug(VK.v).length < 3;
 let VK = null;
-function vkDraw() { const d = $('#vkb'); if (!d) return; const t = d.querySelector('.vkt'); t.innerHTML = (VK.v ? esc(VK.v) : `<i>${VK.ph}</i>`) + '<u></u>'; d.querySelector('.vkc').textContent = VK.v.length + ' / ' + VK.max; d.classList.toggle('lo', !VK.up); d.querySelector('[data-k="ok"]').classList.toggle('gray', pslug(VK.v).length < 3); }
+function vkDraw() { const d = $('#vkb'); if (!d) return; const t = d.querySelector('.vkt'); t.innerHTML = (VK.v ? esc(VK.v) : `<i>${VK.ph}</i>`) + '<u></u>'; d.querySelector('.vkc').textContent = VK.v.length + ' / ' + VK.max; d.classList.toggle('lo', !VK.up); d.querySelector('[data-k="ok"]').classList.toggle('gray', vkBad()); d.querySelector('.vkt').classList.toggle('lg', VK.v.length > 22); }
 function vkOpen(inp) {
   if ($('#vkb')) return; VK = { el: inp, v: inp.value || '', max: +inp.maxLength > 0 ? +inp.maxLength : 14, up: true, caps: inp.id === 'gcode' || inp.id === 'refin' || inp.id === 'frin', ph: VKIDS[inp.id] };
   const d = document.createElement('div'); d.id = 'vkb';
@@ -669,14 +669,14 @@ function vkOpen(inp) {
     <div class="vkr r4"><button class="vkk w2 gr" data-k="cancel">ANNULER</button><button class="vkk sp" data-k=" ">ESPACE</button><button class="vkk w2 ok" data-k="ok">VALIDER</button></div></div>`;
   $('#stage').appendChild(d); vkDraw(); snd('open');
   d.addEventListener('pointerdown', e => { const b = e.target.closest('.vkk'); if (!b) return; e.preventDefault(); e.stopPropagation(); const k = b.dataset.k; b.classList.remove('hit'); void b.offsetWidth; b.classList.add('hit');
-    if (k === 'cancel') return vkClose(false); if (k === 'ok') { if (pslug(VK.v).length < 3) { snd('err'); return toast('Au moins 3 lettres ou chiffres'); } return vkClose(true); }
+    if (k === 'cancel') return vkClose(false); if (k === 'ok') { if (vkBad()) { snd('err'); return toast(VK.el.id === 'chin' ? 'Écris quelque chose' : 'Au moins 3 lettres ou chiffres'); } return vkClose(true); }
     if (k === 'del') { VK.v = VK.v.slice(0, -1); snd('back'); if (!VK.v.length) VK.up = true; } else if (k === 'shift') { VK.up = !VK.up; snd('tick'); }
     else { if (VK.v.length >= VK.max) { snd('err'); return; } if (k === ' ' && (!VK.v.length || VK.v.endsWith(' '))) return; VK.v += VK.up || VK.caps ? k : k.toLowerCase(); snd('click', k); if (!VK.caps) VK.up = k === ' '; }
     vkDraw(); });
   d.addEventListener('click', e => e.stopPropagation());
 }
 function vkClose(ok) { const d = $('#vkb'), k = VK; if (d) d.remove(); VK = null; if (!k) return; if (!ok) { snd('back'); return; } const el = k.el, v = k.v.trim(); if (el && el.isConnected) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }
-  snd('buy'); if (el && el.id === 'askin') ACT.nameOk(); else if (el && el.id === 'gcode') ACT.grpJoin(); else if (el && el.id === 'refin') ACT.refOk(); else if (el && el.id === 'frin') frAdd(v); else if (el && el.id === 'nm') { if (pslug(v).length >= 3) { S.name = v; S.named = true; save(); show('profile'); } } }
+  snd('buy'); if (el && el.id === 'askin') ACT.nameOk(); else if (el && el.id === 'gcode') ACT.grpJoin(); else if (el && el.id === 'refin') ACT.refOk(); else if (el && el.id === 'frin') frAdd(v); else if (el && el.id === 'chin') chatSend('t', v); else if (el && el.id === 'nm') { if (pslug(v).length >= 3) { S.name = v; S.named = true; save(); show('profile'); } } }
 for (const ev of ['pointerdown', 'touchstart', 'mousedown', 'focusin']) document.addEventListener(ev, e => { const t = e.target; if (!t || !t.id || !VKIDS[t.id] || t.tagName !== 'INPUT') return; if (e.cancelable) e.preventDefault(); t.readOnly = true; t.setAttribute('inputmode', 'none'); try { t.blur(); } catch (x) {} if (ev !== 'focusin' || !$('#vkb')) vkOpen(t); }, { capture: true, passive: false });
 
 
@@ -729,3 +729,122 @@ function bossSlam(e) { if (!e || e.dead || G.state !== 'play') return; const q =
 { const _ht5 = hudTick; hudTick = function () { _ht5.apply(this, arguments); if (!G || NETROLE === 2 || G.state !== 'play' || G.cine) return; const dt = G.t - (G._lt5 === undefined ? G.t : G._lt5); G._lt5 = G.t; if (!(dt > 0 && dt < .5)) return;
     for (const e of G.en) { if (!e.m || !e.m.boss || e.dead) continue; if (!e._in) { e._in = 1; e.slamT = 3.5; G.shake = Math.max(G.shake || 0, .8); addFx(e.x, e.y, 520, e.m.col, .7); addFx(e.x, e.y, 300, '#ffffff', .5); for (let i = 0; i < 6; i++) addPil(e.x + Math.cos(i * 1.047) * 200, e.y + Math.sin(i * 1.047) * 200, 60, 900, e.m.col, .9); vib(140); }
       if (e.stun > 0) continue; e.slamT -= dt; if (e.slamT <= 0) { e.slamT = (e.m.myth ? 5 : 6.5) - (e.ph || 1) * .7 + Math.random() * 1.5; bossSlam(e); } } }; }
+
+/* ================= groupe : plus de doublon, invitation et sortie en un toucher ================= */
+{ /* un joueur ne peut occuper qu'une place : s'il se reconnecte, son ancienne place est libérée */
+  const _oh = NET.onHost; NET.onHost = function (i, d) { if (i >= 0 && this.conns[i]) this.conns[i]._seen = Date.now();
+    if (d && d.t === 'pg') return;
+    if (d && d.t === 'hi' && d.info && this.role === 1) { const u = d.info.uid; if (u && u === S.uid) { this.to(i, { t: 'full' }); const c = this.conns[i]; this.conns[i] = null; this.lobby[i] = null; try { setTimeout(() => c && c.close && c.close(), 300); } catch (e) {} return; }
+      for (let j = 1; j < 3; j++) if (j !== i && this.lobby[j] && ((u && this.lobby[j].uid === u))) { const c = this.conns[j]; this.conns[j] = null; this.lobby[j] = null; try { c && c.close && c.close(); } catch (e) {} } }
+    return _oh.call(this, i, d); };
+  /* l'invité donne signe de vie ; l'hôte libère la place d'un invité muet (hors partie) */
+  setInterval(() => { try { if (NET.role === 2 && NET.state === 'ok') NET.send({ t: 'pg' }); else if (NET.role === 1 && !(G && SCREEN === 'game')) { const n = Date.now(); for (let j = 1; j < 3; j++) { const c = NET.conns[j]; if (c && c._seen && n - c._seen > 11000) NET.drop(j); } } } catch (e) {} }, 3000);
+  /* rejoindre : un seul essai à la fois, jamais son propre groupe */
+  const _jn = NET.join; let jt = 0; NET.join = function (code) { const c = pslug(code || ''); if (this.role === 2 && this.code === c && (this.state === 'wait' || this.state === 'ok')) return; if (Date.now() - jt < 1500) return; if (c && c.toUpperCase() === pslug(S.name).toUpperCase()) return toast('C’est ton propre pseudo : crée un groupe et invite ton ami'); if (navigator.onLine === false) return toast('Il faut internet pour rejoindre un groupe'); jt = Date.now(); return _jn.call(this, code); };
+  const _hs = NET.host; let ht = 0; NET.host = function () { if (this.role === 1 && this.state !== 'wait') return; if (Date.now() - ht < 800 && !this.noSlug) return; ht = Date.now(); return _hs.call(this); };
+}
+const grpUrl = () => location.origin + location.pathname + '?g=' + NET.code;
+ACT.grpInvite = () => { const url = grpUrl(), d = { title: 'ECLYPTIA', text: 'Rejoins mon groupe sur ECLYPTIA ! Touche le lien, ou tape mon pseudo ' + NET.code.toUpperCase() + ' dans Amis :', url }; if (navigator.share) navigator.share(d).catch(() => {}); else ACT.grpCopy(); };
+ACT.grpCopy = () => { const url = grpUrl(); if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('Lien du groupe copié : colle-le à ton ami'), () => toast(url)); else toast(url); };
+ACT.grpQuit = () => { const host = NET.role === 1; NET.leave(); snd('back'); toast(host ? 'Groupe fermé' : 'Tu as quitté le groupe'); if (SCREEN === 'friends') show('friends'); };
+{ const _fr4 = SCR.friends; SCR.friends = () => { let h = _fr4(); if (!NET.role) return h;
+  h = h.replace('<button class="btn vio" data-a="grpInvite" style="width:100%">INVITER</button><button class="btn sm gray" data-a="grpLeave" style="width:100%">QUITTER LE GROUPE</button>', `<button class="btn big" data-a="grpInvite" style="width:100%;min-width:0;padding:0 10px 8px;font-size:48px">INVITER</button><button class="btn sm vio" data-a="grpCopy" style="width:100%">COPIER LE LIEN</button><button class="btn red" data-a="grpQuit" style="width:100%">${NET.role === 1 ? 'FERMER LE GROUPE' : 'QUITTER LE GROUPE'}</button>`);
+  return h.replace('<div class="sub">Code du groupe</div>', '<div class="sub">Pseudo du groupe</div>'); }; }
+/* quitter le groupe aussi en revenant au menu avec la flèche, quand on n'est pas l'hôte en attente d'amis */
+
+/* ================= plus de TOX de remplacement : chaque gardien garde ses 4 pouvoirs de base, tout le reste ne fait que le renforcer ================= */
+for (const h of HERO_IDS) { const base = HEROES[h].tox, keep = id => base.includes(id) || (TOX[id] && TOX[id].it); for (let i = HTOX[h].length - 1; i >= 0; i--) if (!keep(HTOX[h][i])) HTOX[h].splice(i, 1); }
+for (let i = TOX_IDS.length - 1; i >= 0; i--) { const T = TOX[TOX_IDS[i]]; if (T && T.h && !T.it && !HEROES[T.h].tox.includes(TOX_IDS[i])) TOX_IDS.splice(i, 1); }
+if (S.eq && Object.keys(S.eq).length) { S.eq = {}; save(); }
+{ const _mi4 = myInfo; myInfo = function () { const f = _mi4(), b = HEROES[f.hero].tox; f.tx = b.slice(); f.tl = b.map(id => Math.max(1, (S.tox[id] || {}).l || 0)); return f; }; }
+{ const _mk2 = mkPlayer; mkPlayer = function (info, i, n) { const h = HEROES[info.hero] || HEROES.kaelion; info = Object.assign({}, info, { tx: h.tox.slice(), tl: (info.tl || []).map(l => Math.max(1, l | 0)) }); while (info.tl.length < 4) info.tl.push(1); return _mk2(info, i, n); }; }
+/* la mini-boutique ne propose que des renforts : les 8 objets du gardien, et +1 niveau pour un de ses pouvoirs */
+rollTox = function (p) { const lk = (p && p.luck) || 0, w = [58, 28 * (1 + lk), 11 * (1 + lk * 1.6)], pool = [];
+  for (const id of HITEM[p.hero] || []) pool.push([id, w[TOX[id].r] || 10]); for (let s = 0; s < 4; s++) if ((p.tl[s] || 1) < TMAX + 3) pool.push([p.tx[s], s === 3 ? 7 : 16]);
+  const out = []; while (out.length < 4 && pool.length) { let t = 0; for (const x of pool) t += x[1]; let r = Math.random() * t, k = 0; while (k < pool.length - 1 && r >= pool[k][1]) { r -= pool[k][1]; k++; } out.push(pool.splice(k, 1)[0][0]); } return out; };
+{ const _g3 = SCR.game; SCR.game = function () { return _g3().replace(/<span class="lkc">[\s\S]*?<\/span>/g, '').replace(/class="ab lk"/g, 'class="ab"'); }; }
+
+/* ================= invitations dans le jeu : une notification arrive directement chez l'ami (s'il a le jeu ouvert) =================
+   Chaque joueur est joignable sous son pseudo tant que le jeu est ouvert ; l'invitation passe directement d'un téléphone à l'autre. */
+const PRES = { peer: null, bc: null, ok: false, id: '', wait: null };
+const presId = n => 'eclyptia-p-' + pslug(n || '').toLowerCase();
+function presStart() {
+  const id = presId(S.name); if (!S.named || pslug(S.name).length < 3 || navigator.onLine === false) return; if (PRES.id === id && (PRES.peer || PRES.bc)) return; presStop(); PRES.id = id;
+  NET.lib(() => { if (PRES.id !== id) return;
+    if (NET.test) { PRES.bc = new BroadcastChannel('ecl-pres'); PRES.ok = true; PRES.bc.onmessage = e => { const m = e.data || {}; if (m.to !== id) return; if (m.d && m.d.t === 'inv') { invShow(m.d); PRES.bc.postMessage({ to: m.f, d: { t: 'ack', from: S.name } }); } else if (m.d && m.d.t === 'ack') invAck(m.d.from); }; return; }
+    try { const p = PRES.peer = new Peer(id); p.on('open', () => { PRES.ok = true; });
+      p.on('connection', c => { c.on('data', d => { if (d && d.t === 'inv') { invShow(d); try { c.send({ t: 'ack', from: S.name }); } catch (e) {} setTimeout(() => { try { c.close(); } catch (e) {} }, 1500); } }); });
+      p.on('error', e => { if (e && e.type === 'peer-unavailable' && PRES.wait) invFail(); else if (e && e.type === 'unavailable-id') { PRES.ok = false; } });
+      p.on('disconnected', () => { PRES.ok = false; setTimeout(() => { try { if (PRES.peer === p && !p.destroyed) p.reconnect(); } catch (e) {} }, 3000); }); } catch (e) {} });
+}
+function presStop() { try { if (PRES.peer) PRES.peer.destroy(); } catch (e) {} try { if (PRES.bc) PRES.bc.close(); } catch (e) {} PRES.peer = PRES.bc = null; PRES.ok = false; PRES.id = ''; }
+setTimeout(presStart, 3500); setInterval(() => { if (!document.hidden && !(G && SCREEN === 'game')) presStart(); }, 20000); addEventListener('online', () => setTimeout(presStart, 1500)); addEventListener('pagehide', presStop);
+{ const _nok = ACT.nameOk; ACT.nameOk = () => { _nok(); setTimeout(presStart, 500); }; }
+function invAck(from) { if (!PRES.wait) return; clearTimeout(PRES.wait.t); const n = PRES.wait.n; PRES.wait = null; snd('buy'); toast('Invitation reçue par ' + n + ' !'); }
+function invFail() { if (!PRES.wait) return; clearTimeout(PRES.wait.t); const n = PRES.wait.n; PRES.wait = null; snd('err'); toast(n + ' n’a pas le jeu ouvert : réessaie quand il est en ligne'); }
+function invSend(name) {
+  if (navigator.onLine === false) return no('Il faut internet pour inviter'); if (pslug(S.name).length < 3) return no('Choisis d’abord ton pseudo'); if (NET.role === 2) return no('Seul l’hôte du groupe peut inviter'); if (PRES.wait) return toast('Une invitation est déjà en cours…');
+  if (!NET.role) { NET.host(); if (SCREEN !== 'friends') nav('friends'); }
+  toast('Invitation envoyée à ' + name + '…'); PRES.wait = { n: name, t: setTimeout(invFail, 9000) }; let tries = 0;
+  const go = () => { if (!PRES.wait) return; if (NET.role !== 1) { clearTimeout(PRES.wait.t); PRES.wait = null; return; } if (NET.state !== 'ok' || !(PRES.ok || NET.peer)) { if (++tries > 40) return invFail(); return setTimeout(go, 200); }
+    const d = { t: 'inv', from: S.name, code: NET.code, hero: S.hero }, to = presId(name);
+    if (PRES.bc) return PRES.bc.postMessage({ to, f: PRES.id, d });
+    try { const p = PRES.ok && PRES.peer ? PRES.peer : NET.peer; if (p === NET.peer && !p._invE) { p._invE = 1; p.on('error', e => { if (e && e.type === 'peer-unavailable' && PRES.wait) invFail(); }); }
+      const c = p.connect(to, { reliable: true }); c.on('open', () => { try { c.send(d); } catch (e) {} }); c.on('data', x => { if (x && x.t === 'ack') { invAck(x.from); try { c.close(); } catch (e) {} } }); c.on('error', invFail); } catch (e) { invFail(); } };
+  go();
+}
+let INVQ = null;
+function invShow(d) { const from = String(d.from || 'Un ami').slice(0, 14), code = pslug(d.code || ''); if (code.length < 3) return; if (NET.role === 2 && NET.code === code) return;
+  if (G && SCREEN === 'game' && G.state !== 'end') { INVQ = d; return toast(from + ' t’invite dans son groupe (après ta partie)'); }
+  const o = $('#invn'); if (o) o.remove(); const e = document.createElement('div'); e.id = 'invn'; e.dataset.c = code;
+  e.innerHTML = `<span class="inva">${HEROES[d.hero] ? himg(d.hero, 0) : ic('friends')}</span><span class="invt"><b>${esc(from)}</b><small>t’invite dans son groupe</small></span><button class="btn" data-a="invYes">REJOINDRE</button><button class="rb" data-a="invNo"><img src="img/kit/r_close.webp" draggable="false" alt="Refuser"></button><i class="invb"></i>`;
+  $('#stage').appendChild(e); snd('claim'); try { vib(120); } catch (x) {} clearTimeout(invShow.t); invShow.t = setTimeout(() => { const x = $('#invn'); if (x) x.remove(); }, 30000); }
+ACT.invYes = () => { const e = $('#invn'); if (!e) return; const c = e.dataset.c; e.remove(); BUSY = false; if (SCREEN !== 'friends') nav('friends'); setTimeout(() => NET.join(c), 350); };
+ACT.invNo = () => { const e = $('#invn'); if (e) e.remove(); snd('back'); };
+{ const _sh7 = show; show = function (n, enter) { _sh7(n, enter); if (INVQ && n !== 'game') { const d = INVQ; INVQ = null; setTimeout(() => invShow(d), 600); } }; }
+/* choisir qui inviter */
+function invPick() { const o = $('#invp'); if (o) o.remove(); const F = S.friends || [], e = document.createElement('div'); e.id = 'invp';
+  e.innerHTML = `<div class="invpp"><button class="rb drx" data-a="invPickX"><img src="img/kit/r_close.webp" draggable="false" alt="Fermer"></button><div class="drt"><b class="gold">INVITER UN AMI</b><span>Il reçoit une notification dans le jeu s’il l’a ouvert</span></div>
+    ${F.length ? `<div class="invpg">${F.map((n, i) => `<button class="invpc" data-a="invTo" data-v="${i}"><span class="fr2a">${esc(n).slice(0, 1).toUpperCase()}</span><b>${esc(n)}</b><u>INVITER</u></button>`).join('')}</div>` : '<div class="sub" style="text-align:center;font-size:30px">Tu n’as pas encore d’ami dans ta liste.</div>'}
+    <div class="row" style="justify-content:center"><button class="btn vio" data-a="invAdd"><img class="ici" src="img/kit/r_plus.webp" draggable="false" alt=""> AJOUTER UN AMI</button></div></div>`; $('#stage').appendChild(e); snd('open'); }
+ACT.invPickX = () => { const o = $('#invp'); if (o) o.remove(); snd('back'); };
+ACT.invTo = v => { const n = (S.friends || [])[+v]; const o = $('#invp'); if (o) o.remove(); if (n) invSend(n); };
+ACT.invAdd = () => { const o = $('#invp'); if (o) o.remove(); ACT.frAddOpen(); };
+ACT.grpInvite = () => invPick();
+ACT.frInvite = v => { const n = (S.friends || [])[+v]; if (n) invSend(n); };
+{ const _fa = frAdd; frAdd = function (v) { const n0 = (S.friends || []).length; _fa(v); if (NET.role === 1 && (S.friends || []).length > n0) invSend(S.friends[0]); }; }
+{ const _fr5 = SCR.friends; SCR.friends = () => { let h = _fr5(); if (NET.role !== 1) return h; return h.split(`<div class="pn col grow slot" style="align-items:center;justify-content:center;text-align:center;opacity:.6"><div style="font-size:110px;line-height:1">${ic('friends')}</div><div class="sub">En attente d'un joueur…</div></div>`).join(`<button class="pn col grow slot invs" data-a="grpInvite"><img src="img/kit/r_plus.webp" draggable="false" alt=""><b>INVITER</b><div class="sub">Place libre</div></button>`); }; }
+
+/* ================= les fenêtres qui s'ouvrent réveillent les animations (sinon elles restaient figées, invisibles) ================= */
+try { new MutationObserver(() => document.documentElement.classList.remove('idle')).observe($('#stage'), { childList: true }); } catch (e) {}
+
+/* ================= groupe visible sur le menu, et JOUER passe par le choix du gardien même en groupe ================= */
+const grpPush = () => { try { if (NET.role === 1) NET.sync(); else if (NET.role === 2) { NET.send({ t: 'me', info: myInfo() }); if (NET.lobby[NET.me]) NET.lobby[NET.me].hero = S.hero; } } catch (e) {} };
+{ const _play = ACT.play; ACT.play = () => { if (!NET.role) return _play(); if (SEL && S.owned.includes(SEL)) S.hero = SEL; save(); grpPush(); if (NET.role === 1) { if (NET.state !== 'ok') return no('Le groupe se connecte encore…'); return NET.start(); } snd('buy'); toast('Gardien choisi : en attente du lancement par l’hôte'); nav('friends'); }; }
+{ const _m6 = SCR.menu; SCR.menu = () => { let h = _m6(); if (!NET.role) return h; const L = [0, 1, 2].map(i => NET.lobby[i] || null), n = L.filter(Boolean).length;
+  return h.replace('<div class="m2cur">', `<button class="m3g" data-a="go" data-v="friends"><span class="m3gt">GROUPE ${n} / 3<small>${NET.role === 1 ? 'Tu es l’hôte' : 'Hôte : ' + esc((L[0] || {}).name || '…')}</small></span>${L.map((f, i) => f ? `<span class="m3ga ${i === NET.me ? 'me' : ''}">${himg(f.hero, f.skin)}<b>${esc(f.name)}</b></span>` : '<span class="m3ga no"><i>+</i></span>').join('')}${CHAT.un ? `<i class="dot"></i>` : ''}</button><div class="m2cur">`); }; }
+{ const _lob3 = lobbyUI; lobbyUI = function () { _lob3(); if (typeof SCREEN !== 'undefined' && SCREEN === 'menu' && !$('#drw') && !$('#pnotes')) show('menu'); }; }
+{ const _hr = SCR.hero; SCR.hero = () => { let h = _hr(); if (!NET.role) return h; return h.replace('data-a="play">▶ JOUER</button>', `data-a="play">${NET.role === 1 ? '▶ LANCER LE GROUPE' : '✔ CHOISIR'}</button>`); }; }
+
+/* ================= chat de groupe : texte stylé, emojis, autocollants animés, badges de rang et de niveau ================= */
+const CHAT = { log: [], un: 0, st: 0 }, CEMO = ['😀', '😂', '😍', '😎', '😭', '😡', '👍', '🔥', '💀', '🎉', '❤️', '⭐'], CSTK = [['GG !', 'ui/bstar.webp', 'spin'], ['MERCI', 'ic/heart.webp', 'beat'], ['AÏE', 'ic/skull.webp', 'shk'], ['BOSS !', 'ic/crown.webp', 'bnc'], ['GO !', 'ic/swords.webp', 'shk'], ['CADEAU', 'kit/r_gift.webp', 'bnc']], CSTY = ['Blanc', 'Or', 'Feu', 'Arc-en-ciel'];
+const chatMe = () => { const k = rankOf(S.rp); return { n: S.name, h: S.hero, rk: k.n, rc: k.c, lv: level() }; };
+function chatAdd(m) { if (!m || typeof m !== 'object') return; const c = { n: String(m.n || 'Gardien').slice(0, 14), h: HEROES[m.h] ? m.h : 'kaelion', rk: String(m.rk || '').slice(0, 14), rc: /^#[0-9a-f]{6}$/i.test(m.rc) ? m.rc : '#ffd45e', lv: Math.max(1, m.lv | 0), k: m.k === 'e' || m.k === 's' ? m.k : 't', v: String(m.v || '').slice(0, 60), st: (m.st | 0) % 4, me: !!m.me }; if (c.k === 's' && !CSTK[+c.v]) return; if (c.k === 'e' && !CEMO.includes(c.v)) return;
+  CHAT.log.push(c); if (CHAT.log.length > 40) CHAT.log.shift(); if ($('#chat')) chatDraw(); else if (!c.me) { CHAT.un++; snd('pop'); toast(c.n + ' : ' + (c.k === 's' ? CSTK[+c.v][0] : c.v)); const b = document.querySelector('.chbtn'); if (b && !b.querySelector('.dot')) b.insertAdjacentHTML('beforeend', '<i class="dot"></i>'); } }
+function chatSend(k, v) { if (!NET.role) return no('Le chat est réservé au groupe'); const m = Object.assign(chatMe(), { k, v, st: CHAT.st }); if (NET.role === 1) { NET.cast({ t: 'ch', m }); } else NET.send({ t: 'ch', m }); chatAdd(Object.assign({ me: 1 }, m)); snd('pop'); }
+{ const _oh2 = NET.onHost; NET.onHost = function (i, d) { if (d && d.t === 'ch' && this.role === 1 && d.m) { const now = Date.now(), c = this.conns[i]; if (c && now - (c._ch || 0) < 400) return; if (c) c._ch = now; const f = this.lobby[i]; const m = Object.assign({}, d.m, { n: f ? f.name : d.m.n, h: f ? f.hero : d.m.h }); for (let j = 1; j < 3; j++) if (j !== i) this.to(j, { t: 'ch', m }); return chatAdd(m); } return _oh2.call(this, i, d); };
+  const _og = NET.onGuest; NET.onGuest = function (d) { if (d && d.t === 'ch' && this.role === 2) return chatAdd(d.m); return _og.call(this, d); };
+  const _lv = NET.leave; NET.leave = function (q) { CHAT.log = []; CHAT.un = 0; const c = $('#chat'); if (c) c.remove(); return _lv.call(this, q); }; }
+const chatMsg = c => `<div class="chm ${c.me ? 'me' : ''}"><span class="cha">${himg(c.h, 0)}</span><div class="cqb"><span class="cqn"><b>${esc(c.n)}</b><i class="chk" style="--rc:${c.rc}">${esc(c.rk)}</i><i class="chl">Niv. ${c.lv}</i></span>${c.k === 's' ? `<span class="chs ${CSTK[+c.v][2]}"><img src="img/${CSTK[+c.v][1]}" draggable="false" alt=""><u>${CSTK[+c.v][0]}</u></span>` : c.k === 'e' ? `<span class="che">${c.v}</span>` : `<span class="cht s${c.st}">${esc(c.v)}</span>`}</div></div>`;
+function chatDraw() { let d = $('#chat'); if (!d) { d = document.createElement('div'); d.id = 'chat'; $('#stage').appendChild(d); } CHAT.un = 0;
+  d.innerHTML = `<div class="chp"><div class="chh"><b class="gold">CHAT DU GROUPE</b><button class="rb" data-a="chatX"><img src="img/kit/r_close.webp" draggable="false" alt="Fermer"></button></div>
+    <div class="chlg">${CHAT.log.length ? CHAT.log.slice(-7).map(chatMsg).join('') : '<div class="sub" style="text-align:center;font-size:30px;margin:auto">Dis bonjour à ton groupe !</div>'}</div>
+    <div class="chr">${CEMO.map(e => `<button class="chE" data-a="chatE" data-v="${e}">${e}</button>`).join('')}</div>
+    <div class="chr">${CSTK.map((s, i) => `<button class="chS" data-a="chatS" data-v="${i}"><img src="img/${s[1]}" draggable="false" alt=""><u>${s[0]}</u></button>`).join('')}</div>
+    <div class="chr"><button class="btn big" data-a="chatW" style="flex:1;min-width:0;font-size:44px;min-height:104px">ÉCRIRE UN MESSAGE</button>${CSTY.map((s, i) => `<button class="chY ${i === CHAT.st ? 'on' : ''}" data-a="chatY" data-v="${i}"><span class="cht s${i}">${s}</span></button>`).join('')}</div></div>`; }
+ACT.chat = () => { snd('open'); chatDraw(); document.querySelectorAll('.chbtn .dot,.m3g .dot').forEach(x => x.remove()); };
+ACT.chatX = () => { const c = $('#chat'); if (c) c.remove(); snd('back'); };
+ACT.chatE = v => chatSend('e', v); ACT.chatS = v => chatSend('s', v); ACT.chatY = v => { CHAT.st = +v; snd('pick'); chatDraw(); };
+ACT.chatW = () => vkOpen({ id: 'chin', value: '', maxLength: 60 });
+{ const _fr6 = SCR.friends; SCR.friends = () => { const h = _fr6(); if (!NET.role) return h; return h + `<button class="chbtn" data-a="chat">${ic('friends')}<span>CHAT</span>${CHAT.un ? '<i class="dot"></i>' : ''}</button>`; }; }
+{ const _sel = ACT.sel; ACT.sel = v => { _sel(v); if (NET.role) grpPush(); }; }

@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 5.8', BUILD = '58';
+let AR = 1300; const VERSION = 'mobile 5.9', BUILD = '59';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,13 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '5.9', date: '12 novembre 2026', title: 'Les TOX renforcent, ils ne remplacent plus', items: [
+    { img: 'tx/k1.webp', t: 'Quatre pouvoirs dès le départ', d: 'Chaque gardien garde ses pouvoirs A, B, C et son ultime, tous disponibles dès la vague 1. Plus aucun TOX ne les remplace.' },
+    { img: 'tx/ki1.webp', t: 'Mini-boutique de renforts', d: 'Entre les vagues : des objets qui renforcent ton gardien (vitesse, PV, dégâts…) et des « Pouvoir +1 » qui montent le niveau d’un de tes pouvoirs.' },
+    { img: 'ic/friends.webp', t: 'Invitations dans le jeu', d: 'INVITER envoie une notification directement dans le jeu de ton ami, avec un bouton REJOINDRE. Il doit avoir le jeu ouvert.' },
+    { img: 'ic/friends.webp', t: 'Chat de groupe', d: 'Messages stylés (or, feu, arc-en-ciel), emojis et autocollants animés, avec un badge de rang et de niveau à côté de chaque pseudo.' },
+    { img: 'ui/play.webp', t: 'Groupe sur le menu', d: 'Ton groupe s’affiche en haut du menu. JOUER mène au choix du gardien, puis l’hôte lance la partie.' },
+    { img: 'kit/r_close.webp', t: 'Groupe plus fiable', d: 'Plus de joueur en double, un bouton rouge pour quitter, et un joueur qui a coupé le jeu libère sa place.' } ] },
   { v: '5.8', date: '12 novembre 2026', title: 'Combats plus percutants', items: [
     { img: 'ic/swords.webp', t: 'Des coups qui se sentent', d: 'Les monstres reculent à chaque coup et volent sur un critique, avec un bref arrêt sur image, une secousse et un « CRIT ! ».' },
     { img: 'ic/skull.webp', t: 'Boss : frappe au sol', d: 'Les boss frappent le sol sous tes pieds : trois cercles rouges préviennent, puis une onde de choc blesse et repousse. Esquive ou sors du cercle.' },
