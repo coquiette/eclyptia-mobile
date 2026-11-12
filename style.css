@@ -1501,3 +1501,22 @@ button.s3e:active{transform:scale(.96)}
 .cl2a{position:absolute;left:10px;top:10px;z-index:2;font-style:normal;font-size:20px;letter-spacing:2px;padding:3px 12px 5px;border-radius:14px;background:#ffd45e;color:#3a1c00}
 .cl2k{position:absolute;right:8px;top:6px;z-index:2}.cl2k .ici{width:46px;height:46px}
 .nar .cl2n b{font-size:33px}.nar .cl2p em{font-size:16px}.nar .cl2s{padding-left:84px}.nar .cl2s .ici{width:56px;height:56px;margin-top:-28px}.nar .cl2s b{font-size:36px}
+/* v5.5 : clavier du jeu */
+#vkb{position:absolute;inset:0;z-index:70;background:#0d061de6;display:flex;align-items:center;justify-content:center;animation:fade .2s;touch-action:none}
+.vkp{width:min(1500px,calc(100% - 150px));display:flex;flex-direction:column;gap:9px;animation:rise .35s var(--spring) both}
+.vkh{display:flex;align-items:baseline;justify-content:space-between;padding:0 10px}.vkh b{font-size:40px;text-shadow:0 4px 0 #1a0c36}.vkc{font-size:26px;color:#cdb8ff}
+.vkt{height:104px;display:flex;align-items:center;justify-content:center;font-size:62px;line-height:1;letter-spacing:3px;color:#fff;border-radius:30px;background:#150a2e;box-shadow:inset 0 0 0 5px #ffd45e,0 8px 0 #0d061d;margin-bottom:6px;white-space:pre;overflow:hidden}
+.vkt i{font-style:normal;color:#6a5a90;font-size:44px;letter-spacing:2px}
+.vkt u{display:inline-block;width:5px;height:60px;margin-left:6px;background:#ffd45e;text-decoration:none;animation:blink .5s infinite alternate}
+.vkr{display:flex;justify-content:center;gap:9px}
+.vkk{flex:1;max-width:136px;height:100px;border-radius:24px;background:linear-gradient(#6a45d8,#3c1f9a);box-shadow:0 7px 0 #1a0c36,inset 0 3px 0 #ffffff40;color:#fff;font-size:48px;line-height:1;display:flex;align-items:center;justify-content:center;text-shadow:0 3px 0 #1a0c36;touch-action:none}
+.vkk.hit{animation:vkh .16s}
+@keyframes vkh{0%{transform:translateY(6px) scale(.94);filter:brightness(1.6)}100%{transform:none}}
+.r0 .vkk{height:84px;font-size:40px;background:linear-gradient(#3a2178,#22104a)}
+.vkk.w{max-width:190px;flex:1.5;background:linear-gradient(#3a2178,#22104a)}.vkk.w img{width:74px;height:74px;pointer-events:none}
+#vkb:not(.lo) .vkk.sh{background:linear-gradient(#ffdc6a,#ff9a2e);color:#4a2200;text-shadow:none}
+#vkb.lo .r1 .vkk,#vkb.lo .r2 .vkk,#vkb.lo .r3 .vkk:not(.w){text-transform:lowercase}
+.vkk.sp{flex:3;max-width:none;font-size:32px;letter-spacing:4px;color:#cdb8ff}
+.vkk.w2{flex:2;max-width:none;font-size:38px;background:none;box-shadow:none;border:1px solid transparent;border-image:url(img/kit/bgray.webp) 0 52 fill / 0 46px stretch;border-radius:0;padding-bottom:6px}
+.vkk.ok{border-image-source:url(img/kit/bgold.webp);color:#4a2200;text-shadow:0 2px 0 #fff6}.vkk.ok.gray{border-image-source:url(img/kit/bgray.webp);color:#fff;text-shadow:0 2px 0 #0007}
+.nar .vkk{height:92px;font-size:44px}.nar .r0 .vkk{height:76px}.nar .vkt{height:92px;font-size:54px}

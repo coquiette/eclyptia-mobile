@@ -656,3 +656,25 @@ SCR.collection = () => {
         ${o ? `<span class="cl2p"><span class="bar"><i style="width:${100 * have / all.length}%"></i></span><em>${have} / ${all.length} TOX · ${it} / ${(HITEM[id] || []).length} objets</em></span>` : `<span class="cl2b">${ic('lock')} ${x.cost} ${ic(x.curr === 'prisms' ? 'prism' : 'coin')}</span>`}</button>`; }).join('')}</div></div>`;
 };
 ACT.clHero = v => { SEL = v; TTAB = 0; nav('htox'); };
+
+/* ================= clavier du jeu : pour taper un pseudo, sans le clavier du téléphone ================= */
+const VKIDS = { askin: 'TON PSEUDO', nm: 'TON PSEUDO', gcode: 'PSEUDO DE TON AMI', refin: 'PSEUDO DE TON PARRAIN' }, VKROWS = ['1234567890', 'AZERTYUIOP', 'QSDFGHJKLM', 'WXCVBN'];
+let VK = null;
+function vkDraw() { const d = $('#vkb'); if (!d) return; const t = d.querySelector('.vkt'); t.innerHTML = (VK.v ? esc(VK.v) : `<i>${VK.ph}</i>`) + '<u></u>'; d.querySelector('.vkc').textContent = VK.v.length + ' / ' + VK.max; d.classList.toggle('lo', !VK.up); d.querySelector('[data-k="ok"]').classList.toggle('gray', pslug(VK.v).length < 3); }
+function vkOpen(inp) {
+  if ($('#vkb')) return; VK = { el: inp, v: inp.value || '', max: +inp.maxLength > 0 ? +inp.maxLength : 14, up: inp.id === 'gcode' || inp.id === 'refin' || !(inp.value || '').length, caps: inp.id === 'gcode' || inp.id === 'refin', ph: VKIDS[inp.id] };
+  const d = document.createElement('div'); d.id = 'vkb';
+  d.innerHTML = `<div class="vkp"><div class="vkh"><b class="gold">${VK.ph}</b><span class="vkc"></span></div><div class="vkt"></div>
+    ${VKROWS.map((r, i) => `<div class="vkr r${i}">${i === 3 ? `<button class="vkk w sh" data-k="shift">⇧</button>` : ''}${[...r].map(c => `<button class="vkk" data-k="${c}">${c}</button>`).join('')}${i === 3 ? `<button class="vkk w del" data-k="del"><img src="img/kit/r_left.webp" draggable="false" alt="Effacer"></button>` : ''}</div>`).join('')}
+    <div class="vkr r4"><button class="vkk w2 gr" data-k="cancel">ANNULER</button><button class="vkk sp" data-k=" ">ESPACE</button><button class="vkk w2 ok" data-k="ok">VALIDER</button></div></div>`;
+  $('#stage').appendChild(d); vkDraw(); snd('open');
+  d.addEventListener('pointerdown', e => { const b = e.target.closest('.vkk'); if (!b) return; e.preventDefault(); e.stopPropagation(); const k = b.dataset.k; b.classList.remove('hit'); void b.offsetWidth; b.classList.add('hit');
+    if (k === 'cancel') return vkClose(false); if (k === 'ok') { if (pslug(VK.v).length < 3) { snd('err'); return toast('Au moins 3 lettres ou chiffres'); } return vkClose(true); }
+    if (k === 'del') { VK.v = VK.v.slice(0, -1); snd('back'); if (!VK.v.length) VK.up = true; } else if (k === 'shift') { VK.up = !VK.up; snd('tick'); }
+    else { if (VK.v.length >= VK.max) { snd('err'); return; } if (k === ' ' && (!VK.v.length || VK.v.endsWith(' '))) return; VK.v += VK.up || VK.caps ? k : k.toLowerCase(); snd('click', k); if (!VK.caps) VK.up = k === ' '; }
+    vkDraw(); });
+  d.addEventListener('click', e => e.stopPropagation());
+}
+function vkClose(ok) { const d = $('#vkb'), k = VK; if (d) d.remove(); VK = null; if (!k) return; if (!ok) { snd('back'); return; } const el = k.el, v = k.v.trim(); if (el && el.isConnected) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }
+  snd('buy'); if (el && el.id === 'askin') ACT.nameOk(); else if (el && el.id === 'gcode') ACT.grpJoin(); else if (el && el.id === 'refin') ACT.refOk(); else if (el && el.id === 'nm') { if (pslug(v).length >= 3) { S.name = v; S.named = true; save(); show('profile'); } } }
+for (const ev of ['pointerdown', 'touchstart', 'mousedown', 'focusin']) document.addEventListener(ev, e => { const t = e.target; if (!t || !t.id || !VKIDS[t.id] || t.tagName !== 'INPUT') return; if (e.cancelable) e.preventDefault(); t.readOnly = true; t.setAttribute('inputmode', 'none'); try { t.blur(); } catch (x) {} if (ev !== 'focusin' || !$('#vkb')) vkOpen(t); }, { capture: true, passive: false });
