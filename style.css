@@ -1632,3 +1632,40 @@ button.s3e:active{transform:scale(.96)}
 #invn.on{box-shadow:0 8px 0 #0d061d,0 0 0 5px #8cff7a,0 0 40px -4px #8cff7a}
 .inva.on{background:linear-gradient(#5ad06a,#1f9a3c);font-size:54px;line-height:1;box-shadow:0 0 0 4px #8cff7a}
 .fr2l{gap:12px}.fr2l .btn.sm{min-height:76px}
+/* v6.2 : cartes TOX simples — une belle carte, l'image, une ligne */
+.sv2k.tc{gap:10px;padding:26px 14px 16px;justify-content:space-between}
+.sv2k.tc em{position:relative;width:230px!important;height:230px!important;margin-top:0!important}
+.nar .sv2k.tc em{width:190px!important;height:190px!important}
+.tcn{position:absolute;right:-18px;bottom:0;font-style:normal;font-size:30px;line-height:1;padding:6px 14px 9px;border-radius:22px;background:#150a2e;box-shadow:0 0 0 3px var(--rc);color:#fff;font-weight:800}
+.tcn.lv{font-size:24px;right:50%;transform:translateX(50%);bottom:-12px;white-space:nowrap}
+.sv2k.tc .sv2d.big{font-size:42px;line-height:1.04;margin:0;flex:1;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 10px;text-shadow:0 3px 0 #150a2e}
+.nar .sv2k.tc .sv2d.big{font-size:35px}
+.sv2k.tc{box-shadow:0 10px 0 #0d061d,0 0 0 4px color-mix(in srgb,var(--rc) 70%,#150a2e),0 0 30px -8px var(--rc)}
+.ccard.citm{justify-content:space-between}
+.ccard.citm .cimg{width:200px;height:200px;margin-top:4px}
+.ccard.citm .cfx{font-size:40px;line-height:1.05;text-shadow:0 3px 0 #150a2e}
+.ccard.citm .cr{font-size:22px}
+.txg.t8 .txc .ifx{font-size:34px;text-shadow:0 3px 0 #150a2e}
+.txg.t8.t4{grid-template-rows:minmax(0,1fr)}
+.txg.t8.t4 .txc .tring{width:190px;height:190px}.txg.t8.t4 .txc .ifx{font-size:40px}
+.nar .txg.t8.t4 .txc .tring{width:150px;height:150px}
+.s3c .s3fx{font-size:38px;line-height:1.05;flex:1;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0 10px;text-shadow:0 3px 0 #150a2e}
+.s3c em{width:230px;height:230px}
+.s3c .s3fx,.sv2k.tc .sv2d.big,.ccard.citm .cfx{display:block;flex:none;margin:auto 0;text-wrap:balance;text-align:center}
+.txg.t8 .txc{justify-content:center;gap:10px}
+.txg.t8 .txc .tring{margin-bottom:18px;flex:none}
+.txg.t8 .txc .ifx{text-wrap:balance}
+.txg.t8 .txc .tnote{font-size:19px;opacity:.8}
+.txg.t8.t4 .txc{gap:18px}
+.txg.t8.t4 .txc .tring{width:250px;height:250px;margin-bottom:26px}.txg.t8.t4 .txc .ifx{font-size:44px}
+.nar .txg.t8.t4 .txc .tring{width:210px;height:210px}.nar .txg.t8.t4 .txc .ifx{font-size:40px}
+.txg.t8.t4 .txc .tring b{font-size:26px;height:40px;line-height:34px}
+.m3day span{white-space:nowrap}.m3day{width:max-content;max-width:none}
+/* v6.2 : finitions — Quêtes et Profil plus lisibles */
+.scroll>.q{flex:1;max-height:270px;font-size:40px;padding:20px 30px;gap:28px}
+.scroll>.q .sub{font-size:28px}.scroll>.q .bar{height:44px}.scroll>.q .bar span{font-size:27px;line-height:38px}
+.scroll>.q .btn{min-height:120px;font-size:40px;min-width:310px}
+.scroll>.q .med.sm{width:130px;height:130px;flex:none}.scroll>.q .med.sm .ici{width:90px;height:90px}
+.tile{font-size:34px;gap:6px}.tile b{font-size:84px}
+.cxm .tile b,.cx3s .tile b{font-size:44px}.cxm .tile,.cx3s .tile{font-size:24px}
+.fr2l #gcode{width:100%!important;box-sizing:border-box;flex:none}

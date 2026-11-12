@@ -49,7 +49,7 @@ const SCR = {
       </div>
       <div class="col grow">
         <div class="grid grow" style="grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr)">${HERO_IDS.map(id => { const x = HEROES[id], o = S.owned.includes(id); return `<button class="card ${id === SEL ? 'on' : ''} ${o ? '' : 'lock'}" data-a="sel" data-v="${id}">${himg(id)}${o ? '' : '<div class="lk">' + ic('lock') + '</div>'}<div class="tag">${x.n}${o ? '' : ' · ' + x.cost + ' ' + ic(x.curr === 'prisms' ? 'prism' : 'coin')}</div></button>`; }).join('')}</div>
-        <div class="row"><div class="pn grow row sub" style="padding:10px 22px;min-height:100px;gap:10px">${mine.length ? 'Boosts :' + mine.map(b => `<button class="bchip ${S.bon[b.id] ? 'on' : ''}" data-a="bon" data-v="${b.id}"><img src="img/tx/${b.ic}.webp" draggable="false" alt=""><b>${S.boost[b.id]}</b></button>`).join('') : ic('swords') + ` Survis à ${LAST_WAVE} vagues, boss aux vagues 5 et 10. Les boosts s'achètent à la Boutique.`}</div>
+        <div class="row"><div class="pn grow row sub" style="padding:10px 22px;min-height:100px;gap:10px">${mine.length ? 'Boosts :' + mine.map(b => `<button class="bchip ${S.bon[b.id] ? 'on' : ''}" data-a="bon" data-v="${b.id}"><img src="img/tx/${b.ic}.webp" draggable="false" alt=""><b>${S.boost[b.id]}</b></button>`).join('') : ic('swords') + ` Survis à ${LAST_WAVE} vagues, boss aux vagues 4, 7 et ${LAST_WAVE}. Les boosts s'achètent à la Boutique.`}</div>
         ${own ? `<button class="btn big" data-a="play">▶ JOUER</button>` : `<button class="btn big" data-a="buyHero" data-v="${SEL}">ACHETER ${h.cost} ${ic(h.curr === 'prisms' ? 'prism' : 'coin')}</button>`}</div>
       </div></div>`;
   },
@@ -65,10 +65,9 @@ const SCR = {
         <div class="row" style="gap:8px;width:100%;margin-top:auto"><button class="btn sm grow ${skinOf(SEL) ? 'gray' : ''}" data-a="skin" data-v="0" style="font-size:27px;padding:0 8px 4px;min-height:88px">Classique</button><button class="btn sm grow ${skinOf(SEL) ? '' : 'gray'}" data-a="skin" data-v="1" style="font-size:27px;padding:0 8px 4px;min-height:88px">${hasSk ? 'Tenue rare' : 'Verrouillée'}</button></div>
       </div>
       <div class="col grow" style="gap:12px;min-width:0"><div class="row" style="gap:10px">${tabs}</div>
-      <div class="grid grow txg ${TTAB === 4 ? 't8' : ''}">${ids.map(id => { const T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }, on = eq.includes(id); return `<div class="txc ${s.l ? '' : 'lk'} ${on ? 'on' : ''}" style="--rc:${RARC[T.r]}">
+      <div class="grid grow txg t8 ${TTAB === 4 ? '' : 't4'}">${ids.map(id => { const T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }, on = eq.includes(id); return `<div class="txc ${s.l ? '' : 'lk'} ${on ? 'on' : ''}" style="--rc:${RARC[T.r]}">
         <div class="tring">${tic(id)}${s.l ? `<b>Niv. ${s.l}</b>` : `<b>${ic('lock')}</b>`}</div>
-        <div class="txt">${T.it ? `<div class="ifx">${tfx(T, s.l || 1)}</div><div class="sub">${T.n}</div>` : `<div class="tname">${T.n}</div><div class="sub">${T.d}</div><div class="sub gold">${tfx(T, s.l || 1)}</div>`}${s.l ? tbar(id) : ''}
-          ${!s.l || s.l >= TMAX ? tbtn(id) : ''}${T.it ? (s.l ? '<span class="teq on">TOUJOURS ACTIF</span>' : '') : s.l ? `<span class="teq on">${T.s === 3 ? 'ULTIME' : 'POUVOIR ' + 'ABC'[T.s]}</span>` : ''}</div></div>`; }).join('')}</div></div></div>`;
+        <div class="txt"><div class="ifx">${tmn(T, s.l || 1)}</div>${s.l ? tbar(id) : ''}${!s.l || s.l >= TMAX ? tbtn(id) : ''}</div></div>`; }).join('')}</div></div></div>`;
   },
   /* la boutique générale : uniquement des boosts (payés en prismes) et les boosters de constellation */
   shop() {

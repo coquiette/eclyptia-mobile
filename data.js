@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 6.1', BUILD = '61';
+let AR = 1300; const VERSION = 'mobile 6.2', BUILD = '62';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,10 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '6.2', date: '12 novembre 2026', title: 'Cartes TOX simples et grand nettoyage', items: [
+    { img: 'tx/ki8.webp', t: 'TOX faciles à lire', d: 'Partout dans le jeu : une belle carte, l’image, et une seule ligne qui dit ce que ça fait. Par exemple « +4 % chance ».' },
+    { img: 'ic/shield.webp', t: 'Chasse aux bugs', d: 'Le jeu se répare tout seul si une valeur se casse en partie : plus de monstre intouchable ni d’écran figé. Le chrono des vagues ne peut plus se bloquer.' },
+    { img: 'ic/gear.webp', t: 'Finitions', d: 'Quêtes et Profil plus gros et plus lisibles, champ pseudo réparé sur petit écran, textes corrigés.' } ] },
   { v: '6.1', date: '12 novembre 2026', title: 'Lien d’installation et amis en ligne', items: [
     { img: 'ui/logo.webp', t: 'Lien pour installer le jeu', d: 'Dans Amis, bouton INVITER PAR LIEN : ton ami arrive sur une page qui lui explique comment installer le jeu sur son téléphone. Il devient ton filleul.' },
     { img: 'ic/friends.webp', t: 'Amis en ligne', d: 'Une notification apparaît quand un ami ouvre le jeu, avec un bouton INVITER. Dans ta liste, un rond vert montre qui est en ligne.' } ] },

@@ -321,7 +321,7 @@ SCR.shop = function () {
   let b = '';
   if (STAB === 0) { const D = daily(), got = D.got >= 0;
     b = `<div class="s3h"><b>TOX DU JOUR</b><span>${got ? 'Déjà pris aujourd’hui' : 'Choisis-en 1 seul, il est offert'} · nouvelle sélection dans <i id="dcd">${dayLeft()}</i></span></div>
-      <div class="s3d">${D.t.map(([id, q], i) => { const X = TOX[id], tg = (DQ.find(z => z[0] === q) || [])[2], s = S.tox[id] || { l: 0 }; return `<div class="s3c ${got ? (D.got === i ? 'mine' : 'off') : ''} ${q >= 20 ? 'luck' : ''}" style="--rc:${RARC[X.r]};--i:${i}">${tg ? `<i class="s3tag">${tg}</i>` : ''}<em>${tic(id)}<u>×${q}</u></em><span class="s3fx">${tfx(X, Math.max(1, s.l || 1))}</span><b>${X.n}</b><small>${X.h && HEROES[X.h] ? HEROES[X.h].n + ' · ' : ''}${RARN[X.r]}</small><small class="s3l">${s.l ? 'Niveau ' + s.l : 'Pas encore débloqué'}</small>
+      <div class="s3d">${D.t.map(([id, q], i) => { const X = TOX[id], tg = (DQ.find(z => z[0] === q) || [])[2], s = S.tox[id] || { l: 0 }; return `<div class="s3c ${got ? (D.got === i ? 'mine' : 'off') : ''} ${q >= 20 ? 'luck' : ''}" style="--rc:${RARC[X.r]};--i:${i}">${tg ? `<i class="s3tag">${tg}</i>` : ''}<em>${tic(id)}<u>×${q}</u></em><span class="s3fx">${tmn(X, Math.max(1, s.l || 1))}</span>
         <button class="btn ${got ? 'gray' : ''}" data-a="dayTake" data-v="${i}">${got ? (D.got === i ? 'PRIS ✓' : 'DEMAIN') : 'PRENDRE'}</button></div>`; }).join('')}</div>
       <div class="s3o">Chances par TOX : ${DQ.map(z => '×' + z[0] + ' → ' + Math.round(z[1] * 100) + ' %').join(' · ')}</div>`; }
   else if (STAB === 1) b = `<div class="s3h"><b>OFFRES</b><span>${PAYL.some(Boolean) ? 'Paiement sécurisé par carte' : 'Le paiement en ligne n’est pas encore ouvert : ces offres arrivent bientôt'}</span></div><div class="s3g">${EUR.map((o, i) => `<button class="s3e" data-a="buyEur" data-v="${i}" style="--i:${i}">${o.tag ? `<i class="s3tag">${o.tag}</i>` : ''}<em>${o.ic()}</em><b>${o.n}</b><small>${o.d}</small><span class="s3p">${o.p}${PAYL[i] ? '' : '<i>BIENTÔT</i>'}</span></button>`).join('')}</div>`;
@@ -385,8 +385,7 @@ let SV2CARD = null, SV2BL = () => '';
   if (G.pb < 0) return _pu();
   const c = G.choices, p = G.p, w = wallet(), rc = rollCost(), bl = (p.bl || []).concat(NETROLE === 2 || !BLESS[c.b[G.pb]] ? [] : [BLESS[c.b[G.pb]].n]);
   const card = (id, i) => { const T = TOX[id], cur = p.tx[T.s], has = !!p.tl[T.s], same = has && cur === id, lv = T.it ? 1 : same ? p.tl[T.s] + 1 : Math.max(1, p.tl[T.s] || 0), pr = shopPrice(id), sold = G.sold[i], poor = !sold && wallet() < pr, n0 = (p.itn && p.itn[id]) || 0;
-    const chg = T.it ? (n0 ? `<span class="sv2c up"><small>TU EN AS ${n0}</small></span>` : '') : same ? `<span class="sv2c up"><i>Niv. ${lv - 1}</i><u>▸</u><b>Niv. ${lv}</b><small>AMÉLIORE</small></span>` : has ? `<span class="sv2c sw">${tic(cur)}<u>▸</u>${tic(id)}<small>REMPLACE</small></span>` : `<span class="sv2c nw">${ic('lock')}<u>▸</u>${tic(id)}<small>DÉBLOQUE</small></span>`;
-    const lk = !sold && (p.lock || []).includes(id); return `<div class="sv2w ${lk ? 'lk' : ''} ${T.it ? 'itm' : ''}" style="--i:${i}"><button class="sv2k ${sold ? 'sold' : ''} ${poor ? 'poor' : ''} ${G.justB === i ? 'just' : ''}" data-a="shopBuy" data-v="${i}" style="--rc:${RARC[T.r]};--i:${i}"><i class="sv2s">${T.it ? 'OBJET' : T.s === 3 ? 'ULTIME +1' : 'POUVOIR +1'}</i><i class="sv2r">${RARN[T.r]}</i><em>${tic(id)}</em><small class="sv2d ${T.it ? 'big' : ''}">${tfx(T, lv)}</small>${T.it ? `<i class="sv2n">${T.n}</i>` : `<b>${T.n}</b>`}${chg}<span class="sv2p">${sold ? 'ACHETÉ ✓' : pr + ' ' + ic('shard')}</span></button>${sold ? '' : `<button class="sv2lk ${lk ? 'on' : ''}" data-a="shopLock" data-v="${i}"><img src="img/kit/r_lock.webp" draggable="false" alt="Garder"></button>`}</div>`; };
+    const lk = !sold && (p.lock || []).includes(id); return `<div class="sv2w ${lk ? 'lk' : ''} itm" style="--i:${i}"><button class="sv2k tc ${sold ? 'sold' : ''} ${poor ? 'poor' : ''} ${G.justB === i ? 'just' : ''}" data-a="shopBuy" data-v="${i}" style="--rc:${RARC[T.r]};--i:${i}"><em>${tic(id)}${T.it && n0 ? `<i class="tcn">×${n0}</i>` : !T.it ? `<i class="tcn lv">Niv. ${lv}</i>` : ''}</em><small class="sv2d big">${tmn(T, lv, 1)}</small><span class="sv2p">${sold ? 'ACHETÉ ✓' : pr + ' ' + ic('shard')}</span></button>${sold ? '' : `<button class="sv2lk ${lk ? 'on' : ''}" data-a="shopLock" data-v="${i}"><img src="img/kit/r_lock.webp" draggable="false" alt="Garder"></button>`}</div>`; };
   SV2CARD = card; SV2BL = () => Object.keys(p.itn || {}).map(id => `<i class="it">${tic(id)}×${p.itn[id]}</i>`).join('') + (bl.length ? bl.slice(-5).map(n => `<i>${n}</i>`).join('') : (p.itn && Object.keys(p.itn).length ? '' : '<i class="none">Aucun pour l’instant</i>'));
   over(`<div class="sv2"><div class="sv2t"><span class="pill shxw ${G.justP ? 'spent' : ''}">${ic('shard')} <b>${w}</b>${G.justP ? `<i class="minus">-${G.justP}</i>` : ''}</span><div class="sv2h"><b class="gold">BOUTIQUE</b><small>Vague ${G.wave} terminée · achète ce que tu veux · le cadenas garde une carte</small></div><button class="shxr ${w < rc ? 'poor' : ''}" data-a="shopRoll"><img class="sv2dice" src="img/kit/r_dice.webp" draggable="false" alt="">RELANCER <b>${rc}</b> ${ic('shard')}</button></div>
     <div class="sv2g ${G.justR ? 'rl' : ''}">${c.t.map(card).join('')}</div>
@@ -398,6 +397,13 @@ let SV2CARD = null, SV2BL = () => '';
 
 /* ================= OBJETS : des TOX passifs propres à chaque gardien, qui renforcent le gardien lui-même (pas ses compétences) ================= */
 const ITL = { hp: 'PV max', spd: 'vitesse', dmg: 'dégâts', rate: 'cadence de tir', crit: 'chance de critique', cdr: 'recharge plus courte', magnet: 'portée de l’aimant', luck: 'chance' }, HITEM = {};
+/* le mini texte d'une carte TOX : une seule ligne, ce que ça fait */
+function tmn(T, l, up) { l = Math.max(1, l | 0); if (!T) return '';
+  if (T.it) return kwH('+' + T.v * (up ? 1 : l) + ' % ' + ITL[T.k]);
+  if (up) return kwH(T.t === 'heal' ? '+12 % soin' : T.t === 'buff' ? '+5 % durée' : '+12 % dégâts');
+  if (T.t === 'pas') return kwH('+' + T.v * l + ' %'); if (T.t === 'pulse') return kwH(T.nw + ' ondes'); if (T.t === 'salve') return kwH(T.num + ' projectiles'); if (T.t === 'onde') return kwH('Dégâts de zone');
+  if (T.t === 'heal') return kwH('+' + Math.round(T.pct * tk(l) * 100) + ' % PV'); if (T.t === 'rain') return kwH(T.num + ' météores'); if (T.t === 'buff') return 'Bonus ' + (T.dur * (1 + .05 * (l - 1))).toFixed(0) + ' s'; if (T.t === 'blink') return kwH('Saut + dégâts');
+  if (T.t === 'slow') return 'Ralentit ' + T.dur + ' s'; if (T.t === 'drain') return kwH('Dégâts + soin'); return kwH('Frappe tous les ennemis'); }
 const ITEMS = {
   kaelion: [['Anneau de l’aube', 'spd', 3, 0], ['Plastron solaire', 'hp', 5, 1], ['Gantelets du zénith', 'dmg', 3, 1], ['Éperons dorés', 'rate', 2, 0], ['Œil du soleil', 'crit', 2, 2], ['Sablier de lumière', 'cdr', 2, 2], ['Médaillon du pèlerin', 'magnet', 8, 0], ['Trèfle solaire', 'luck', 4, 1]],
   elyra: [['Anneau de braise', 'dmg', 4, 1], ['Cape ignifuge', 'hp', 3, 0], ['Bottes de cendre', 'spd', 3, 0], ['Bracelet d’étincelles', 'rate', 3, 1], ['Rubis ardent', 'crit', 3, 2], ['Bougie éternelle', 'cdr', 2, 2], ['Lanterne à braises', 'magnet', 8, 0], ['Plume de phénix', 'luck', 4, 1]],
@@ -574,7 +580,7 @@ function waveClock(dt) {
 { const _sn = snapshot; snapshot = function () { const s = _sn(); s.wt = G.wtimed ? Math.ceil(G.wt) : -1; return s; }; }
 { const _as = applySnap; applySnap = function (d) { _as(d); if (G && NETROLE === 2 && d.wt !== undefined) { G.wtimed = d.wt >= 0; G.wt = Math.max(0, d.wt); } }; }
 { const _g2 = SCR.game; SCR.game = function () { return _g2().replace(/<div class="hwave">[\s\S]*?<\/div><\/div>/, '<div class="hwave hw3"><b id="wv3">VAGUE 1</b><i id="wtm"></i></div>'); }; }
-{ const _ht3 = hudTick; hudTick = function () { _ht3.apply(this, arguments); if (!G) return; const dt = G.t - (G._lt3 === undefined ? G.t : G._lt3); G._lt3 = G.t; if (dt > 0 && dt < .5) waveClock(dt);
+{ const _ht3 = hudTick; hudTick = function () { _ht3.apply(this, arguments); if (!G) return; const dt = G.t - (G._lt3 === undefined ? G.t : G._lt3); G._lt3 = G.t; if (dt > 0) waveClock(Math.min(dt, 5));
   hset('wv3', 'text', 'VAGUE ' + G.wave); const s = Math.ceil(G.wt || 0), boss = !G.wtimed;
   hset('wtm', 'text', boss ? (G.state === 'play' ? 'BOSS' : '') : Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0')); hset('wtm', 'cls', boss ? 'bs' : s <= 5 ? 'end' : '');
   if (!boss && s <= 3 && s > 0 && G._ws !== s && G.state === 'play') snd('tick'); G._ws = s; }; }
@@ -888,3 +894,18 @@ function frPing(hello) { const F = S.friends || []; if (!F.length || !PRES.id ||
 { const _fr7 = SCR.friends; SCR.friends = () => { let h = _fr7(); if (NET.role) return h; const F = S.friends || [];
   F.forEach(n => { const a = `<span class="fr2a">${esc(n).slice(0, 1).toUpperCase()}</span><b>${esc(n)}</b>`; if (fOn(n)) h = h.replace(a, `<span class="fr2a on">${esc(n).slice(0, 1).toUpperCase()}</span><b>${esc(n)}<small class="fon">en ligne</small></b>`); });
   return h.replace('<div class="sub fr2m">', '<button class="btn sm vio" data-a="instShare" style="min-width:0">INVITER PAR LIEN</button><div class="sub fr2m">'); }; }
+
+/* ================= v6.2 : garde-fous — une valeur cassée ne peut plus bloquer une partie ================= */
+{ const okN = v => typeof v === 'number' && isFinite(v);
+  const _d9 = dmgE; dmgE = function (e, d, crit, by) { if (!e || e.dead) return; if (!okN(d) || d < 0) d = 0; if (!okN(e.hp)) e.hp = 1; return _d9(e, d, crit, by); };
+  const _h9 = hurt; hurt = function (p, d) { if (!p || !okN(d) || d <= 0) return; return _h9(p, d); };
+  /* ronde de contrôle deux fois par seconde : positions, PV et monstres « fantômes » sont réparés sans que le joueur le voie */
+  let acc = 0; const _u9 = update; update = function (dt) { _u9(dt); if (!G || NETROLE === 2) return; acc += dt; if (acc < .5) return; acc = 0;
+    for (const p of G.ps) { if (!okN(p.x) || !okN(p.y)) { p.x = 0; p.y = 0; } if (!okN(p.maxhp) || p.maxhp < 1) p.maxhp = p.h && p.h.hp || 100; if (!okN(p.hp)) p.hp = p.maxhp; if (p.hp > p.maxhp) p.hp = p.maxhp; if (!okN(p.ult)) p.ult = 0;
+      for (const k in p.mods) if (typeof p.mods[k] === 'number' && !okN(p.mods[k])) p.mods[k] = k === 'crit' || k === 'leech' ? 0 : 1; }
+    for (let i = G.en.length - 1; i >= 0; i--) { const e = G.en[i], bad = !okN(e.x) || !okN(e.y) || !okN(e.hp) || e.dead || hyp(e.x, e.y) > AR + 900;
+      if (bad) { G.en.splice(i, 1); try { R3.gone(e); } catch (x) {} } else if (e.hp <= 0) kill(e); }
+    if (G.sh.length > 500) G.sh.splice(0, G.sh.length - 500); if (G.gems.length > 400) G.gems.splice(0, G.gems.length - 400);
+    if (!okN(G.shards)) G.shards = 0; if (!okN(G.kills)) G.kills = 0; }; }
+/* une erreur dans un bouton ne fige plus l'écran : on la note et on rend la main */
+addEventListener('error', () => { try { BUSY = false; const w = $('#wipe'); if (w) setTimeout(() => w.classList.remove('in'), 500); } catch (e) {} });
