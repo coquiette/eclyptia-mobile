@@ -1293,3 +1293,9 @@ button.s3e:active{transform:scale(.96)}
 .sv2dice{width:64px;height:64px;margin:0 4px 0 -14px}
 .cx3p .rb{width:108px;height:108px}
 .drp{position:relative}.drx{position:absolute;right:0;top:-8px;width:96px;height:96px}
+/* v4.2 : sauvegarde */
+.bkp{gap:16px;padding:28px 32px!important;min-width:0}
+.bkh{display:flex;align-items:center;gap:14px;font-size:44px;color:#ffd45e;line-height:1}.bkh .ici{width:64px;height:64px}
+.bkp .sub{font-size:26px;line-height:1.2}.bkp .bks{color:#cdb8ff;font-size:23px}
+.bkp textarea{flex:1;min-height:120px;width:100%;resize:none;border-radius:22px;border:4px solid #b890ff;background:#150a2e;color:#e8dcff;font:600 20px/1.25 ui-monospace,Menlo,monospace;padding:14px 16px;word-break:break-all;-webkit-user-select:text;user-select:text}
+.bkp .btn{min-width:0}

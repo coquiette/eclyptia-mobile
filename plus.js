@@ -299,7 +299,9 @@ for (const [k, f] of [
 
 /* ================= boutique à onglets : TOX du jour, offres, tenues, boosts ================= */
 let STAB = 0;
-const dayKey = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
+/* le jour qui compte est le plus grand jour déjà vu : reculer l'horloge du téléphone ne redonne pas les cadeaux */
+const dayNum = () => { const d = new Date(), t = Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 864e5); if (t > (S.dmax | 0)) { S.dmax = t; try { save(); } catch (e) {} } return Math.max(t, S.dmax | 0); };
+const dayKey = () => 'j' + dayNum();
 const DQ = [[5, .55, ''], [10, .28, 'CHANCE !'], [20, .12, 'GROSSE CHANCE !'], [50, .05, 'JACKPOT !']], SKINP = 300;
 function daily() {
   const k = dayKey(); if (S.daily && S.daily.d === k && S.daily.t && S.daily.t.length === 4) return S.daily;
@@ -338,7 +340,7 @@ ACT.buyEur = v => { const u = PAYL[+v]; if (!u) return no('Paiement en ligne pas
 function payBack() { const m = /[?&]paid=(\d)&cs=(cs_[A-Za-z0-9_]{10,})/.exec(location.search); if (!m || !PAYL[+m[1]]) return; S.paid = S.paid || []; try { history.replaceState(null, '', location.pathname); } catch (e) {} if (S.paid.includes(m[2])) return; S.paid.push(m[2]); const r = PAYR[+m[1]], o = EUR[+m[1]];
   if (r.premium) S.premium = true; if (+m[1] === 3) S.starter = true; if (r.prisms) S.prisms += r.prisms; if (r.orbs) S.orbs = (S.orbs || 0) + r.orbs; save(); setTimeout(() => { if (SCREEN === 'menu') show('menu'); buyFx(o.ic(), 'MERCI !', o.n + ' · ' + o.d, '#ffd45e'); }, 1200); }
 { const _st = ACT.start; ACT.start = () => { _st(); try { payBack(); } catch (e) {} }; }
-ACT.dayTake = v => { const D = daily(), i = +v; if (D.got >= 0) return no(D.got === i ? 'Déjà pris : reviens demain' : 'Un seul TOX par jour : reviens demain'); const [id, q] = D.t[i], l0 = (S.tox[id] || { l: 0 }).l; D.got = i; addCard(id, q); save(); snd('buy'); show('shop'); const l1 = S.tox[id].l; buyFx(tic(id), TOX[id].n, '×' + q + ' copies' + (l1 > l0 ? (l0 ? ' · NIVEAU ' + l1 + ' !' : ' · DÉBLOQUÉ !') : ''), RARC[TOX[id].r]); };
+ACT.dayTake = v => { const D = daily(), i = +v; if (D.got >= 0 || !D.t[i]) return no(D.got === i ? 'Déjà pris : reviens demain' : 'Un seul TOX par jour : reviens demain'); const [id, q] = D.t[i], l0 = (S.tox[id] || { l: 0 }).l; D.got = i; save(); addCard(id, q); save(); snd('buy'); show('shop'); const l1 = S.tox[id].l; buyFx(tic(id), TOX[id].n, '×' + q + ' copies' + (l1 > l0 ? (l0 ? ' · NIVEAU ' + l1 + ' !' : ' · DÉBLOQUÉ !') : ''), RARC[TOX[id].r]); };
 ACT.buySkin = h => { if (!S.owned.includes(h)) return no('Débloque d’abord ' + HEROES[h].n); if (S.skins.includes(h)) { S.skin[h] = S.skin[h] ? 0 : 1; save(); snd('pick'); return show('shop'); } if (S.prisms < SKINP) return no('Pas assez de prismes'); S.prisms -= SKINP; S.skins.push(h); S.skin[h] = 1; save(); snd('buy'); show('shop'); buyFx(himg(h, 1), SKINS[h].n, 'TENUE DÉBLOQUÉE ET ÉQUIPÉE', '#ffd45e', 'prisms', SKINP); };
 
 /* ================= menu : packs étoiles en bas à gauche, boutons mieux rangés ================= */
@@ -426,7 +428,6 @@ function heartbeat(clean) { try { localStorage.setItem(HBK, JSON.stringify({ t: 
 
 /* ================= récompenses quotidiennes : 7 jours qui s'enchaînent, la série repart à zéro si on saute un jour ================= */
 const DRW = [{ coins: 100 }, { prisms: 20 }, { cards: 3 }, { coins: 250 }, { prisms: 40 }, { orbs: 1 }, { orbs: 2, prisms: 100 }];
-const dayNum = () => { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 864e5); };
 const drState = () => { const s = S.dr || { t: 0, n: -1 }, t = dayNum(), can = s.t !== t, keep = t - s.t === 1 || (!can && s.n >= 0), n = can ? (keep ? s.n + 1 : 0) : s.n; return { can, n: n % 7, tot: n }; };
 const drIc = r => r.orbs ? orbImg('myst') : r.cards ? ic('tox') : r.prisms ? ic('prism') : ic('coin');
 const drTx = r => [r.coins ? r.coins + ' pièces' : '', r.orbs ? r.orbs + ' pack' + (r.orbs > 1 ? 's' : '') + ' étoile' : '', r.cards ? r.cards + ' cartes TOX' : '', r.prisms ? r.prisms + ' prismes' : ''].filter(Boolean).join(' + ');
@@ -438,6 +439,35 @@ function drUI() {
 }
 ACT.drOpen = () => { snd('open'); drUI(); };
 ACT.drClose = () => { const d = $('#drw'); if (d) d.remove(); snd('pick'); if (SCREEN === 'menu') show('menu'); };
-ACT.drTake = () => { const st = drState(); if (!st.can) return ACT.drClose(); const r = DRW[st.n]; S.dr = { t: dayNum(), n: st.tot }; give(r); save(); snd('buy'); const d = $('#drw'); if (d) d.remove(); if (SCREEN === 'menu') show('menu'); buyFx(drIc(r), 'JOUR ' + (st.n + 1), drTx(r), '#ffd45e'); };
+ACT.drTake = () => { const st = drState(); if (!st.can) return ACT.drClose(); const r = DRW[st.n]; S.dr = { t: dayNum(), n: st.tot }; save(); give(r); save(); snd('buy'); const d = $('#drw'); if (d) d.remove(); if (SCREEN === 'menu') show('menu'); buyFx(drIc(r), 'JOUR ' + (st.n + 1), drTx(r), '#ffd45e'); };
 { const _sh = show; show = function (n, enter) { _sh(n, enter); if (n === 'menu' && enter && drState().can) setTimeout(() => { if (SCREEN === 'menu' && !$('#pnotes') && !$('#drw') && !$('#upd') && !$('#askn') && drState().can) drUI(); }, 1900); }; }
 { const _m4 = SCR.menu; SCR.menu = () => { const st = drState(); return _m4().replace('<div class="m3bl">', `<div class="m3bl"><button class="m3day ${st.can ? 'free' : ''}" data-a="drOpen"><img class="ici" src="img/kit/r_gift.webp" draggable="false" alt=""><span>CADEAU DU JOUR<small>${st.can ? 'Jour ' + (st.n + 1) + ' : à récupérer !' : 'Série : jour ' + (st.n + 1) + ' sur 7'}</small></span></button>`); }; }
+
+
+/* ================= sauvegarde du compte : code à garder, restauration, copies automatiques des 3 derniers jours ================= */
+let BKCODE = '', BKMSG = '';
+const b64e = u8 => { let s = ''; for (let i = 0; i < u8.length; i += 8192) s += String.fromCharCode.apply(null, u8.subarray(i, i + 8192)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const b64d = s => { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; };
+async function bkPack(obj) { const raw = new TextEncoder().encode(JSON.stringify(obj)); try { if (window.CompressionStream) { const cs = new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw')); return 'ECL2.' + b64e(new Uint8Array(await new Response(cs).arrayBuffer())); } } catch (e) {} return 'ECL1.' + b64e(raw); }
+async function bkUnpack(code) { code = String(code || '').replace(/\s+/g, ''); const m = /^(ECL[12])\.([A-Za-z0-9_-]+)$/.exec(code); if (!m) throw new Error('code'); let u = b64d(m[2]); if (m[1] === 'ECL2') { const ds = new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw')); u = new Uint8Array(await new Response(ds).arrayBuffer()); } const o = JSON.parse(new TextDecoder().decode(u)); if (!o || typeof o !== 'object' || !o.tox || !o.owned || typeof o.name !== 'string') throw new Error('contenu'); return o; }
+function bkAuto() { try { const k = KEY + '_bk', a = JSON.parse(localStorage.getItem(k) || '[]'), t = dayNum(); if (a.length && a[0].t === t) a[0].s = JSON.stringify(S); else a.unshift({ t, s: JSON.stringify(S) }); localStorage.setItem(k, JSON.stringify(a.slice(0, 3))); } catch (e) {} }
+const bkList = () => { try { return JSON.parse(localStorage.getItem(KEY + '_bk') || '[]'); } catch (e) { return []; } };
+setTimeout(() => { bkAuto(); try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {} }, 4000); setInterval(bkAuto, 120000);
+SCR.backup = () => { const L = bkList(), t = dayNum(), ago = S.bkAt ? t - S.bkAt : -1;
+  return head('SAUVEGARDE', 'profile') + `<div class="body bk"><div class="pn col grow bkp"><div class="bkh">${ic('shield')}<b>Sauvegarder ${esc(S.name)}</b></div>
+    <div class="sub">Ce code contient tout ton compte : niveau, TOX, objets, monnaies, rang. Garde-le hors du jeu (envoie-le-toi par message ou par mail).</div>
+    <textarea id="bkout" readonly>${BKCODE || 'Préparation du code…'}</textarea>
+    <div class="row" style="gap:16px"><button class="btn grow" data-a="bkCopy">COPIER LE CODE</button><button class="btn vio grow" data-a="bkShare">ENVOYER</button></div>
+    <div class="sub bks">${ago < 0 ? 'Tu n’as encore jamais sauvegardé ce compte.' : ago === 0 ? 'Dernière sauvegarde : aujourd’hui.' : 'Dernière sauvegarde : il y a ' + ago + ' jour' + (ago > 1 ? 's' : '') + '.'}</div></div>
+    <div class="pn col grow bkp"><div class="bkh">${ic('chest')}<b>Restaurer un compte</b></div>
+    <div class="sub">Colle un code de sauvegarde : il remplace le compte actuel sur cet appareil.</div>
+    <textarea id="bkin" placeholder="Colle ton code ici" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+    <button class="btn" data-a="bkLoad">${BKMSG || 'RESTAURER CE CODE'}</button>
+    ${L.length ? `<div class="sub bks">Copies automatiques sur cet appareil :</div><div class="row" style="gap:12px;flex-wrap:wrap">${L.map((x, i) => `<button class="btn sm vio" data-a="bkOld" data-v="${i}">${t - x.t === 0 ? 'Aujourd’hui' : t - x.t === 1 ? 'Hier' : 'Il y a ' + (t - x.t) + ' jours'}</button>`).join('')}</div>` : ''}</div></div>`; };
+{ const _sh5 = show; show = function (n, enter) { _sh5(n, enter); if (n === 'backup' && enter) { BKMSG = ''; BKCODE = ''; bkPack(S).then(c => { BKCODE = c; const e = $('#bkout'); if (e) e.value = c; }); } }; }
+ACT.bkCopy = () => { if (!BKCODE) return no('Le code se prépare, réessaie dans une seconde'); const e = $('#bkout'); let ok = false; try { e.focus(); e.select(); e.setSelectionRange(0, 999999); ok = document.execCommand('copy'); } catch (x) {} if (navigator.clipboard) navigator.clipboard.writeText(BKCODE).then(() => {}, () => {}); S.bkAt = dayNum(); save(); snd('buy'); toast(ok || navigator.clipboard ? 'Code copié : colle-le dans un message pour le garder' : 'Sélectionne le code et copie-le'); };
+ACT.bkShare = () => { if (!BKCODE) return no('Le code se prépare, réessaie dans une seconde'); if (!navigator.share) return ACT.bkCopy(); navigator.share({ title: 'Sauvegarde ECLYPTIA de ' + S.name, text: BKCODE }).then(() => { S.bkAt = dayNum(); save(); toast('Sauvegarde envoyée'); }, () => {}); };
+function bkApply(o) { try { heartbeat(true); } catch (e) {} bkAuto(); localStorage.setItem(KEY, JSON.stringify(o)); toast('Compte restauré : redémarrage…'); setTimeout(() => location.reload(), 900); }
+ACT.bkLoad = async () => { const e = $('#bkin'), v = e ? e.value : ''; if (!v.trim()) return no('Colle d’abord ton code'); let o; try { o = await bkUnpack(v); } catch (x) { return no('Ce code n’est pas valide ou il est incomplet'); } if (BKMSG && ACT._bk === v) return bkApply(o); ACT._bk = v; BKMSG = 'CONFIRMER : REMPLACER PAR « ' + esc(o.name).slice(0, 14) + ' »'; const b = document.querySelector('[data-a="bkLoad"]'); if (b) { b.innerHTML = BKMSG; b.classList.add('vio'); } snd('pick'); };
+ACT.bkOld = v => { const x = bkList()[+v]; if (!x) return; if (ACT._bo !== v) { ACT._bo = v; return toast('Touche encore une fois pour revenir à cette copie'); } try { bkApply(JSON.parse(x.s)); } catch (e) { no('Copie illisible'); } };
+{ const _pf = SCR.profile; SCR.profile = () => _pf().replace('<button class="btn sm vio" data-a="go" data-v="accounts" style="width:100%">CHANGER DE COMPTE</button>', '<div class="row" style="gap:10px;width:100%"><button class="btn sm vio grow" data-a="go" data-v="accounts" style="min-width:0;padding:0 8px 5px;font-size:28px">COMPTES</button><button class="btn sm grow" data-a="go" data-v="backup" style="min-width:0;padding:0 8px 5px;font-size:28px">SAUVEGARDE</button></div>'); }
