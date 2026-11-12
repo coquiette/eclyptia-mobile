@@ -120,7 +120,7 @@ function kill(e) {
   const n = e.m.boss ? 30 : e.el ? 9 : e.id === 'garde' ? 4 : e.id === 'mage' ? 2 : 1;
   for (let i = 0; i < n; i++) G.gems.push({ x: e.x + rnd(-e.r, e.r), y: e.y + rnd(-e.r, e.r) });
   if (by.mods.leech && !by.dead) by.hp = Math.min(by.maxhp, by.hp + by.mods.leech);
-  addFx(e.x, e.y, e.r * 2, e.el ? '#ffd45e' : e.m.col); gsnd('kill', G.combo); if (!multi() && G.stopCd <= 0) { G.stop = .04; G.stopCd = .3; } G.zoomP = Math.max(G.zoomP, .03);
+  addFx(e.x, e.y, e.r * (e.el ? 1.8 : 1.15), e.el ? '#ffd45e' : e.m.col, .2); gsnd('kill', G.combo); if (!multi() && G.stopCd <= 0) { G.stop = .04; G.stopCd = .3; } G.zoomP = Math.max(G.zoomP, .03);
   if (e.el) { announce('ÉLITE VAINCUE !', '#ffd45e'); addPil(e.x, e.y, 70, 800, '#ffd45e', .8); }
   if ([10, 25, 50, 100, 200].includes(G.combo)) { announce('COMBO ×' + G.combo + ' !', G.combo >= 50 ? '#ff6adf' : '#ffd45e'); gsnd('combo', G.combo); }
   if (G.combo > 0 && G.combo % 30 === 0) { G.frenzy = 7; announce('FRÉNÉSIE !', '#ff6adf'); gsnd('ultc'); for (const p of alive()) addPil(p.x, p.y, 90, 700, '#ff6adf', .8); }

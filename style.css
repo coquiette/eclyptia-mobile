@@ -1393,3 +1393,32 @@ button.s3e:active{transform:scale(.96)}
 .m3day,.m3day.free{height:132px;min-width:372px;font-size:38px;padding-left:134px}
 .m3day .ici{width:138px;height:138px;margin-top:-75px}
 .m3day small{font-size:24px}
+/* v4.9 : relance — dos de carte puis dévoilement */
+.sv2bk{animation:flipi .35s var(--spring) both}
+.sv2bf{flex:1;display:flex;align-items:center;justify-content:center;border-radius:34px;background:repeating-linear-gradient(45deg,#3a2178 0 22px,#2c1760 22px 44px);box-shadow:0 10px 0 #0d061d,inset 0 0 0 6px #7d5ae0,inset 0 0 0 12px #22104a;animation:bkw .32s .3s ease-in-out infinite alternate}
+.sv2bf img{width:150px;height:150px;animation:dspin2 .9s linear infinite}
+@keyframes bkw{from{transform:rotate(-1.6deg) scale(.99)}to{transform:rotate(1.6deg) scale(1.01)}}
+@keyframes dspin2{to{transform:rotate(360deg)}}
+.sv2w.rev{animation:rev .55s var(--spring) both;z-index:2}
+@keyframes rev{0%{transform:rotateY(-95deg) scale(.8)}55%{transform:rotateY(10deg) scale(1.1)}100%{transform:none}}
+.sv2w.rev .sv2k{box-shadow:0 10px 0 #0d061d,0 0 0 5px var(--rc),0 0 46px 2px var(--rc)}
+.sv2w.rev .sv2k:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#ffffffdd 50%,transparent 70%);animation:shxsw .5s .08s ease-out both;pointer-events:none}
+.sv2w.revx{animation:revx .7s var(--spring) both}
+@keyframes revx{0%{transform:rotateY(-95deg) scale(.8)}45%{transform:rotateY(10deg) scale(1.18)}60%{transform:scale(1.14) rotate(-2deg)}75%{transform:scale(1.14) rotate(2deg)}100%{transform:none}}
+/* v4.9 : fiche du joueur simplifiée — grand portrait, grande barre de vie, fine barre d'ultime */
+.h2 .hhp,.nar .h2 .hhp{width:560px;top:12px;gap:0;padding:0;border:0;border-image:none;background:none;align-items:center}
+.h2 .hav,.nar .h2 .hav{width:128px;height:128px;border:6px solid #ffd45e;box-shadow:0 0 0 5px #1a0c36,0 6px 0 5px #0d061d;z-index:2;margin-right:-26px}
+.h2 .hnm{display:none}
+.h2 .hhp .hpb{height:62px;margin:0;border:5px solid #1a0c36;border-radius:0 34px 34px 0;background:#1a0c36;box-shadow:0 6px 0 #0d061d,0 0 0 3px #ffd45e}
+.h2 .hhp .hpb i{border-radius:0 28px 28px 0;background:linear-gradient(#c8ff9a,#4fe06a 42%,#1f9a3c)}
+.h2 .hhp .hpb span{font-size:38px;line-height:50px;padding-left:22px;text-shadow:0 3px 0 #0d061d,0 0 6px #0d061d;letter-spacing:1px}
+.h2 .hhp .ulb{height:18px;width:86%;margin:8px 0 0 0;border:3px solid #1a0c36;border-radius:0 12px 12px 0;background:#1a0c36}
+.h2 .hhp .ulb span{display:none}
+.h2 .hhp .ulb i{background:linear-gradient(90deg,#a03dff,#ff6adf,#ffd45e)}
+#cmbs{top:168px}
+.h2 #team{top:280px}
+.h2 .hhp,.nar .h2 .hhp{width:620px}
+.h2 .hhp .hpb{height:72px}.h2 .hhp .hpb span{font-size:44px;line-height:60px}
+.h2 .hav,.nar .h2 .hav{width:140px;height:140px}
+.h2 .hhp .ulb{height:20px}
+#cmbs{top:182px}

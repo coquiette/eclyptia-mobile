@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 4.8', BUILD = '48';
+let AR = 1300; const VERSION = 'mobile 4.9', BUILD = '49';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,11 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '4.9', date: '12 novembre 2026', title: 'Monstres fantômes corrigés', items: [
+    { img: 'm0.jpg', t: 'Plus de monstres figés', d: 'À la fin du chrono, certains monstres restaient affichés sans bouger et sans pouvoir être touchés. Ils disparaissent maintenant correctement.' },
+    { img: 'ic/skull.webp', t: 'Traces au sol', d: 'Un monstre vaincu laisse une tache discrète de sa couleur, qui reste au sol jusqu’à la fin de la partie.' },
+    { img: 'ic/heart.webp', t: 'Barre de vie', d: 'Fiche du joueur refaite : grand portrait, grosse barre de vie, fine barre d’ultime, et rien d’autre.' },
+    { img: 'kit/r_dice.webp', t: 'Relance', d: 'Les cartes se retournent face cachée, puis se dévoilent une à une. Les cartes épiques et légendaires arrivent avec un éclat.' } ] },
   { v: '4.8', date: '12 novembre 2026', title: 'Menu remis en ordre', items: [
     { img: 'kit/r_gift.webp', t: 'Plus de chevauchement', d: 'Le cadeau du jour et le TOX du jour sont maintenant l’un au-dessus de l’autre à gauche : ils ne passent plus sur le bouton Profil.' } ] },
   { v: '4.7', date: '12 novembre 2026', title: 'Vagues au chrono', items: [

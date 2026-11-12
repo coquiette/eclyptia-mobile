@@ -568,7 +568,7 @@ ACT.shopRoll = () => {
   G.wpool = pool; G.wn = q.length; G.queue = q.splice(0, Math.min(6, q.length)); G.wq = q; G.wrel = 1.2; G.wtot = G.wn; }; }
 function waveClock(dt) {
   if (!G.wtimed || G.state !== 'play' || NETROLE === 2 || G.cine || !(dt > 0) || G.wt <= 0) return; G.wt -= dt;
-  if (G.wt <= 0) { G.wt = 0; G.queue.length = 0; if (G.wq) G.wq.length = 0; for (const e of G.en) { try { addFx(e.x, e.y, (e.r || 30) * 2.2, '#ffffff', .35); spark(e.x, e.y, '#ffd45e', 5); } catch (x) {} } G.en.length = 0; G.flash = Math.max(G.flash || 0, .25); return; }
+  if (G.wt <= 0) { G.wt = 0; G.queue.length = 0; if (G.wq) G.wq.length = 0; for (const e of G.en) { e.dead = true; e.nost = 1; try { R3.gone(e); } catch (x) {} } G.en.length = 0; G.flash = Math.max(G.flash || 0, .25); return; }
   if (G.wt > 1.2) { G.wrel -= dt; if (G.wrel <= 0) { const prog = 1 - G.wt / G.wdur; G.wrel = Math.max(.12, (G.wdur * .88 / G.wn) * (1.4 - .8 * prog)); G.queue.push((G.wq && G.wq.pop()) || G.wpool[(Math.random() * G.wpool.length) | 0]); } }
 }
 { const _sn = snapshot; snapshot = function () { const s = _sn(); s.wt = G.wtimed ? Math.ceil(G.wt) : -1; return s; }; }
@@ -578,3 +578,27 @@ function waveClock(dt) {
   hset('wv3', 'text', 'VAGUE ' + G.wave); const s = Math.ceil(G.wt || 0), boss = !G.wtimed;
   hset('wtm', 'text', boss ? (G.state === 'play' ? 'BOSS' : '') : Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0')); hset('wtm', 'cls', boss ? 'bs' : s <= 5 ? 'end' : '');
   if (!boss && s <= 3 && s > 0 && G._ws !== s && G.state === 'play') snd('tick'); G._ws = s; }; }
+
+
+/* ================= relance v2 : les cartes se retournent face cachée, puis se dévoilent une à une (les rares avec éclat) ================= */
+ACT.shopRoll = () => {
+  const rc = rollCost(), p = G.p; if (G.rolling) return; if (wallet() < rc) { const b = document.querySelector('.shxr'); if (b) { b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); } return no('Pas assez d’éclats'); }
+  const old = G.choices.t.slice(), L = p.lock || [], keep = old.map((id, i) => !G.sold[i] && L.includes(id)); if (keep.every(Boolean)) return no('Toutes les cartes sont gardées');
+  p.spent = (p.spent | 0) + rc; G.rolls++; let nw = rollTox(p).filter(id => !old.some((o, i) => keep[i] && o === id)); for (let g = 0; nw.length < 4 && g < 6; g++) for (const id of rollTox(p)) if (!nw.includes(id) && !old.some((o, i) => keep[i] && o === id)) nw.push(id);
+  G.choices.t = old.map((id, i) => keep[i] ? id : (nw.shift() || id)); G.sold = {}; snd('whoosh');
+  const ws = [...document.querySelectorAll('.sv2w')]; if (ws.length !== 4 || !SV2CARD) return pickUI();
+  const wl = document.querySelector('.shxw'); if (wl) { const b = wl.querySelector('b'); if (b) b.textContent = wallet(); wl.querySelectorAll('.minus').forEach(m => m.remove()); wl.classList.remove('spent'); void wl.offsetWidth; wl.classList.add('spent'); wl.insertAdjacentHTML('beforeend', `<i class="minus">-${rc}</i>`); }
+  const rb = document.querySelector('.shxr'); if (rb) { const b = rb.querySelector('b'); if (b) b.textContent = rollCost(); rb.classList.toggle('poor', wallet() < rollCost()); const d = rb.querySelector('.sv2dice'); if (d) { d.classList.remove('spin'); void d.offsetWidth; d.classList.add('spin'); } }
+  const mk = i => { const t = document.createElement('div'); t.innerHTML = SV2CARD(G.choices.t[i], i); const n = t.firstChild; n.classList.add('nop'); return n; };
+  if (lite()) { ws.forEach((x, i) => { if (!keep[i]) x.replaceWith(mk(i)); }); return; }
+  G.rolling = 1; let k = 0, end = 0;
+  ws.forEach((x, i) => { if (keep[i]) { x.classList.remove('kept'); void x.offsetWidth; x.classList.add('kept'); return; } const j = k++, h = x.offsetHeight, id = G.choices.t[i], r = TOX[id].r;
+    x.style.animationDelay = j * 60 + 'ms'; x.classList.add('flipo');
+    const back = document.createElement('div'); back.className = 'sv2w sv2bk'; back.style.minHeight = h + 'px'; back.innerHTML = '<div class="sv2bf"><img src="img/kit/r_dice.webp" draggable="false" alt=""></div>';
+    setTimeout(() => { x.replaceWith(back); }, j * 60 + 220);
+    const tr = 720 + j * 240; end = tr;
+    setTimeout(() => { const n = mk(i); n.style.setProperty('--rc', RARC[r]); n.classList.add('rev'); if (r >= 2) n.classList.add('revx'); back.replaceWith(n); snd(r >= 3 ? 'rar2' : r === 2 ? 'rar1' : 'note', j + 2);
+      const sp = r >= 2 ? 12 : 5; for (let q = 0; q < sp; q++) { const s = document.createElement('i'); s.className = 'bfs sv2sp'; s.style.cssText = `--rc:${RARC[r]};--a:${q * 360 / sp}deg;--d:${180 + (q * 47) % 130}px;--t:${(q % 4) * .03}s`; n.appendChild(s); setTimeout(() => s.remove(), 1200); }
+      setTimeout(() => n.classList.remove('rev', 'revx'), 700); }, tr); });
+  setTimeout(() => { G.rolling = 0; }, end + 450);
+};
