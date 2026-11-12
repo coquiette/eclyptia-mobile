@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 5.3', BUILD = '53';
+let AR = 1300; const VERSION = 'mobile 5.4', BUILD = '54';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,9 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '5.4', date: '12 novembre 2026', title: 'Objets simplifiés et Collection', items: [
+    { img: 'tx/ki1.webp', t: 'Juste le logo et l’effet', d: 'Les objets des gardiens s’affichent maintenant avec leur image et ce qu’ils font en gros, sans autre détail.' },
+    { img: 'ui/b_collection.webp', t: 'Collection refaite', d: 'Le pourcentage du jeu collectionné, les totaux, et une grande carte par gardien avec sa progression. Touche un gardien pour ouvrir ses TOX.' } ] },
   { v: '5.3', date: '12 novembre 2026', title: 'Effets des TOX bien lisibles', items: [
     { img: 'tx/ki1.webp', t: 'L’effet sous l’image', d: 'Dans les packs, le TOX du jour et la mini-boutique, ce que fait le TOX est écrit juste sous son image, avec les mots-clés en jaune (vitesse, dégâts, recharge…).' },
     { img: 'ui/b_shop.webp', t: 'Onglets', d: 'Toucher plusieurs fois le même onglet ne recharge plus la page.' } ] },

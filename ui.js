@@ -67,7 +67,7 @@ const SCR = {
       <div class="col grow" style="gap:12px;min-width:0"><div class="row" style="gap:10px">${tabs}</div>
       <div class="grid grow txg ${TTAB === 4 ? 't8' : ''}">${ids.map(id => { const T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }, on = eq.includes(id); return `<div class="txc ${s.l ? '' : 'lk'} ${on ? 'on' : ''}" style="--rc:${RARC[T.r]}">
         <div class="tring">${tic(id)}${s.l ? `<b>Niv. ${s.l}</b>` : `<b>${ic('lock')}</b>`}</div>
-        <div class="txt"><div class="tname">${T.n}</div><div class="sub">${T.d}</div><div class="sub gold">${tfx(T, s.l || 1)}</div>${s.l ? tbar(id) : ''}
+        <div class="txt">${T.it ? `<div class="ifx">${tfx(T, s.l || 1)}</div><div class="sub">${T.n}</div>` : `<div class="tname">${T.n}</div><div class="sub">${T.d}</div><div class="sub gold">${tfx(T, s.l || 1)}</div>`}${s.l ? tbar(id) : ''}
           ${!s.l || s.l >= TMAX ? tbtn(id) : ''}${T.it ? (s.l ? '<span class="teq on">TOUJOURS ACTIF</span>' : '') : s.l ? (on ? '<span class="teq on">ÉQUIPÉ</span>' : `<button class="teq" data-a="teq" data-v="${id}">ÉQUIPER</button>`) : ''}</div></div>`; }).join('')}</div></div></div>`;
   },
   /* la boutique générale : uniquement des boosts (payés en prismes) et les boosters de constellation */
