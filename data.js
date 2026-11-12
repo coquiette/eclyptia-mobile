@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 5.1', BUILD = '51';
+let AR = 1300; const VERSION = 'mobile 5.2', BUILD = '52';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,10 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '5.2', date: '12 novembre 2026', title: 'Parrainage et récompenses ×2 en groupe', items: [
+    { img: 'ic/friends.webp', t: 'Parraine tes amis', d: 'Dans Amis, bouton PARRAINAGE : envoie ton lien. Ton ami reçoit 300 pièces, 50 prismes et 1 pack. Quand il rejoint ton groupe la première fois, tu gagnes 1 pack et 100 prismes.' },
+    { img: 'ic/chest.webp', t: 'Bonus de parrain', d: 'Chaque filleul te donne +5 % de pièces et d’XP pour toujours (jusqu’à +25 %), et des paliers à 1, 3, 5 et 10 filleuls offrent packs, prismes et une tenue.' },
+    { img: 'ic/coin.webp', t: '×2 en groupe', d: 'Pièces, prismes et XP sont doublés à chaque partie jouée à plusieurs.' } ] },
   { v: '5.1', date: '12 novembre 2026', title: 'Barre de vie corrigée', items: [
     { img: 'ic/heart.webp', t: 'Elle ne disparaît plus', d: 'La barre de vie s’effaçait un instant à chaque coup reçu. Elle reste maintenant affichée : seule la barre tremble et flashe.' } ] },
   { v: '5.0', date: '12 novembre 2026', title: 'Des cartes entourées d’un vrai paysage', items: [
@@ -389,7 +393,7 @@ const pslug = s => String(s || '').toUpperCase().normalize('NFD').replace(/[^A-Z
 function defSave() {
   const tox = {}; for (const id of TOX_IDS) tox[id] = { l: TOX[id].h && HEROES[TOX[id].h].tox[0] === id ? 1 : 0, c: 0 };
   const hs = {}; for (const h of HERO_IDS) hs[h] = { hp: 0, dmg: 0, spd: 0 };
-  return { v: 2, named: false, friends: [], rp: 0, bst: 0, daily: null, dr: null, dmax: 0, crash: 0, crashAt: '', paid: [], starter: false, bkAt: 0, offOk: 0, name: 'Gardien', coins: 200, prisms: 50, xp: 0, passXp: 0, passClaim: [], passClaimP: [], premium: false, owned: ['kaelion', 'elyra'], hero: 'kaelion',
+  return { v: 2, named: false, friends: [], rp: 0, bst: 0, daily: null, dr: null, dmax: 0, crash: 0, crashAt: '', paid: [], starter: false, bkAt: 0, offOk: 0, uid: '', refBy: '', refGot: false, refs: [], refClaim: [], name: 'Gardien', coins: 200, prisms: 50, xp: 0, passXp: 0, passClaim: [], passClaimP: [], premium: false, owned: ['kaelion', 'elyra'], hero: 'kaelion',
     up: { hp: 0, dmg: 0, spd: 0 }, hs, tox, skins: [], skin: {}, eq: {}, wp: {}, wpo: {}, boost: {}, bon: {}, bopen: 0, seen: '',
     stats: { games: 0, wins: 0, maxWave: 0, kills: 0, boss: 0, time: 0 }, codex: {}, orbs: 3, pity: 0,
     q: { day: '', kills: 0, wave: 0, games: 0, claimed: [] }, set: { btn: 1, lefty: false, vib: true, snd: true, mus: true, gfx: 1, fill: 1, mst: 0, eco: 0 } };

@@ -602,3 +602,33 @@ ACT.shopRoll = () => {
       setTimeout(() => n.classList.remove('rev', 'revx'), 700); }, tr); });
   setTimeout(() => { G.rolling = 0; }, end + 450);
 };
+
+/* ================= parrainage et récompenses ×2 en groupe =================
+   Pas de serveur : le parrain est crédité quand son filleul rejoint son groupe pour la première fois (les deux jeux se parlent directement). */
+if (!S.uid) { S.uid = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); save(); }
+const REFM = [[1, { orbs: 1 }, '1 pack étoile'], [3, { prisms: 300 }, '300 prismes'], [5, { orbs: 3, skin: 1 }, '3 packs + 1 tenue'], [10, { orbs: 6, prisms: 600 }, '6 packs + 600 prismes']];
+const refCode = () => pslug(S.name), refN = () => (S.refs || []).length, refBoost = () => Math.min(5, refN()) * 5;
+const refLink = () => location.origin + location.pathname + '?ref=' + refCode();
+function refSet(code, silent) { code = pslug(code || ''); if (!code || code.length < 3) return silent ? 0 : no('Pseudo de parrain trop court');
+  if (S.refBy) return silent ? 0 : no('Tu as déjà un parrain'); if (code.toUpperCase() === refCode().toUpperCase()) return silent ? 0 : no('Tu ne peux pas te parrainer toi-même'); if ((S.stats.games | 0) >= 10) return silent ? 0 : no('Le parrainage se choisit pendant tes 10 premières parties');
+  S.refBy = code; if (!S.refGot) { S.refGot = true; give({ coins: 300, prisms: 50, orbs: 1 }); } save(); snd('buy'); setTimeout(() => buyFx(orbImg('myst'), 'BIENVENUE !', 'Cadeau de filleul : 300 pièces, 50 prismes, 1 pack', '#ffd45e'), silent ? 2200 : 50); return 1; }
+{ const _st2 = ACT.start; ACT.start = () => { _st2(); try { const m = /[?&]ref=([A-Za-z0-9]{3,14})/.exec(location.search); if (m) { refSet(m[1], true); history.replaceState(null, '', location.pathname); } } catch (e) {} }; }
+{ const _mi3 = myInfo; myInfo = function () { const f = _mi3(); f.uid = S.uid; f.rb = S.refBy || ''; return f; }; }
+{ const _lob2 = lobbyUI; lobbyUI = function () { try { const me = refCode(); for (let i = 0; i < NET.lobby.length; i++) { const f = NET.lobby[i]; if (!f || i === NET.me || !f.uid || !f.rb || !me || String(f.rb).toUpperCase() !== me.toUpperCase() || f.uid === S.uid) continue; S.refs = S.refs || []; if (S.refs.includes(f.uid)) continue;
+      S.refs.push(f.uid); give({ prisms: 100, orbs: 1 }); save(); snd('buy'); buyFx(himg(f.hero), 'NOUVEAU FILLEUL !', esc(f.name) + ' · +1 pack étoile, +100 prismes', '#8cff7a'); } } catch (e) {} _lob2(); }; }
+/* fin de partie : ×2 en groupe, et bonus de parrain */
+{ const _gr = grant; grant = function (res) { _gr(res); try { const grp = (res.n | 0) > 1, rb = refBoost(), k = (grp ? 2 : 1) * (1 + rb / 100); if (k > 1) { const l0 = level(), ec = Math.round(res.coins * (k - 1)), ex = Math.round(res.xp * (k - 1)), ep = Math.round(res.passXp * (k - 1)), epr = grp ? res.prisms : 0;
+      S.coins += ec; S.xp += ex; S.passXp += ep; S.prisms += epr; res.coins += ec; res.xp += ex; res.passXp += ep; res.prisms += epr; res.grp = grp; res.rb = rb; if (level() > l0) res.lvlUp = true; save(); } } catch (e) {} }; }
+{ const _se3 = showEnd; showEnd = function (r) { _se3(r); const o = $('#over'); if (o && (r.grp || r.rb)) { const e = o.querySelector('.erew'); if (e) e.insertAdjacentHTML('beforeend', (r.grp ? '<span class="x2">×2 EN GROUPE</span>' : '') + (r.rb ? `<span class="x2 rb">+${r.rb} % PARRAIN</span>` : '')); } }; }
+SCR.refer = () => { const n = refN(), can = !S.refBy && (S.stats.games | 0) < 10;
+  return head('PARRAINAGE', 'friends') + `<div class="body rf"><div class="pn col rfp" style="width:640px;flex:none"><div class="bkh">${ic('friends')}<b>Invite tes amis</b></div>
+    <div class="sub">Ton code de parrain, c’est ton pseudo :</div><div class="rfc">${esc(refCode().toUpperCase() || '—')}</div>
+    <button class="btn big" data-a="refShare" style="min-width:0;padding:0 30px 8px">INVITER UN AMI</button>
+    <div class="sub rfs">1. Ton ami ouvre ton lien : il reçoit 300 pièces, 50 prismes et 1 pack.<br>2. Il rejoint ton groupe une première fois : tu gagnes 1 pack et 100 prismes.<br>3. Chaque filleul te donne +5 % de pièces et d’XP pour toujours (5 au maximum).</div>
+    ${S.refBy ? `<div class="sub rfs gold">Ton parrain : ${esc(S.refBy.toUpperCase())}</div>` : can ? `<div class="row" style="gap:10px"><input id="refin" maxlength="14" placeholder="PSEUDO DE TON PARRAIN" autocapitalize="characters" autocomplete="off"><button class="btn vio" data-a="refOk" style="min-width:0">OK</button></div>` : ''}</div>
+    <div class="col grow" style="gap:18px;min-width:0"><div class="pn row rft"><div><b>${n}</b><span>filleul${n > 1 ? 's' : ''}</span></div><div><b>+${refBoost()} %</b><span>pièces et XP</span></div><div><b>×2</b><span>récompenses en groupe</span></div></div>
+    <div class="rfg grow">${REFM.map(([need, r, tx], i) => { const got = (S.refClaim || []).includes(i), ok = n >= need; return `<div class="rfm ${got ? 'got' : ok ? 'ok' : ''}" style="--i:${i}"><i>${need} FILLEUL${need > 1 ? 'S' : ''}</i><em>${r.skin ? ic('crown') : orbImg('myst')}</em><b>${tx}</b><button class="btn sm ${got || !ok ? 'gray' : ''}" data-a="refClaim" data-v="${i}">${got ? 'REÇU ✓' : ok ? 'RÉCUPÉRER' : n + ' / ' + need}</button></div>`; }).join('')}</div></div></div>`; };
+ACT.refShare = () => { if (pslug(S.name).length < 3) return no('Choisis d’abord un pseudo dans ton profil'); const url = refLink(), d = { title: 'ECLYPTIA', text: 'Viens jouer à ECLYPTIA avec moi ! Avec mon lien tu reçois un cadeau de départ :', url }; if (navigator.share) navigator.share(d).catch(() => {}); else if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('Lien de parrainage copié')).catch(() => toast(url)); else toast(url); };
+ACT.refOk = () => { const e = $('#refin'); if (refSet(e ? e.value : '')) show('refer'); };
+ACT.refClaim = v => { const i = +v, m = REFM[i]; if (!m) return; S.refClaim = S.refClaim || []; if (S.refClaim.includes(i)) return; if (refN() < m[0]) return no('Il te faut ' + m[0] + ' filleul' + (m[0] > 1 ? 's' : '')); S.refClaim.push(i); give(m[1]); save(); snd('buy'); show('refer'); buyFx(m[1].skin ? ic('crown') : orbImg('myst'), 'PALIER ' + m[0], m[2], '#ffd45e'); };
+{ const _fr2 = SCR.friends; SCR.friends = () => { let h = _fr2(); if (!NET.role) h += `<button class="rfbtn" data-a="go" data-v="refer">${ic('chest')}<span>PARRAINAGE<small>${refN()} filleul${refN() > 1 ? 's' : ''} · ×2 en groupe</small></span>${REFM.some(([nd], i) => refN() >= nd && !(S.refClaim || []).includes(i)) ? '<i class="dot"></i>' : ''}</button>`; return h; }; }
