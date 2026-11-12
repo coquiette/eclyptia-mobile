@@ -79,7 +79,7 @@ function spawn(id) {
   addFx(x, y, m.boss ? 320 : 120, el ? '#ffd45e' : '#b06bff', .55); addPil(x, y, m.boss ? 160 : 46, m.boss ? 900 : 420, el ? '#ffd45e' : '#b06bff', m.boss ? 1.4 : .6); gsnd('spawn');
   if (m.boss) { G.shake = .5; cine({ t: 2.8, f: e, zoom: 1.45, title: m.n.toUpperCase(), sub: 'BOSS · VAGUE ' + w, col: '#ff5a5a' }); gsnd('boss'); vib(120); }
 }
-function foeShot(e, a, sp, dmg) { G.sh.push({ foe: 1, x: e.x, y: e.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: 18, dmg, life: 4.5, col: e.m.col }); }
+function foeShot(e, a, sp, dmg) { G.sh.push({ foe: 1, kd: e.m.boss ? 3 : e.m.ranged > 1 ? 2 : 1, x: e.x, y: e.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, r: 18, dmg, life: 4.5, col: e.m.col }); }
 /* effets : envoyés aussi aux invités */
 function evp(a) { if (NETROLE === 1 && G.evq.length < 90) G.evq.push(a); }
 function addFx(x, y, r, col, life = .35) { G.fx.push({ x, y, r, col, t: life, max: life }); evp(['f', x | 0, y | 0, r | 0, col, life]); }
@@ -244,12 +244,16 @@ function update(dt) {
       }
     } else if (e.m.ranged) {
       if (d < 270) { mx = -ux; my = -uy; } else if (d < 400) mv = 0;
-      if (e.cd <= 0 && d < 660) { e.cd = e.m.ranged > 1 ? 3.2 : 2.3; const a = Math.atan2(dy, dx), n = e.m.ranged; for (let i = 0; i < n; i++) foeShot(e, a + (i - (n - 1) / 2) * .28, 340, e.dmg); }
+      if (e.cast > 0) { e.cast -= dt * slow; mv = 0; if (e.cast <= 0) { const a = Math.atan2(dy, dx), n = e.m.ranged; for (let i = 0; i < n; i++) foeShot(e, a + (i - (n - 1) / 2) * .28, n > 1 ? 300 : 380, e.dmg); if (typeof atkFx === 'function') atkFx('shoot', e, p); } }
+      else if (e.cd <= 0 && d < 660) { e.cd = e.m.ranged > 1 ? 3.2 : 2.3; e.cast = e.m.ranged > 1 ? .7 : .45; if (typeof atkFx === 'function') atkFx('cast', e, p); }
     }
+    if (e.fuse > 0) mv = 0;
     e.x += (mx * mv + e.kx) * dt; e.y += (my * mv + e.ky) * dt; e.kx *= .88; e.ky *= .88; clampR(e, AR - 20);
-    if (d < e.r + p.r - 10) {
+    if (e.m.boom && e.fuse > 0) { e.fuse -= dt * slow; if (e.fuse <= 0) { e.dead = true; G.kc[e.id] = (G.kc[e.id] || 0) + 1; G.kills++; if (typeof atkFx === 'function') atkFx('boom', e, p); G.shake = .4; gsnd('boom'); for (const q of alive()) if (hyp(q.x - e.x, q.y - e.y) < 175 + q.r * .4) hurt(q, e.dmg); } }
+    else if (e.m.boom && d < e.r + p.r + 70 && typeof atkFx === 'function') { e.fuse = .65; atkFx('fuse', e, p); }
+    else if (d < e.r + p.r - 10) {
       if (e.m.boom) { e.dead = true; G.kc[e.id] = (G.kc[e.id] || 0) + 1; G.kills++; addFx(e.x, e.y, 190, '#ff7a2e', .45); addFx(e.x, e.y, 120, '#ffe07a', .3); spark(e.x, e.y, '#ff7a2e', 18); G.shake = .35; gsnd('boom'); hurt(p, e.dmg); }
-      else if (e.hit <= 0) { hurt(p, e.dmg); e.hit = .8; }
+      else if (e.hit <= 0) { hurt(p, e.dmg); e.hit = .8; if (typeof atkFx === 'function') atkFx('bite', e, p); }
     }
   }
   for (let i = 0, L = G.en.length; i < L; i++) { const a = G.en[i]; for (const o of [1, 5]) { const b = G.en[(i + o + ((G.t * 30) | 0)) % L]; if (b === a || a.m.boss || b.m.boss) continue; const dx = b.x - a.x, dy = b.y - a.y, d = hyp(dx, dy) || 1, m = (a.r + b.r) * .8; if (d < m) { const p = (m - d) / d * .5; a.x -= dx * p; a.y -= dy * p; b.x += dx * p; b.y += dy * p; } } }

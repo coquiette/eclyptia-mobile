@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 5.9', BUILD = '59';
+let AR = 1300; const VERSION = 'mobile 6.0', BUILD = '60';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,11 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '6.0', date: '12 novembre 2026', title: 'Attaques des monstres', items: [
+    { img: 'm1.jpg', t: 'Chaque attaque s’annonce', d: 'Les tireurs chargent leur tir, les mages ouvrent un cercle magique, les bombes s’arrêtent et dessinent leur zone d’explosion avant de sauter : tu as le temps d’esquiver.' },
+    { img: 'ic/bolt.webp', t: 'Nouveaux projectiles', d: 'Éclats de glace qui tournent, orbes qui pulsent, boules de boss : chacun a la couleur de son monstre et laisse une traînée.' },
+    { img: 'ic/skull.webp', t: 'Zones au sol', d: 'Un disque coloré se remplit jusqu’à l’impact pour les explosions et les frappes de boss. Les morsures laissent une griffure.' },
+    { img: 'm3.jpg', t: 'Monstres plats corrigés', d: 'Les monstres qui paraissaient plats de profil ont retrouvé leur volume.' } ] },
   { v: '5.9', date: '12 novembre 2026', title: 'Les TOX renforcent, ils ne remplacent plus', items: [
     { img: 'tx/k1.webp', t: 'Quatre pouvoirs dès le départ', d: 'Chaque gardien garde ses pouvoirs A, B, C et son ultime, tous disponibles dès la vague 1. Plus aucun TOX ne les remplace.' },
     { img: 'tx/ki1.webp', t: 'Mini-boutique de renforts', d: 'Entre les vagues : des objets qui renforcent ton gardien (vitesse, PV, dégâts…) et des « Pouvoir +1 » qui montent le niveau d’un de tes pouvoirs.' },

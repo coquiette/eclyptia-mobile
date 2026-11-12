@@ -723,7 +723,7 @@ const REGW = 4, REGK = .02;
     } catch (x2) {} return r; }; }
 /* boss : frappe au sol annoncée par un cercle rouge, puis onde de choc qui blesse et repousse */
 function bossSlam(e) { if (!e || e.dead || G.state !== 'play') return; const q = nearest(e.x, e.y); if (!q) return; const x = q.x, y = q.y, R = e.m.myth ? 300 : 240;
-  for (let i = 0; i < 3; i++) fdo(i * .3, () => { addFx(x, y, R, '#ff3a3a', .32); if (!i) gsnd('ultc'); });
+  addZone(x, y, R, .95, '#ff3a3a'); gsnd('ultc');
   fdo(.95, () => { if (e.dead) return; addFx(x, y, R * 1.25, '#ffffff', .4); addFx(x, y, R, e.m.col, .6); addPil(x, y, R * .5, 700, e.m.col, .7); spark(x, y, e.m.col, 22); G.shake = Math.max(G.shake || 0, .75); G.flash = Math.max(G.flash || 0, .22); evp(['sh', .75, .22]); vib(120); gsnd('boom');
     for (const p of alive()) { const d = Math.hypot(p.x - x, p.y - y); if (d < R + p.r * .5 && !(p.dash > 0)) { hurt(p, e.dmg * .9); const l = d || 1; p.x += (p.x - x) / l * 90; p.y += (p.y - y) / l * 90; } } }); }
 { const _ht5 = hudTick; hudTick = function () { _ht5.apply(this, arguments); if (!G || NETROLE === 2 || G.state !== 'play' || G.cine) return; const dt = G.t - (G._lt5 === undefined ? G.t : G._lt5); G._lt5 = G.t; if (!(dt > 0 && dt < .5)) return;
@@ -848,3 +848,17 @@ ACT.chatE = v => chatSend('e', v); ACT.chatS = v => chatSend('s', v); ACT.chatY 
 ACT.chatW = () => vkOpen({ id: 'chin', value: '', maxLength: 60 });
 { const _fr6 = SCR.friends; SCR.friends = () => { const h = _fr6(); if (!NET.role) return h; return h + `<button class="chbtn" data-a="chat">${ic('friends')}<span>CHAT</span>${CHAT.un ? '<i class="dot"></i>' : ''}</button>`; }; }
 { const _sel = ACT.sel; ACT.sel = v => { _sel(v); if (NET.role) grpPush(); }; }
+
+
+/* ================= attaques des monstres : chacune a son annonce, son geste et ses effets ================= */
+function addZone(x, y, r, dur, col) { if (!G) return; (G.zn = G.zn || []).push({ x, y, r, t: dur, max: dur, col: col || '#ff3a3a' }); if (G.zn.length > 14) G.zn.shift(); try { evp(['zn', x | 0, y | 0, r | 0, +dur.toFixed(2), col || '#ff3a3a']); } catch (e) {} }
+function atkFx(k, e, p) { try { const col = e.m.col;
+  if (k === 'cast') { const big = e.m.ranged > 1; e.flash = .12; addPil(e.x, e.y, big ? 46 : 30, big ? 520 : 360, col, big ? .7 : .45); addFx(e.x, e.y, e.r * (big ? 3.4 : 2.4), col, big ? .7 : .45); if (big) { addZone(e.x, e.y, e.r * 2.2, .7, col); spark(e.x, e.y, col, 8); } gsnd('zap'); }
+  else if (k === 'shoot') { e.flash = .14; const dx = p.x - e.x, dy = p.y - e.y, l = Math.hypot(dx, dy) || 1; e.kx -= dx / l * 160; e.ky -= dy / l * 160; addFx(e.x + dx / l * e.r, e.y + dy / l * e.r, e.r * 1.6, '#ffffff', .18); spark(e.x + dx / l * e.r, e.y + dy / l * e.r, col, 6); gsnd(e.m.ranged > 1 ? 'salve' : 'shoot'); }
+  else if (k === 'bite') { const dx = p.x - e.x, dy = p.y - e.y, l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l; e.flash = .16; e.kx -= ux * 240; e.ky -= uy * 240;
+    for (let i = -1; i <= 1; i++) { const ox = -uy * i * 22, oy = ux * i * 22; addFx(p.x + ox - ux * 10, p.y + oy - uy * 10, 46 + (i ? 0 : 20), i ? '#ffffff' : '#ff4d6d', .16 + (i ? 0 : .06)); } spark(p.x, p.y, '#ff4d6d', 5); spark(p.x, p.y, col, 3); gsnd('hit'); }
+  else if (k === 'fuse') { e.flash = .65; addZone(e.x, e.y, 175, .65, '#ff5a1e'); addPil(e.x, e.y, 36, 420, '#ffe07a', .65); gsnd('orbTick'); }
+  else if (k === 'boom') { addFx(e.x, e.y, 230, '#ff7a2e', .5); addFx(e.x, e.y, 150, '#ffe07a', .35); addFx(e.x, e.y, 80, '#ffffff', .25); addPil(e.x, e.y, 90, 600, '#ff7a2e', .5); spark(e.x, e.y, '#ff7a2e', 20); spark(e.x, e.y, '#ffe07a', 10); for (let i = 0; i < 6; i++) { const a = i * 1.047; addFx(e.x + Math.cos(a) * 110, e.y + Math.sin(a) * 110, 70, '#ff5a1e', .3); } }
+} catch (x) {} }
+{ const _ht6 = hudTick; hudTick = function () { _ht6.apply(this, arguments); if (!G || !G.zn || !G.zn.length) return; const dt = G.t - (G._lt6 === undefined ? G.t : G._lt6); G._lt6 = G.t; if (dt > 0 && dt < .5) { for (const z of G.zn) z.t -= dt; G.zn = G.zn.filter(z => z.t > -.25); } }; }
+{ const _pe = playEv; playEv = function (a) { if (a && a[0] === 'zn') { (G.zn = G.zn || []).push({ x: a[1], y: a[2], r: a[3], t: a[4], max: a[4], col: a[5] }); return; } return _pe(a); }; }
