@@ -471,3 +471,26 @@ function bkApply(o) { try { heartbeat(true); } catch (e) {} bkAuto(); localStora
 ACT.bkLoad = async () => { const e = $('#bkin'), v = e ? e.value : ''; if (!v.trim()) return no('Colle d’abord ton code'); let o; try { o = await bkUnpack(v); } catch (x) { return no('Ce code n’est pas valide ou il est incomplet'); } if (BKMSG && ACT._bk === v) return bkApply(o); ACT._bk = v; BKMSG = 'CONFIRMER : REMPLACER PAR « ' + esc(o.name).slice(0, 14) + ' »'; const b = document.querySelector('[data-a="bkLoad"]'); if (b) { b.innerHTML = BKMSG; b.classList.add('vio'); } snd('pick'); };
 ACT.bkOld = v => { const x = bkList()[+v]; if (!x) return; if (ACT._bo !== v) { ACT._bo = v; return toast('Touche encore une fois pour revenir à cette copie'); } try { bkApply(JSON.parse(x.s)); } catch (e) { no('Copie illisible'); } };
 { const _pf = SCR.profile; SCR.profile = () => _pf().replace('<button class="btn sm vio" data-a="go" data-v="accounts" style="width:100%">CHANGER DE COMPTE</button>', '<div class="row" style="gap:10px;width:100%"><button class="btn sm vio grow" data-a="go" data-v="accounts" style="min-width:0;padding:0 8px 5px;font-size:28px">COMPTES</button><button class="btn sm grow" data-a="go" data-v="backup" style="min-width:0;padding:0 8px 5px;font-size:28px">SAUVEGARDE</button></div>'); }
+
+/* ================= jeu hors ligne : tous les fichiers sont gardés sur l'appareil, le jeu se lance sans réseau (solo) ================= */
+let OFFL = { d: 0, tot: 0, ok: false, on: false };
+function swFill() { try { navigator.serviceWorker.ready.then(r => { if (r.active) r.active.postMessage('fill'); }); } catch (e) {} }
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('sw.js').then(() => { OFFL.on = true; setTimeout(swFill, 3000); }).catch(() => {});
+  navigator.serviceWorker.addEventListener('controllerchange', () => setTimeout(swFill, 1500));
+  navigator.serviceWorker.addEventListener('message', e => { const m = e.data || {}; if (m.t !== 'sw' && m.t !== 'swdone') return; OFFL.d = m.d; OFFL.tot = m.tot;
+    if (m.t === 'swdone') { const was = OFFL.ok; OFFL.ok = !m.fail && m.d >= m.tot; if (OFFL.ok && !was && !S.offOk) { S.offOk = 1; save(); toast('Jeu prêt à être joué hors ligne'); } if (!OFFL.ok) setTimeout(swFill, 60000); }
+    const v = document.querySelector('.ver'); if (v && SCREEN === 'menu') v.textContent = verTxt(); });
+  addEventListener('online', () => { setTimeout(swFill, 2000); checkUpdate(); });
+}
+const verTxt = () => VERSION + (OFFL.on ? (OFFL.ok ? ' · hors ligne prêt' : OFFL.tot ? ' · hors ligne ' + Math.floor(100 * OFFL.d / OFFL.tot) + ' %' : '') : '') + (navigator.onLine === false ? ' · sans réseau' : '') + (S.crashAt ? ' · dernier arrêt : ' + S.crashAt : '');
+{ const _m5 = SCR.menu; SCR.menu = () => _m5().replace(/<div class="ver">[^<]*<\/div>/, `<div class="ver">${verTxt()}</div>`); }
+/* mise à jour : on demande d'abord la nouvelle liste de fichiers, puis on redémarre (les fichiers hors ligne ne sont plus effacés) */
+ACT.update = async () => {
+  try { heartbeat(true); sessionStorage.setItem('ecl_upd', NEWB); } catch (e) {} if (NET.role) NET.leave(true); toast('Mise à jour en cours…');
+  try { const reg = await navigator.serviceWorker.getRegistration(); if (reg) await Promise.race([reg.update(), new Promise(r => setTimeout(r, 6000))]); } catch (e) {}
+  location.replace(location.pathname + '?v=' + NEWB + '&t=' + Date.now());
+};
+/* sans réseau : le groupe en ligne est indisponible, on le dit clairement */
+{ const _go = ACT.go; ACT.go = v => { if (v === 'friends' && navigator.onLine === false) return no('Le groupe a besoin d’internet. En solo, tu peux jouer hors ligne.'); return _go(v); }; }
+{ const _sh6 = show; show = function (n, enter) { if (n !== 'menu') { const d = $('#drw'); if (d) d.remove(); } _sh6(n, enter); }; }

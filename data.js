@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 4.2', BUILD = '42';
+let AR = 1300; const VERSION = 'mobile 4.3', BUILD = '43';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,9 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '4.3', date: '12 novembre 2026', title: 'Jeu hors ligne', items: [
+    { img: 'ic/shield.webp', t: 'Joue sans internet', d: 'Le jeu garde tous ses fichiers sur ton appareil. Quand le menu affiche « hors ligne prêt » en bas à droite, tu peux jouer en solo sans réseau.' },
+    { img: 'ic/friends.webp', t: 'Ce qui demande internet', d: 'Le groupe entre amis et les mises à jour ont toujours besoin d’une connexion.' } ] },
   { v: '4.2', date: '12 novembre 2026', title: 'Sauvegarde du compte', items: [
     { img: 'ic/shield.webp', t: 'Code de sauvegarde', d: 'Dans Profil, bouton SAUVEGARDE : un code contient tout ton compte. Copie-le ou envoie-le-toi, puis colle-le pour restaurer, même sur un autre appareil.' },
     { img: 'ic/chest.webp', t: 'Copies automatiques', d: 'Le jeu garde tout seul une copie des 3 derniers jours sur l’appareil.' },
@@ -357,7 +360,7 @@ const pslug = s => String(s || '').toUpperCase().normalize('NFD').replace(/[^A-Z
 function defSave() {
   const tox = {}; for (const id of TOX_IDS) tox[id] = { l: TOX[id].h && HEROES[TOX[id].h].tox[0] === id ? 1 : 0, c: 0 };
   const hs = {}; for (const h of HERO_IDS) hs[h] = { hp: 0, dmg: 0, spd: 0 };
-  return { v: 2, named: false, friends: [], rp: 0, bst: 0, daily: null, dr: null, dmax: 0, crash: 0, crashAt: '', paid: [], starter: false, bkAt: 0, name: 'Gardien', coins: 200, prisms: 50, xp: 0, passXp: 0, passClaim: [], passClaimP: [], premium: false, owned: ['kaelion', 'elyra'], hero: 'kaelion',
+  return { v: 2, named: false, friends: [], rp: 0, bst: 0, daily: null, dr: null, dmax: 0, crash: 0, crashAt: '', paid: [], starter: false, bkAt: 0, offOk: 0, name: 'Gardien', coins: 200, prisms: 50, xp: 0, passXp: 0, passClaim: [], passClaimP: [], premium: false, owned: ['kaelion', 'elyra'], hero: 'kaelion',
     up: { hp: 0, dmg: 0, spd: 0 }, hs, tox, skins: [], skin: {}, eq: {}, wp: {}, wpo: {}, boost: {}, bon: {}, bopen: 0, seen: '',
     stats: { games: 0, wins: 0, maxWave: 0, kills: 0, boss: 0, time: 0 }, codex: {}, orbs: 3, pity: 0,
     q: { day: '', kills: 0, wave: 0, games: 0, claimed: [] }, set: { btn: 1, lefty: false, vib: true, snd: true, mus: true, gfx: 1, fill: 1 } };
