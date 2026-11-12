@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 4.4', BUILD = '44';
+let AR = 1300; const VERSION = 'mobile 4.5', BUILD = '45';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,9 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '4.5', date: '12 novembre 2026', title: 'Mini-boutique plus fluide', items: [
+    { img: 'tx/k1.webp', t: 'Achat animé', d: 'La carte flashe, des étincelles jaillissent et l’icône s’envole jusqu’à son emplacement, sans recharger toute la boutique.' },
+    { img: 'kit/r_lock.webp', t: 'Cadenas discret', d: 'Un petit cadenas en haut de chaque carte : il s’allume et la carte prend un liseré doré quand elle est gardée.' } ] },
   { v: '4.4', date: '12 novembre 2026', title: 'Cartes gardées et contours', items: [
     { img: 'kit/r_lock.webp', t: 'Garder une carte', d: 'Dans la mini-boutique, le bouton GARDER conserve une carte pendant les relances et jusqu’à la vague suivante (3 au maximum).' },
     { img: 'm0.jpg', t: 'Monstres plus visibles', d: 'Contour noir autour de chaque monstre, et un son à chaque apparition.' },

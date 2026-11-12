@@ -379,17 +379,19 @@ ACT.cpg = v => { const NP = Math.ceil(MON_IDS.length / 10); CPG = (CPG + (+v) + 
   const hp = $('.hhp'), f = $('#hpf'); if (hp && f) { const low = parseFloat(f.style.width) < 30, hit = G.hurtT > 0; if (hp._l !== low) { hp._l = low; hp.classList.toggle('low', low); } if (hp._h !== hit) { hp._h = hit; hp.classList.toggle('hit', hit); } }
 }; }
 
+let SV2CARD = null, SV2BL = () => '';
 /* ================= mini-boutique v2 : 4 grandes cartes illustrées, ce que l'achat change est montré en images ================= */
 { const _pu = pickUI; pickUI = function () {
   if (G.pb < 0) return _pu();
   const c = G.choices, p = G.p, w = wallet(), rc = rollCost(), bl = (p.bl || []).concat(NETROLE === 2 || !BLESS[c.b[G.pb]] ? [] : [BLESS[c.b[G.pb]].n]);
-  const card = (id, i) => { const T = TOX[id], cur = p.tx[T.s], has = !!p.tl[T.s], same = has && cur === id, lv = T.it ? 1 : same ? p.tl[T.s] + 1 : Math.max(1, p.tl[T.s] || 0), pr = shopPrice(id), sold = G.sold[i], poor = !sold && w < pr, n0 = (p.itn && p.itn[id]) || 0;
+  const card = (id, i) => { const T = TOX[id], cur = p.tx[T.s], has = !!p.tl[T.s], same = has && cur === id, lv = T.it ? 1 : same ? p.tl[T.s] + 1 : Math.max(1, p.tl[T.s] || 0), pr = shopPrice(id), sold = G.sold[i], poor = !sold && wallet() < pr, n0 = (p.itn && p.itn[id]) || 0;
     const chg = T.it ? `<span class="sv2c up"><b>+${T.v} %</b><i>${ITL[T.k]}</i><small>${n0 ? 'TU EN AS ' + n0 : "S'AJOUTE"}</small></span>` : same ? `<span class="sv2c up"><i>Niv. ${lv - 1}</i><u>▸</u><b>Niv. ${lv}</b><small>AMÉLIORE</small></span>` : has ? `<span class="sv2c sw">${tic(cur)}<u>▸</u>${tic(id)}<small>REMPLACE</small></span>` : `<span class="sv2c nw">${ic('lock')}<u>▸</u>${tic(id)}<small>DÉBLOQUE</small></span>`;
-    const lk = !sold && (p.lock || []).includes(id); return `<div class="sv2w ${lk ? 'lk' : ''}" style="--i:${i}"><button class="sv2k ${sold ? 'sold' : ''} ${poor ? 'poor' : ''} ${G.justB === i ? 'just' : ''}" data-a="shopBuy" data-v="${i}" style="--rc:${RARC[T.r]};--i:${i}"><i class="sv2s">${T.it ? 'OBJET' : T.s === 3 ? 'ULTIME' : 'TOX ' + 'ABC'[T.s]}</i><i class="sv2r">${RARN[T.r]}</i><em>${tic(id)}</em><b>${T.n}</b>${chg}<small class="sv2d">${T.it ? 'Objet : dure toute la partie, se cumule' : tfx(T, lv)}</small><span class="sv2p">${sold ? 'ACHETÉ ✓' : pr + ' ' + ic('shard')}</span></button>${sold ? '' : `<button class="sv2lk ${lk ? 'on' : ''}" data-a="shopLock" data-v="${i}"><img src="img/kit/r_lock.webp" draggable="false" alt=""><span>${lk ? 'GARDÉ' : 'GARDER'}</span></button>`}</div>`; };
-  over(`<div class="sv2"><div class="sv2t"><span class="pill shxw ${G.justP ? 'spent' : ''}">${ic('shard')} <b>${w}</b>${G.justP ? `<i class="minus">-${G.justP}</i>` : ''}</span><div class="sv2h"><b class="gold">BOUTIQUE</b><small>Vague ${G.wave} terminée · achète ce que tu veux · GARDER conserve une carte pour la relance et la vague suivante</small></div><button class="shxr ${w < rc ? 'poor' : ''}" data-a="shopRoll"><img class="sv2dice" src="img/kit/r_dice.webp" draggable="false" alt="">RELANCER <b>${rc}</b> ${ic('shard')}</button></div>
+    const lk = !sold && (p.lock || []).includes(id); return `<div class="sv2w ${lk ? 'lk' : ''}" style="--i:${i}"><button class="sv2k ${sold ? 'sold' : ''} ${poor ? 'poor' : ''} ${G.justB === i ? 'just' : ''}" data-a="shopBuy" data-v="${i}" style="--rc:${RARC[T.r]};--i:${i}"><i class="sv2s">${T.it ? 'OBJET' : T.s === 3 ? 'ULTIME' : 'TOX ' + 'ABC'[T.s]}</i><i class="sv2r">${RARN[T.r]}</i><em>${tic(id)}</em><b>${T.n}</b>${chg}<small class="sv2d">${T.it ? 'Objet : dure toute la partie, se cumule' : tfx(T, lv)}</small><span class="sv2p">${sold ? 'ACHETÉ ✓' : pr + ' ' + ic('shard')}</span></button>${sold ? '' : `<button class="sv2lk ${lk ? 'on' : ''}" data-a="shopLock" data-v="${i}"><img src="img/kit/r_lock.webp" draggable="false" alt="Garder"></button>`}</div>`; };
+  SV2CARD = card; SV2BL = () => Object.keys(p.itn || {}).map(id => `<i class="it">${tic(id)}×${p.itn[id]}</i>`).join('') + (bl.length ? bl.slice(-5).map(n => `<i>${n}</i>`).join('') : (p.itn && Object.keys(p.itn).length ? '' : '<i class="none">Aucun pour l’instant</i>'));
+  over(`<div class="sv2"><div class="sv2t"><span class="pill shxw ${G.justP ? 'spent' : ''}">${ic('shard')} <b>${w}</b>${G.justP ? `<i class="minus">-${G.justP}</i>` : ''}</span><div class="sv2h"><b class="gold">BOUTIQUE</b><small>Vague ${G.wave} terminée · achète ce que tu veux · le cadenas garde une carte</small></div><button class="shxr ${w < rc ? 'poor' : ''}" data-a="shopRoll"><img class="sv2dice" src="img/kit/r_dice.webp" draggable="false" alt="">RELANCER <b>${rc}</b> ${ic('shard')}</button></div>
     <div class="sv2g ${G.justR ? 'rl' : ''}">${c.t.map(card).join('')}</div>
     <div class="sv2b"><div class="sv2m"><small>MES TOX</small><div>${p.tx.map((id, i) => `<span class="shxo ${p.tl[i] ? '' : 'lk'} ${G.justS === i ? 'lvl' : ''}" style="--rc:${RARC[i]}">${tic(id)}<b>${p.tl[i] ? 'Niv. ' + p.tl[i] : ic('lock')}</b></span>`).join('')}</div></div>
-      <div class="sv2l"><small>OBJETS ET BÉNÉDICTIONS</small><div>${Object.keys(p.itn || {}).map(id => `<i class="it">${tic(id)}×${p.itn[id]}</i>`).join('')}${bl.length ? bl.slice(-5).map(n => `<i>${n}</i>`).join('') : (p.itn && Object.keys(p.itn).length ? '' : '<i class="none">Aucun pour l’instant</i>')}</div></div>
+      <div class="sv2l"><small>OBJETS ET BÉNÉDICTIONS</small><div>${SV2BL()}</div></div>
       <button class="btn big shxgo" data-a="shopReady">PRÊT ▸ VAGUE ${G.wave + 1}</button></div></div>`);
 }; }
 
@@ -497,7 +499,7 @@ ACT.update = async () => {
 
 
 /* ================= mini-boutique : garder (verrouiller) une carte pour les relances et pour la vague suivante ================= */
-ACT.shopLock = v => { const p = G.p, i = +v, id = G.choices && G.choices.t[i]; if (!id || G.sold[i]) return; p.lock = p.lock || []; const k = p.lock.indexOf(id); if (k >= 0) p.lock.splice(k, 1); else { if (p.lock.length >= 3) return no('3 cartes gardées au maximum'); p.lock.push(id); } snd(k >= 0 ? 'back' : 'pick'); pickUI(); };
+ACT.shopLock = v => { const p = G.p, i = +v, id = G.choices && G.choices.t[i]; if (!id || G.sold[i]) return; p.lock = p.lock || []; const k = p.lock.indexOf(id); if (k >= 0) p.lock.splice(k, 1); else { if (p.lock.length >= 3) return no('3 cartes gardées au maximum'); p.lock.push(id); } snd(k >= 0 ? 'back' : 'pick'); const w = document.querySelectorAll('.sv2w')[i]; if (w) { const on = k < 0; w.classList.toggle('lk', on); const b = w.querySelector('.sv2lk'); if (b) { b.classList.toggle('on', on); b.classList.remove('tap'); void b.offsetWidth; b.classList.add('tap'); } } else pickUI(); };
 { const _sb = ACT.shopBuy; ACT.shopBuy = v => { const id = G.choices && G.choices.t[+v], was = G.sold[+v]; _sb(v); if (id && !was && G.sold[+v] && G.p.lock) { const k = G.p.lock.indexOf(id); if (k >= 0) { G.p.lock.splice(k, 1); pickUI(); } } }; }
 ACT.shopRoll = () => { const rc = rollCost(), p = G.p; if (wallet() < rc) { snd('no'); return toast('Pas assez d’éclats'); } const old = G.choices.t, L = p.lock || [], keep = old.map((id, i) => !G.sold[i] && L.includes(id)); if (keep.every(Boolean)) return no('Toutes les cartes sont gardées');
   p.spent = (p.spent | 0) + rc; G.rolls++; let nw = rollTox(p).filter(id => !old.some((o, i) => keep[i] && o === id)); for (let g = 0; nw.length < 4 && g < 6; g++) for (const id of rollTox(p)) if (!nw.includes(id) && !old.some((o, i) => keep[i] && o === id)) nw.push(id);
@@ -508,3 +510,28 @@ ACT.shopRoll = () => { const rc = rollCost(), p = G.p; if (wallet() < rc) { snd(
 /* style de musique au choix */
 ACT.mst = v => { S.set.mst = +v; save(); if (typeof musStyle === 'function') musStyle(); snd('pick'); show('settings'); };
 { const _se2 = SCR.settings; SCR.settings = () => _se2().replace('<div class="sub">La progression est enregistrée sur cet appareil, dans ce navigateur.</div>', `<div class="sub" style="font-size:26px;color:#ffd45e">Style de musique</div><div class="row" style="gap:8px">${['Doux', 'Épique', 'Rétro'].map((n, i) => `<button class="btn sm ${(S.set.mst | 0) === i ? '' : 'gray'}" data-a="mst" data-v="${i}" style="min-width:0;flex:1;padding:0 6px 5px;font-size:27px">${n}</button>`).join('')}</div>`); }
+
+
+/* ================= achat dans la mini-boutique : tout se met à jour sur place, l'icône s'envole vers son emplacement ================= */
+ACT.shopBuy = v => {
+  const i = +v, p = G.p, id = G.choices && G.choices.t[i]; if (!id || G.sold[i]) return; const T = TOX[id], pr = shopPrice(id), ws = document.querySelectorAll('.sv2w'), w = ws[i];
+  if (wallet() < pr) { if (w) { w.classList.remove('nope'); void w.offsetWidth; w.classList.add('nope'); } return no('Pas assez d’éclats'); }
+  p.spent = (p.spent | 0) + pr; G.sold[i] = 1; G.bought.push(id); setTox(p, id); refreshBtns(); snd('buy'); if (p.lock) { const k = p.lock.indexOf(id); if (k >= 0) p.lock.splice(k, 1); }
+  if (!w || !SV2CARD) return pickUI();
+  /* la carte achetée : flash, étincelles, tampon « ACHETÉ » */
+  const card = w.querySelector('.sv2k'), pp = w.querySelector('.sv2p'), lk = w.querySelector('.sv2lk'), src = w.querySelector('em .tic'); w.classList.remove('lk'); if (lk) lk.remove(); card.classList.add('just'); if (pp) pp.innerHTML = 'ACHETÉ ✓';
+  const n = lite() ? 6 : 12; for (let k = 0; k < n; k++) { const s = document.createElement('i'); s.className = 'bfs sv2sp'; s.style.cssText = `--rc:${RARC[T.r]};--a:${k * 360 / n}deg;--d:${200 + (k * 47) % 120}px;--t:${(k % 4) * .03}s`; w.appendChild(s); setTimeout(() => s.remove(), 1200); }
+  setTimeout(() => { card.classList.remove('just'); w.classList.add('noan'); card.classList.add('sold'); }, 560);
+  /* les autres cartes : prix accessibles ou non, « remplace / améliore » à jour, sans rejouer leur entrée */
+  ws.forEach((x, j) => { if (j === i || G.sold[j]) return; const t = document.createElement('div'); t.innerHTML = SV2CARD(G.choices.t[j], j); const nw = t.firstChild; nw.classList.add('noan'); x.replaceWith(nw); });
+  /* le compteur d'éclats descend */
+  const wl = document.querySelector('.shxw'); if (wl) { const b = wl.querySelector('b'); if (b) b.textContent = wallet(); wl.querySelectorAll('.minus').forEach(m => m.remove()); wl.classList.remove('spent'); void wl.offsetWidth; wl.classList.add('spent'); wl.insertAdjacentHTML('beforeend', `<i class="minus">-${pr}</i>`); }
+  const rr = document.querySelector('.shxr'); if (rr) rr.classList.toggle('poor', wallet() < rollCost());
+  /* l'icône s'envole vers son emplacement, qui se met à jour à l'arrivée */
+  const land = () => { if (T.it) { const l = document.querySelector('.sv2l>div'); if (l) { l.innerHTML = SV2BL(); const f = l.querySelector('.it:last-of-type') || l; f.classList.add('lvl2'); } } else { const o = document.querySelectorAll('.sv2m .shxo')[T.s]; if (o) { o.classList.remove('lk', 'lvl'); o.innerHTML = tic(p.tx[T.s]) + '<b>Niv. ' + p.tl[T.s] + '</b>'; void o.offsetWidth; o.classList.add('lvl'); } } snd('pop'); };
+  const dst = T.it ? document.querySelector('.sv2l') : document.querySelectorAll('.sv2m .shxo')[T.s];
+  if (!src || !dst || lite()) return land();
+  const a = src.getBoundingClientRect(), b = dst.getBoundingClientRect(), f = document.createElement('img'); f.src = src.src; f.className = 'sv2fly'; f.style.cssText = `left:${a.left}px;top:${a.top}px;width:${a.width}px;height:${a.height}px`; document.body.appendChild(f);
+  const bw = T.it ? Math.min(b.height, 60) : b.width, tx = (T.it ? b.left + 30 : b.left + b.width / 2) - (a.left + a.width / 2), ty = b.top + b.height / 2 - (a.top + a.height / 2);
+  requestAnimationFrame(() => requestAnimationFrame(() => { f.style.transform = `translate(${tx}px,${ty}px) scale(${bw / a.width}) rotate(360deg)`; })); setTimeout(() => { f.remove(); land(); }, 620);
+};
