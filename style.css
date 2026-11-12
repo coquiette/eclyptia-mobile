@@ -1387,3 +1387,9 @@ button.s3e:active{transform:scale(.96)}
 .hw3 #wtm:empty{display:none}
 .nar .h2 .hwave.hw3{width:260px;margin-left:-130px}
 #bossb{top:124px}
+/* v4.8 : cadeau et TOX du jour empilés à gauche (ne passent plus sur les boutons du menu) */
+.m3bl,.nar .m3bl{grid-template-columns:auto;gap:16px}
+.m3bl .m3pk,.nar .m3bl .m3pk{grid-column:1}
+.m3day,.m3day.free{height:132px;min-width:372px;font-size:38px;padding-left:134px}
+.m3day .ici{width:138px;height:138px;margin-top:-75px}
+.m3day small{font-size:24px}

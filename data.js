@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 4.7', BUILD = '47';
+let AR = 1300; const VERSION = 'mobile 4.8', BUILD = '48';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,8 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '4.8', date: '12 novembre 2026', title: 'Menu remis en ordre', items: [
+    { img: 'kit/r_gift.webp', t: 'Plus de chevauchement', d: 'Le cadeau du jour et le TOX du jour sont maintenant l’un au-dessus de l’autre à gauche : ils ne passent plus sur le bouton Profil.' } ] },
   { v: '4.7', date: '12 novembre 2026', title: 'Vagues au chrono', items: [
     { img: 'ic/hourglass.webp', t: 'Tiens jusqu’au bout du temps', d: 'Une vague ne se gagne plus en tuant un nombre de monstres : il faut survivre jusqu’à la fin du chrono (25 à 50 secondes). Les monstres arrivent de plus en plus vite.' },
     { img: 'ic/skull.webp', t: 'Les boss restent des boss', d: 'Aux vagues 4, 7 et 10, pas de chrono : il faut battre le boss.' },
