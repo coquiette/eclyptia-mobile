@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 3.9', BUILD = '39';
+let AR = 1300; const VERSION = 'mobile 4.0', BUILD = '40';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,9 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '4.0', date: '12 novembre 2026', title: 'Récompenses quotidiennes', items: [
+    { img: 'ui/bstar.webp', t: 'Un cadeau par jour', d: 'Sept jours qui s’enchaînent : pièces, prismes, cartes TOX, puis des packs étoiles. La série repart à zéro si tu sautes un jour.' },
+    { img: 'tx/k2.webp', t: 'Musiques retravaillées', d: 'Son plus chaud, mélodies construites sur des motifs qui reviennent, instruments plus doux et tempos un peu plus posés.' } ] },
   { v: '3.9', date: '11 novembre 2026', title: 'Stabilité et capes', items: [
     { img: 'tx/k3.webp', t: 'Jeu plus léger', d: 'Moins de mémoire utilisée : image 3D allégée, modèles inutiles libérés entre les parties, effets d’écran simplifiés.' },
     { img: 'ui/bstar.webp', t: 'Garde-fou', d: 'Si le téléphone ferme le jeu, il le signale au retour et passe tout seul en affichage allégé.' },

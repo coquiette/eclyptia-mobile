@@ -423,3 +423,21 @@ function heartbeat(clean) { try { localStorage.setItem(HBK, JSON.stringify({ t: 
   setInterval(() => heartbeat(document.hidden), 4000); addEventListener('pagehide', () => heartbeat(true)); document.addEventListener('visibilitychange', () => heartbeat(document.hidden));
   for (const k of ['update', 'accGo', 'accNew']) { const o = ACT[k]; if (o) ACT[k] = function () { heartbeat(true); return o.apply(this, arguments); }; }
   const _m3 = SCR.menu; SCR.menu = () => _m3().replace(`<div class="ver">${VERSION}</div>`, `<div class="ver">${VERSION}${S.crashAt ? ' · dernier arrêt : ' + S.crashAt : ''}</div>`); }
+
+/* ================= récompenses quotidiennes : 7 jours qui s'enchaînent, la série repart à zéro si on saute un jour ================= */
+const DRW = [{ coins: 100 }, { prisms: 20 }, { cards: 3 }, { coins: 250 }, { prisms: 40 }, { orbs: 1 }, { orbs: 2, prisms: 100 }];
+const dayNum = () => { const d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 864e5); };
+const drState = () => { const s = S.dr || { t: 0, n: -1 }, t = dayNum(), can = s.t !== t, keep = t - s.t === 1 || (!can && s.n >= 0), n = can ? (keep ? s.n + 1 : 0) : s.n; return { can, n: n % 7, tot: n }; };
+const drIc = r => r.orbs ? orbImg('myst') : r.cards ? ic('tox') : r.prisms ? ic('prism') : ic('coin');
+const drTx = r => [r.coins ? r.coins + ' pièces' : '', r.orbs ? r.orbs + ' pack' + (r.orbs > 1 ? 's' : '') + ' étoile' : '', r.cards ? r.cards + ' cartes TOX' : '', r.prisms ? r.prisms + ' prismes' : ''].filter(Boolean).join(' + ');
+function drUI() {
+  let d = $('#drw'); if (!d) { d = document.createElement('div'); d.id = 'drw'; $('#stage').appendChild(d); } const st = drState();
+  d.innerHTML = `<div class="drp"><div class="drt"><b class="gold">RÉCOMPENSES QUOTIDIENNES</b><span>${st.can ? 'Reviens chaque jour : la série repart à zéro si tu sautes un jour' : 'Déjà récupérée aujourd’hui · prochaine dans ' + dayLeft()}</span></div>
+    <div class="drg">${DRW.map((r, i) => { const done = st.can ? i < st.n : i <= st.n, cur = st.can && i === st.n; return `<div class="drc ${done ? 'done' : ''} ${cur ? 'cur' : ''} ${i === 6 ? 'big' : ''}" style="--i:${i}"><i>JOUR ${i + 1}</i><em>${drIc(r)}</em><b>${drTx(r)}</b>${done ? '<u>✓</u>' : ''}</div>`; }).join('')}</div>
+    <div class="row" style="gap:24px;justify-content:center">${st.can ? '<button class="btn big" data-a="drTake">RÉCUPÉRER</button>' : '<button class="btn big vio" data-a="drClose">FERMER</button>'}</div></div>`;
+}
+ACT.drOpen = () => { snd('open'); drUI(); };
+ACT.drClose = () => { const d = $('#drw'); if (d) d.remove(); snd('pick'); if (SCREEN === 'menu') show('menu'); };
+ACT.drTake = () => { const st = drState(); if (!st.can) return ACT.drClose(); const r = DRW[st.n]; S.dr = { t: dayNum(), n: st.tot }; give(r); save(); snd('buy'); const d = $('#drw'); if (d) d.remove(); if (SCREEN === 'menu') show('menu'); buyFx(drIc(r), 'JOUR ' + (st.n + 1), drTx(r), '#ffd45e'); };
+{ const _sh = show; show = function (n, enter) { _sh(n, enter); if (n === 'menu' && enter && drState().can) setTimeout(() => { if (SCREEN === 'menu' && !$('#pnotes') && !$('#drw') && !$('#upd') && !$('#askn') && drState().can) drUI(); }, 1900); }; }
+{ const _m4 = SCR.menu; SCR.menu = () => { const st = drState(); return _m4().replace('<div class="m3bl">', `<div class="m3bl"><button class="m3day ${st.can ? 'free' : ''}" data-a="drOpen">${ic('chest')}<span>CADEAU DU JOUR<small>${st.can ? 'Jour ' + (st.n + 1) + ' : à récupérer !' : 'Série : jour ' + (st.n + 1) + ' sur 7'}</small></span></button>`); }; }
