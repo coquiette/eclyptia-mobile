@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 6.0', BUILD = '60';
+let AR = 1300; const VERSION = 'mobile 6.1', BUILD = '61';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,9 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '6.1', date: '12 novembre 2026', title: 'Lien d’installation et amis en ligne', items: [
+    { img: 'ui/logo.webp', t: 'Lien pour installer le jeu', d: 'Dans Amis, bouton INVITER PAR LIEN : ton ami arrive sur une page qui lui explique comment installer le jeu sur son téléphone. Il devient ton filleul.' },
+    { img: 'ic/friends.webp', t: 'Amis en ligne', d: 'Une notification apparaît quand un ami ouvre le jeu, avec un bouton INVITER. Dans ta liste, un rond vert montre qui est en ligne.' } ] },
   { v: '6.0', date: '12 novembre 2026', title: 'Attaques des monstres', items: [
     { img: 'm1.jpg', t: 'Chaque attaque s’annonce', d: 'Les tireurs chargent leur tir, les mages ouvrent un cercle magique, les bombes s’arrêtent et dessinent leur zone d’explosion avant de sauter : tu as le temps d’esquiver.' },
     { img: 'ic/bolt.webp', t: 'Nouveaux projectiles', d: 'Éclats de glace qui tournent, orbes qui pulsent, boules de boss : chacun a la couleur de son monstre et laisse une traînée.' },

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ECLYPTIA Mobile — installer le jeu</title>
+<meta name="description" content="ECLYPTIA Mobile : jeu d'action gratuit à jouer seul ou à 3. Installe-le sur ton téléphone en 10 secondes.">
+<meta property="og:title" content="ECLYPTIA Mobile"><meta property="og:description" content="Jeu d'action gratuit, seul ou à 3. Installe-le sur ton téléphone."><meta property="og:image" content="img/ui/splash.jpg">
+<link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="img/icon.png"><meta name="theme-color" content="#1a0c36">
+<style>
+@font-face{font-family:'Baloo 2';font-weight:800;font-display:swap;src:url(fonts/baloo-2-latin-800-normal.woff2) format('woff2')}
+@font-face{font-family:'Baloo 2';font-weight:600;font-display:swap;src:url(fonts/baloo-2-latin-600-normal.woff2) format('woff2')}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{font-family:'Baloo 2',system-ui,sans-serif;font-weight:600;color:#fff;background:#12062a url(img/ui/splash.jpg) center top/cover fixed no-repeat;line-height:1.35}
+body:before{content:"";position:fixed;inset:0;background:linear-gradient(#12062a66,#12062af2 55%)}
+main{position:relative;max-width:520px;margin:0 auto;padding:max(24px,env(safe-area-inset-top)) 20px 40px;display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center}
+.logo{width:min(78%,340px);filter:drop-shadow(0 8px 14px #000a)}
+h1{font-size:26px;margin:0;font-weight:800;color:#ffd45e;text-shadow:0 3px 0 #1a0c36}
+p{margin:0;font-size:17px;color:#e8dcff}
+.ref{font-size:17px;padding:10px 18px;border-radius:18px;background:#2c1760;box-shadow:0 0 0 3px #8cff7a;color:#8cff7a}
+.btn{display:block;width:100%;padding:16px 20px 20px;border-radius:26px;font:800 26px 'Baloo 2',sans-serif;text-decoration:none;color:#4a2200;background:linear-gradient(#ffdc6a,#ff9a2e);border:0;box-shadow:0 7px 0 #a04e00,inset 0 4px 0 #fff7;cursor:pointer}
+.btn:active{transform:translateY(4px);box-shadow:0 3px 0 #a04e00}
+.btn.v{color:#fff;background:linear-gradient(#8a5cf0,#5a2fc8);box-shadow:0 7px 0 #1a0c36,inset 0 4px 0 #fff3;font-size:21px}
+.card{width:100%;text-align:left;padding:18px 20px;border-radius:26px;background:#22104ae6;box-shadow:0 0 0 3px #7d5ae0}
+.card h2{margin:0 0 10px;font-size:21px;font-weight:800;color:#ffd45e}
+ol{margin:0;padding-left:24px;font-size:17px}li{margin:6px 0}li b{color:#ffd45e}
+.ic{display:inline-block;padding:0 8px;border-radius:8px;background:#3a2178;font-weight:800}
+.hide{display:none}.small{font-size:14px;color:#b8a8e0}
+ul.f{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;font-size:15px}ul.f li{margin:0;padding:10px 8px;border-radius:16px;background:#2c1760cc}
+</style></head><body><main>
+<img class="logo" src="img/ui/logo.webp" alt="ECLYPTIA">
+<h1>Installe ECLYPTIA sur ton téléphone</h1>
+<p>Jeu d'action gratuit : survis aux vagues, bats les boss, joue seul ou à 3 avec tes amis.</p>
+<div id="ref" class="ref hide"></div>
+<button id="inst" class="btn hide">INSTALLER LE JEU</button>
+<a id="play" class="btn" href="./">JOUER MAINTENANT</a>
+<div id="ios" class="card hide"><h2>Sur iPhone (Safari)</h2><ol><li>Touche le bouton <b>Partager</b> <span class="ic">⬆︎</span> en bas de Safari.</li><li>Choisis <b>« Sur l'écran d'accueil »</b>.</li><li>Touche <b>Ajouter</b> : l'icône ECLYPTIA apparaît avec tes applications.</li></ol><p class="small" style="margin-top:8px">Si tu as ouvert ce lien dans une autre application (Snapchat, Instagram…), ouvre-le d'abord dans Safari.</p></div>
+<div id="and" class="card hide"><h2>Sur Android (Chrome)</h2><ol><li>Touche <b>INSTALLER LE JEU</b> ci-dessus.</li><li>Sinon : menu <span class="ic">⋮</span> de Chrome, puis <b>« Installer l'application »</b> ou <b>« Ajouter à l'écran d'accueil »</b>.</li></ol></div>
+<div id="pc" class="card hide"><h2>Sur ordinateur</h2><p>Le jeu est fait pour le téléphone. Ouvre cette page sur ton téléphone, ou joue ici dans ton navigateur.</p></div>
+<ul class="f"><li>6 gardiens à débloquer</li><li>Boss mythiques</li><li>Jouable hors ligne</li><li>Groupe jusqu'à 3</li></ul>
+<p class="small">Gratuit, sans compte et sans téléchargement lourd (16 Mo). Le jeu s'installe depuis le navigateur, pas depuis l'App Store ni Google Play.</p>
+</main><script>
+const q=new URLSearchParams(location.search),ref=(q.get('ref')||'').replace(/[^A-Za-z0-9]/g,'').slice(0,14),ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1),and=/Android/.test(ua),$=id=>document.getElementById(id);
+if(ref.length>=3){$('play').href='./?ref='+ref;$('ref').textContent=ref+' t’invite : un cadeau de bienvenue t’attend dans le jeu';$('ref').classList.remove('hide');try{localStorage.setItem('eclyptia_ref',ref)}catch(e){}}
+$(ios?'ios':and?'and':'pc').classList.remove('hide');
+if(navigator.standalone||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches)location.replace($('play').href);
+let dp=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('inst').classList.remove('hide')});
+$('inst').onclick=async()=>{if(!dp)return;dp.prompt();try{await dp.userChoice}catch(e){}dp=null;$('inst').classList.add('hide')};
+</script></body></html>

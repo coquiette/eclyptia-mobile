@@ -1625,3 +1625,10 @@ button.s3e:active{transform:scale(.96)}
 @keyframes hue{to{filter:hue-rotate(360deg)}}
 .chY .cht{background:none!important}
 .chlg{gap:10px}.cha{width:70px;height:70px}
+/* v6.1 : amis en ligne */
+.fr2a.on{box-shadow:0 0 0 4px #8cff7a,0 0 18px #8cff7a}
+.fon{display:block;font-size:20px;color:#8cff7a;line-height:1}
+.fr2c b{display:flex;flex-direction:column;justify-content:center}
+#invn.on{box-shadow:0 8px 0 #0d061d,0 0 0 5px #8cff7a,0 0 40px -4px #8cff7a}
+.inva.on{background:linear-gradient(#5ad06a,#1f9a3c);font-size:54px;line-height:1;box-shadow:0 0 0 4px #8cff7a}
+.fr2l{gap:12px}.fr2l .btn.sm{min-height:76px}

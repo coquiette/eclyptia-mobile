@@ -862,3 +862,29 @@ function atkFx(k, e, p) { try { const col = e.m.col;
 } catch (x) {} }
 { const _ht6 = hudTick; hudTick = function () { _ht6.apply(this, arguments); if (!G || !G.zn || !G.zn.length) return; const dt = G.t - (G._lt6 === undefined ? G.t : G._lt6); G._lt6 = G.t; if (dt > 0 && dt < .5) { for (const z of G.zn) z.t -= dt; G.zn = G.zn.filter(z => z.t > -.25); } }; }
 { const _pe = playEv; playEv = function (a) { if (a && a[0] === 'zn') { (G.zn = G.zn || []).push({ x: a[1], y: a[2], r: a[3], t: a[4], max: a[4], col: a[5] }); return; } return _pe(a); }; }
+
+/* ================= lien d'installation à partager, et amis en ligne ================= */
+const instUrl = () => location.origin + location.pathname.replace(/[^/]*$/, '') + 'installer.html' + (pslug(S.name).length >= 3 ? '?ref=' + refCode() : '');
+ACT.instShare = () => { const url = instUrl(), d = { title: 'ECLYPTIA Mobile', text: 'Installe ECLYPTIA sur ton téléphone et viens jouer avec moi ! C’est gratuit :', url }; if (navigator.share) navigator.share(d).catch(() => {}); else if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('Lien d’installation copié'), () => toast(url)); else toast(url); };
+ACT.refShare = () => { if (pslug(S.name).length < 3) return no('Choisis d’abord un pseudo dans ton profil'); ACT.instShare(); };
+/* le parrain choisi sur la page d'installation est repris au premier lancement, même si le jeu est ouvert depuis l'écran d'accueil */
+{ const _st3 = ACT.start; ACT.start = () => { _st3(); try { const r = localStorage.getItem('eclyptia_ref'); if (r) { localStorage.removeItem('eclyptia_ref'); if (!S.refBy) refSet(r, true); } } catch (e) {} }; }
+/* amis en ligne : chaque jeu ouvert se signale à ses amis, qui reçoivent une notification */
+const FON = {}, fkey = n => pslug(n || '').toLowerCase(), fOn = n => Date.now() - (FON[fkey(n)] || 0) < 100000;
+function frSeen(name, hello) { const k = fkey(name); if (!k) return; const f = (S.friends || []).find(n => fkey(n) === k); if (!f) return; const was = fOn(f), old = FON[k] || 0; FON[k] = Date.now();
+  if (!was) { if (SCREEN === 'friends' && !NET.role && !$('#vkb') && !$('#invp')) show('friends'); if (hello && Date.now() - old > 300000) frNotif(f); } }
+function frNotif(name) { if (G && SCREEN === 'game' && G.state !== 'end') return toast(name + ' vient de se connecter'); if ($('#invn')) return toast(name + ' vient de se connecter'); const e = document.createElement('div'); e.id = 'invn'; e.className = 'on'; e.dataset.n = name;
+  e.innerHTML = `<span class="inva on">${esc(name).slice(0, 1).toUpperCase()}</span><span class="invt"><b>${esc(name)}</b><small>vient de se connecter</small></span><button class="btn" data-a="onInv">INVITER</button><button class="rb" data-a="invNo"><img src="img/kit/r_close.webp" draggable="false" alt="Fermer"></button><i class="invb" style="animation-duration:9s"></i>`;
+  $('#stage').appendChild(e); snd('open'); clearTimeout(invShow.t); invShow.t = setTimeout(() => { const x = $('#invn'); if (x && x.classList.contains('on')) x.remove(); }, 9000); }
+ACT.onInv = () => { const e = $('#invn'); if (!e) return; const n = e.dataset.n; e.remove(); invSend(n); };
+function frPing(hello) { const F = S.friends || []; if (!F.length || !PRES.id || navigator.onLine === false || document.hidden) return; const d = { t: hello ? 'on' : 'on?', from: S.name };
+  if (PRES.bc) { for (const n of F) PRES.bc.postMessage({ to: presId(n), f: PRES.id, d }); return; } if (!PRES.ok || !PRES.peer) return;
+  F.forEach((n, i) => setTimeout(() => { try { if (!PRES.peer || !PRES.ok) return; const c = PRES.peer.connect(presId(n), { reliable: true }); c.on('open', () => { try { c.send(d); } catch (e) {} frSeen(n, false); setTimeout(() => { try { c.close(); } catch (e) {} }, 2500); }); c.on('error', () => {}); } catch (e) {} }, i * 350)); }
+{ /* réception : « je suis là » d'un ami */
+  const _ps = presStart; presStart = function () { const had = !!(PRES.peer || PRES.bc); _ps(); if (!had) { let n = 0; const iv = setInterval(() => { if (++n > 40) return clearInterval(iv); if (PRES.bc || (PRES.peer && PRES.ok)) { clearInterval(iv); presHook(); frPing(true); } }, 300); } };
+  window.presHook = function () { if (PRES.bc && !PRES.bc._on) { PRES.bc._on = 1; const o = PRES.bc.onmessage; PRES.bc.onmessage = e => { const m = e.data || {}; if (m.to === PRES.id && m.d && (m.d.t === 'on' || m.d.t === 'on?' || m.d.t === 'on!')) { frSeen(m.d.from, m.d.t === 'on'); if (m.d.t !== 'on!' && (S.friends || []).some(n => fkey(n) === fkey(m.d.from))) PRES.bc.postMessage({ to: m.f, f: PRES.id, d: { t: 'on!', from: S.name } }); return; } if (o) o(e); }; }
+    if (PRES.peer && !PRES.peer._on) { PRES.peer._on = 1; PRES.peer.on('connection', c => { c.on('data', d => { if (d && (d.t === 'on' || d.t === 'on?')) frSeen(d.from, d.t === 'on'); }); }); PRES.peer.on('error', () => {}); } };
+  setInterval(() => frPing(false), 45000); setInterval(() => { if (SCREEN === 'friends' && !NET.role && !$('#vkb') && !$('#invp') && !$('#chat')) { const on = (S.friends || []).map(fOn).join(); if (on !== frPing._s) { frPing._s = on; show('friends'); } } }, 15000); }
+{ const _fr7 = SCR.friends; SCR.friends = () => { let h = _fr7(); if (NET.role) return h; const F = S.friends || [];
+  F.forEach(n => { const a = `<span class="fr2a">${esc(n).slice(0, 1).toUpperCase()}</span><b>${esc(n)}</b>`; if (fOn(n)) h = h.replace(a, `<span class="fr2a on">${esc(n).slice(0, 1).toUpperCase()}</span><b>${esc(n)}<small class="fon">en ligne</small></b>`); });
+  return h.replace('<div class="sub fr2m">', '<button class="btn sm vio" data-a="instShare" style="min-width:0">INVITER PAR LIEN</button><div class="sub fr2m">'); }; }
