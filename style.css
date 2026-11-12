@@ -1365,3 +1365,25 @@ button.s3e:active{transform:scale(.96)}
 .m3pk .orbimg{width:210px;height:210px}
 .nar .m3day,.nar .m3day.free{min-width:350px;height:132px;font-size:36px;padding-left:128px}.nar .m3day .ici{width:132px;height:132px;margin-top:-72px}.nar .m3day small{font-size:23px}
 .nar .m3bl{grid-template-columns:auto;gap:16px}.nar .m3bl .m3pk{grid-column:1}
+/* v4.7 : relance animée */
+.sv2g{perspective:1600px}
+.sv2w.nop .sv2k{animation:none!important}
+.sv2w.flipo{animation:flipo .23s cubic-bezier(.5,0,.9,.4) both}
+@keyframes flipo{to{transform:rotateY(90deg) scale(.86) translateY(-20px);opacity:.2}}
+.sv2w.flipi{animation:flipi .5s var(--spring) both}
+@keyframes flipi{0%{transform:rotateY(-90deg) scale(.86) translateY(-20px);opacity:.2}60%{transform:rotateY(8deg) scale(1.05)}100%{transform:none;opacity:1}}
+.sv2w.flipi .sv2k:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#ffffffcc 50%,transparent 70%);animation:shxsw .5s .1s ease-out both;pointer-events:none}
+.sv2w.kept{animation:kept .45s var(--spring)}
+@keyframes kept{0%{transform:none}40%{transform:scale(1.05)}100%{transform:none}}
+.sv2dice.spin{animation:dspin .6s cubic-bezier(.2,.8,.3,1)}
+@keyframes dspin{from{transform:rotate(0) scale(1)}50%{transform:rotate(360deg) scale(1.35)}to{transform:rotate(720deg) scale(1)}}
+.shxr.nope{animation:nope .35s}
+/* v4.7 : bandeau de vague simple (numéro + chrono) */
+.h2 .hwave.hw3{width:300px;margin-left:-150px;padding:2px 20px 10px;display:flex;flex-direction:column;align-items:center;line-height:1;gap:0}
+.hw3 #wv3{font-size:34px;letter-spacing:3px;color:#ffd45e;text-shadow:0 3px 0 #1a0c36}
+.hw3 #wtm{font-style:normal;font-size:60px;line-height:1;color:#fff;text-shadow:0 4px 0 #1a0c36;font-variant-numeric:tabular-nums}
+.hw3 #wtm.end{color:#ff6a6a;animation:dotp .5s ease-in-out infinite alternate}
+.hw3 #wtm.bs{font-size:40px;color:#ff8a8a;letter-spacing:3px;padding-top:6px}
+.hw3 #wtm:empty{display:none}
+.nar .h2 .hwave.hw3{width:260px;margin-left:-130px}
+#bossb{top:124px}

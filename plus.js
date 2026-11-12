@@ -544,3 +544,37 @@ ACT.eco = v => { S.set.eco = +v; save(); ecoApply(); snd('pick'); show('settings
 { const _se3 = SCR.settings; SCR.settings = () => _se3().replace(/<div class="sub">Astuce[^<]*<\/div>/, `<div class="sub" style="font-size:26px;color:#ffd45e">Énergie</div><div class="row" style="gap:8px">${['Auto', 'Éco', 'Max'].map((n, i) => `<button class="btn sm ${(S.set.eco | 0) === i ? '' : 'gray'}" data-a="eco" data-v="${i}" style="min-width:0;flex:1;padding:0 6px 5px;font-size:27px">${n}</button>`).join('')}</div><div class="sub" style="font-size:20px">Éco : le téléphone chauffe moins (30 images/s)</div>`); }
 /* menus : après 20 s sans toucher l'écran, les animations se mettent en pause (le téléphone se repose) */
 { let idleT = 0; const wake = () => { clearTimeout(idleT); document.documentElement.classList.remove('idle'); idleT = setTimeout(() => { if (SCREEN !== 'game') document.documentElement.classList.add('idle'); }, 20000); }; for (const ev of ['pointerdown', 'touchstart', 'keydown']) addEventListener(ev, wake, { passive: true }); wake(); }
+
+/* ================= relance de la mini-boutique : les cartes se retournent une à une, sans recharger la page ================= */
+ACT.shopRoll = () => {
+  const rc = rollCost(), p = G.p; if (G.rolling) return; if (wallet() < rc) { const b = document.querySelector('.shxr'); if (b) { b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); } return no('Pas assez d’éclats'); }
+  const old = G.choices.t.slice(), L = p.lock || [], keep = old.map((id, i) => !G.sold[i] && L.includes(id)); if (keep.every(Boolean)) return no('Toutes les cartes sont gardées');
+  p.spent = (p.spent | 0) + rc; G.rolls++; let nw = rollTox(p).filter(id => !old.some((o, i) => keep[i] && o === id)); for (let g = 0; nw.length < 4 && g < 6; g++) for (const id of rollTox(p)) if (!nw.includes(id) && !old.some((o, i) => keep[i] && o === id)) nw.push(id);
+  G.choices.t = old.map((id, i) => keep[i] ? id : (nw.shift() || id)); G.sold = {}; snd('pick');
+  const ws = [...document.querySelectorAll('.sv2w')]; if (ws.length !== 4 || !SV2CARD) return pickUI();
+  const wl = document.querySelector('.shxw'); if (wl) { const b = wl.querySelector('b'); if (b) b.textContent = wallet(); wl.querySelectorAll('.minus').forEach(m => m.remove()); wl.classList.remove('spent'); void wl.offsetWidth; wl.classList.add('spent'); wl.insertAdjacentHTML('beforeend', `<i class="minus">-${rc}</i>`); }
+  const rb = document.querySelector('.shxr'); if (rb) { const b = rb.querySelector('b'); if (b) b.textContent = rollCost(); rb.classList.toggle('poor', wallet() < rollCost()); const d = rb.querySelector('.sv2dice'); if (d) { d.classList.remove('spin'); void d.offsetWidth; d.classList.add('spin'); } }
+  const mk = i => { const t = document.createElement('div'); t.innerHTML = SV2CARD(G.choices.t[i], i); const n = t.firstChild; n.classList.add('nop'); return n; };
+  if (lite()) { ws.forEach((x, i) => { if (!keep[i]) x.replaceWith(mk(i)); }); return; }
+  G.rolling = 1; let k = 0, last = 0;
+  ws.forEach((x, i) => { if (keep[i]) { x.classList.remove('kept'); void x.offsetWidth; x.classList.add('kept'); return; } const dl = k++ * 90; last = dl; x.style.animationDelay = dl + 'ms'; x.classList.add('flipo');
+    setTimeout(() => { const n = mk(i); n.classList.add('flipi'); x.replaceWith(n); snd('tick'); setTimeout(() => n.classList.remove('flipi'), 520); }, dl + 230); });
+  setTimeout(() => { G.rolling = 0; snd('pop'); }, last + 520);
+};
+
+/* ================= vagues au temps : il faut tenir jusqu'à la fin du chrono (les vagues de boss se gagnent toujours en battant le boss) ================= */
+{ const _nw3 = nextWave; nextWave = function () { _nw3(); const w = G.wave; if (G.bossW) { G.wtimed = false; G.wt = 0; return; }
+  G.wtimed = true; G.wdur = G.wt = Math.min(50, 22 + 3 * w); const q = G.queue.slice(), pool = [...new Set(q)], n = Math.max(10, Math.round(q.length * 1.5)); while (q.length < n) q.push(pool[(Math.random() * pool.length) | 0]);
+  G.wpool = pool; G.wn = q.length; G.queue = q.splice(0, Math.min(6, q.length)); G.wq = q; G.wrel = 1.2; G.wtot = G.wn; }; }
+function waveClock(dt) {
+  if (!G.wtimed || G.state !== 'play' || NETROLE === 2 || G.cine || !(dt > 0) || G.wt <= 0) return; G.wt -= dt;
+  if (G.wt <= 0) { G.wt = 0; G.queue.length = 0; if (G.wq) G.wq.length = 0; for (const e of G.en) { try { addFx(e.x, e.y, (e.r || 30) * 2.2, '#ffffff', .35); spark(e.x, e.y, '#ffd45e', 5); } catch (x) {} } G.en.length = 0; G.flash = Math.max(G.flash || 0, .25); return; }
+  if (G.wt > 1.2) { G.wrel -= dt; if (G.wrel <= 0) { const prog = 1 - G.wt / G.wdur; G.wrel = Math.max(.12, (G.wdur * .88 / G.wn) * (1.4 - .8 * prog)); G.queue.push((G.wq && G.wq.pop()) || G.wpool[(Math.random() * G.wpool.length) | 0]); } }
+}
+{ const _sn = snapshot; snapshot = function () { const s = _sn(); s.wt = G.wtimed ? Math.ceil(G.wt) : -1; return s; }; }
+{ const _as = applySnap; applySnap = function (d) { _as(d); if (G && NETROLE === 2 && d.wt !== undefined) { G.wtimed = d.wt >= 0; G.wt = Math.max(0, d.wt); } }; }
+{ const _g2 = SCR.game; SCR.game = function () { return _g2().replace(/<div class="hwave">[\s\S]*?<\/div><\/div>/, '<div class="hwave hw3"><b id="wv3">VAGUE 1</b><i id="wtm"></i></div>'); }; }
+{ const _ht3 = hudTick; hudTick = function () { _ht3.apply(this, arguments); if (!G) return; const dt = G.t - (G._lt3 === undefined ? G.t : G._lt3); G._lt3 = G.t; if (dt > 0 && dt < .5) waveClock(dt);
+  hset('wv3', 'text', 'VAGUE ' + G.wave); const s = Math.ceil(G.wt || 0), boss = !G.wtimed;
+  hset('wtm', 'text', boss ? (G.state === 'play' ? 'BOSS' : '') : Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0')); hset('wtm', 'cls', boss ? 'bs' : s <= 5 ? 'end' : '');
+  if (!boss && s <= 3 && s > 0 && G._ws !== s && G.state === 'play') snd('tick'); G._ws = s; }; }

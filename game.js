@@ -274,7 +274,7 @@ function update(dt) {
   }
   G.gems = G.gems.filter(g => !g.got);
   tickFx(dt);
-  if (G.state === 'play' && !G.queue.length && !G.en.length) {
+  if (G.state === 'play' && !G.queue.length && !G.en.length && !(G.wtimed && G.wt > 0)) {
     G.all = true; G.inter += dt;
     if (G.inter - dt <= 0 && G.wave < LAST_WAVE) { announce('VAGUE TERMINÉE', '#8cff7a'); if (!multi()) { G.ts = .35; G.slowmo = .5; } }
     if (G.inter > 1.3 && (!G.gems.length || G.inter > 4)) { if (G.wave >= LAST_WAVE) { cine({ t: 3, f: G.p, zoom: 1.6, orbit: .9, title: 'VICTOIRE', sub: (multi() ? 'Le groupe' : G.p.h.n) + ' a repoussé l\'Éclipse', col: '#ffd45e', fire: 1 }); endRun(true); } else startPick(); }

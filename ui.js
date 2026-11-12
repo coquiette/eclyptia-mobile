@@ -221,7 +221,7 @@ function askUpdate() {
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { fitSoon(); checkUpdate(); } });
 addEventListener('pageshow', checkUpdate); setInterval(() => { if (!document.hidden) checkUpdate(); }, 60000); setInterval(askUpdate, 4000);
-const LTIPS = ['Les objets renforcent ton gardien en permanence.', 'Atteins la vague 4 pour gagner une étoile de pack.', 'Un TOX du jour est offert dans la boutique.', 'Enchaîne tes pouvoirs dans le bon ordre pour un combo.', 'Relancer la mini-boutique coûte de plus en plus cher.', 'Les boss arrivent aux vagues 4, 7 et 10.'];
+const LTIPS = ['Les objets renforcent ton gardien en permanence.', 'Atteins la vague 4 pour gagner une étoile de pack.', 'Un TOX du jour est offert dans la boutique.', 'Enchaîne tes pouvoirs dans le bon ordre pour un combo.', 'Relancer la mini-boutique coûte de plus en plus cher.', 'Les boss arrivent aux vagues 4, 7 et 10.', 'Une vague se gagne en tenant jusqu’à la fin du chrono.'];
 function launch(infos, me, role) {
   if (!infos) { if (!S.owned.includes(S.hero)) S.hero = S.owned[0]; if (SEL && S.owned.includes(SEL)) S.hero = SEL; save(); infos = [myInfo()]; me = 0; role = 0; }
   goFull(); LAUNCH = { infos, me }; const f = infos[me], h = HEROES[f.hero];
