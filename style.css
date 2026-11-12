@@ -1303,3 +1303,13 @@ button.s3e:active{transform:scale(.96)}
 .bkp .sub{font-size:26px;line-height:1.2}.bkp .bks{color:#cdb8ff;font-size:23px}
 .bkp textarea{flex:1;min-height:120px;width:100%;resize:none;border-radius:22px;border:4px solid #b890ff;background:#150a2e;color:#e8dcff;font:600 20px/1.25 ui-monospace,Menlo,monospace;padding:14px 16px;word-break:break-all;-webkit-user-select:text;user-select:text}
 .bkp .btn{min-width:0}
+/* v4.4 : garder une carte dans la mini-boutique */
+.sv2w{position:relative;display:flex;flex-direction:column;min-width:0;gap:10px}
+.sv2w .sv2k{flex:1}
+.sv2lk{display:flex;align-items:center;justify-content:center;gap:10px;height:66px;border-radius:33px;background:#150a2ecc;color:#cdb8ff;font-size:26px;letter-spacing:1px;transition:transform .1s}
+.sv2lk img{width:54px;height:54px;filter:grayscale(.8) brightness(.8)}
+.sv2lk.on{background:#ffd45e;color:#3a1c00}.sv2lk.on img{filter:none}
+.sv2lk:active{transform:scale(.94)}
+.sv2w.lk .sv2k{box-shadow:0 10px 0 #0d061d,0 0 0 5px #ffd45e,0 0 30px -4px #ffd45e}
+.sv2h small{font-size:21px}
+.sv2{gap:12px}

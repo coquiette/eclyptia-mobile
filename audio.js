@@ -1,6 +1,7 @@
 /* ===== ECLYPTIA — moteur audio v2 : instruments synthétisés, réverbération, vraies musiques (aucun fichier audio) ===== */
 let SB = null, AC = null, OUT = null, MG = null, MUS = null, RV = null, NB = null, TRK = null, VOX = 0, CUR = [440, 523.25, 659.25];
 let musT = 0, musStep = 0, musMode = '', musTimer = 0, duckK = 1, musLv = 0, DLY = null, clickI = 0;
+let MLP = null; function musStyle() { if (MLP && AC) MLP.frequency.setTargetAtTime([5200, 6800, 12000][S.set.mst | 0] || 5200, AC.currentTime, .2); }
 function musLevel(v) { musLv = Math.max(0, Math.min(1, v || 0)); }
 const MUSV = .5;
 function audio() {
@@ -11,7 +12,7 @@ function audio() {
     const cp = AC.createDynamicsCompressor(); cp.threshold.value = -15; cp.knee.value = 20; cp.ratio.value = 5; cp.attack.value = .004; cp.release.value = .18;
     OUT = AC.createGain(); OUT.gain.value = .95; OUT.connect(cp); cp.connect(AC.destination);
     MG = AC.createGain(); MG.gain.value = .8; MG.connect(OUT);
-    MUS = AC.createGain(); MUS.gain.value = S.set.mus ? MUSV : 0; { const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5200; lp.Q.value = .4; const hs = AC.createBiquadFilter(); hs.type = 'lowshelf'; hs.frequency.value = 160; hs.gain.value = 3; MUS.connect(lp); lp.connect(hs); hs.connect(OUT); }
+    MUS = AC.createGain(); MUS.gain.value = S.set.mus ? MUSV : 0; { const lp = AC.createBiquadFilter(); MLP = lp; lp.type = 'lowpass'; lp.frequency.value = [5200, 6800, 12000][S.set.mst | 0] || 5200; lp.Q.value = .4; const hs = AC.createBiquadFilter(); hs.type = 'lowshelf'; hs.frequency.value = 160; hs.gain.value = 3; MUS.connect(lp); lp.connect(hs); hs.connect(OUT); }
     const sr = AC.sampleRate; NB = AC.createBuffer(1, sr * 2, sr); const ch = NB.getChannelData(0); for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1;
     if (!lite()) {   // réverbération : une salle synthétique
       const len = Math.floor(sr * 1.7), ir = AC.createBuffer(2, len, sr);
@@ -79,8 +80,8 @@ const SFX = {
     if (k === 0) bell(f * 2, .16, .04, .01); else if (k === 1) pluck(f, .14, .05, .008, 0, 'triangle'); else if (k === 2) { bell(f, .12, .035, .008); bell(f * 1.5, .14, .025, .05); } else { tone(f, .09, 'triangle', .05, f * 1.02, .008); noise(.03, .02, 3000, 1200, 1); }
   },
   back() { const f = [784, 698.46, 659.25, 587.33][clickI++ % 4]; tone(f, .09, 'sine', .08, f * .55); bell(f, .12, .025, .02); },
-  tick() { tone(rr(1400, 1600), .03, 'square', .018); },
-  err() { tone(196, .12, 'square', .05, 150); tone(147, .2, 'square', .05, 110, .11); },
+  tick() { tone(rr(1400, 1600), .03, 'triangle', .03); },
+  err() { tone(196, .12, 'triangle', .09, 150); tone(147, .2, 'triangle', .09, 110, .11); noise(.06, .03, 900, 300, 1); },
   note(i) { bell(pen(i, 523.25), .4, .07); tone(pen(i, 261.63), .12, 'triangle', .05); noise(.04, .03, 2500, 900, 1); },
   open() { const b = [1046.5, 1174.7, 1318.5, 1568][clickI % 4]; bell(b, .35, .03, .06); bell(b * 1.5, .45, .025, .13); if (clickI % 2) bell(b * 2, .4, .015, .2); },
   buy() { tone(196, .14, 'triangle', .08); bell(1318.5, .12, .07); bell(1760, .55, .08, .09); bell(2637, .5, .04, .09); noise(.28, .05, 7000, 10000, 2, .09, 'highpass'); },
@@ -93,11 +94,11 @@ const SFX = {
   slam() { kick(0, .34); noise(.09, .08, 2800, 500, 1); [523.25, 659.25, 783.99, 1046.5].forEach(f => bell(f, .6, .04, .02)); },
   coin() { const i = chain('coin', .5, 12); bell(pen(i, 1046.5), .18, .05); tone(pen(i, 2093), .05, 'square', .012); },
   shoot() { pluck(CUR[(Math.random() * CUR.length) | 0] * 2, .09, .028, 0, 0, 'triangle'); noise(.03, .014, 4000, 0, 1, 0, 'highpass'); },
-  hit() { noise(.04, .045, rr(2200, 3000), 700, 1.2); tone(rr(200, 250), .05, 'triangle', .05, 120); },
+  hit() { noise(.045, .05, rr(2000, 2800), 600, 1.2); tone(rr(190, 240), .06, 'triangle', .07, 100); tone(rr(90, 110), .05, 'sine', .06, 60); },
   crit() { noise(.06, .07, 5000, 1500, 1.5, 0, 'highpass'); bell(1976, .2, .06); tone(160, .1, 'sine', .12, 60); },
   kill(c) { const i = Math.min(14, Math.max(0, (c || 1) - 1)); tone(260, .09, 'sine', .1, 90); noise(.07, .05, 1400, 300, .8); bell(pen(i, 523.25), .22, .045, .01); },
   gem() { const i = chain('gem', .7, 14), f = pen(i, 880); tone(f, .09, 'sine', .045, f * 1.5); bell(f * 2, .12, .018); },
-  hurt() { tone(190, .25, 'sawtooth', .11, 60); noise(.16, .1, 800, 150, .7); tone(95, .2, 'sine', .15, 50); },
+  hurt() { tone(190, .22, 'triangle', .16, 60); noise(.14, .1, 900, 150, .7); tone(95, .22, 'sine', .18, 45); },
   heart() { tone(62, .12, 'sine', .24, 40); tone(56, .14, 'sine', .18, 38, .17); },
   dash() { noise(.2, .09, 500, 5000, 2.5); tone(300, .16, 'sine', .04, 1200); },
   salve() { [0, 1, 2].forEach(i => pluck(pen(i + 2, 523.25), .22, .05, i * .035)); noise(.22, .05, 2500, 8000, 1.5); },
@@ -115,18 +116,18 @@ const SFX = {
     kick(0, .3); kick(.42, .3); kick(1.16, .42); for (let i = 0; i < 6; i++) snare(.86 + i * .05, .03 + i * .008); noise(1.4, .06, 6000, 10000, 1, 1.16, 'highpass');
   },
   lose() { [[440, 0], [415.3, .3], [392, .6], [329.63, .9], [293.66, 1.2]].forEach(([f, t]) => bell(f, .7, .07, t)); pad([146.83, 174.61, 220], 2.1, .05); tone(110, 1.6, 'sine', .12, 55, .2); },
-  spawn() { tone(180, .3, 'sine', .04, 520); noise(.2, .02, 800, 2500, 3); },
-  ann() { [523.25, 783.99, 1046.5].forEach((f, i) => pluck(f, .22, .06, i * .05, 0, 'square')); noise(.25, .05, 2500, 7000, 1.5); kick(0, .2); },
+  spawn() { tone(rr(120, 150), .28, 'sine', .1, rr(380, 460)); noise(.22, .05, 500, 3200, 2.5); bell(rr(660, 780), .2, .035, .16); },
+  ann() { [523.25, 783.99, 1046.5].forEach((f, i) => pluck(f, .22, .07, i * .05, 0, 'triangle')); noise(.25, .05, 2500, 7000, 1.5); kick(0, .2); },
   combo(n) { const k = Math.max(0, [10, 25, 50, 100, 200].indexOf(n)), b = 523.25 * Math.pow(2, k * 2 / 12); [1, 1.26, 1.5, 2].forEach((r, i) => { pluck(b * r, .3, .06, i * .04); bell(b * r * 2, .4, .03, i * .04); }); kick(0, .3); },
   fw() { noise(.25, .05, 3000, 600, 1); tone(rr(900, 1500), .2, 'sine', .04, 300); bell(rr(1500, 3000), .3, .03, .12); },
   orbIn() { tone(110, .9, 'sine', .16, 440); noise(.7, .05, 400, 2500, 2); pad([220, 277.18, 329.63, 415.3], 1.4, .04); bell(1760, .8, .03, .3); },
-  orbTick() { tone(rr(1800, 2700), .04, 'square', .03); },
+  orbTick() { tone(rr(1800, 2700), .04, 'triangle', .045); },
   orbCharge() { tone(90, 1.5, 'sawtooth', .1, 1400); tone(135, 1.5, 'triangle', .08, 2100); noise(1.5, .09, 200, 9000, 1.2); },
   orbCrack1() { crack(1); }, orbCrack2() { crack(2); }, orbCrack3() { crack(3); }, orbCrack4() { crack(4); },
   orbBoom() { kick(0, .6); tone(65, 1.1, 'sine', .32, 26); noise(.9, .22, 5000, 80, .5, 0, 'lowpass'); noise(.6, .1, 7000, 10000, 1, 0, 'highpass'); pad([130.81, 196, 261.63, 329.63], 1.6, .05); },
   orbShatter() { for (let i = 0; i < 12; i++) bell(rr(1800, 4600), rr(.15, .4), .04, i * .03 + Math.random() * .03); noise(.5, .16, 7000, 3000, 1, 0, 'highpass'); },
   star(a) { const r = a[0], n = a[1], k = n * 2 + r; bell(pen(k, 659.25), .55, .08); pluck(pen(k, 329.63), .3, .05); noise(.25, .05, 5000, 9000, 1, 0, 'highpass'); tone(150, .12, 'sine', .1, 60); if (r >= 2) { kick(0, .32); for (let i = 0; i < 4; i++) bell(pen(i + k, 783.99), .5, .05, .08 + i * .06); } },
-  zap() { tone(rr(900, 2300), .07, 'sawtooth', .035, rr(200, 500)); noise(.05, .04, 6000, 0, 2, 0, 'highpass'); },
+  zap() { tone(rr(900, 2300), .07, 'triangle', .05, rr(200, 500)); noise(.05, .04, 6000, 0, 2, 0, 'highpass'); },
   rar0() { [523.25, 659.25, 783.99].forEach((f, i) => bell(f, .45, .07, i * .08)); pad([261.63, 329.63, 392], .8, .03); },
   rar1() { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => { bell(f, .5, .07, i * .08); pluck(f / 2, .3, .04, i * .08); }); pad([261.63, 329.63, 392], 1, .035); },
   rar2() { [440, 554.37, 659.25, 880, 1108.7, 1318.5].forEach((f, i) => { bell(f, .6, .07, i * .075); pluck(f, .35, .05, i * .075); }); pad([220, 277.18, 329.63, 440], 1.6, .05); kick(0, .35); kick(.45, .3); noise(1, .05, 6000, 10000, 1, .3, 'highpass'); },
@@ -136,7 +137,7 @@ const SFX = {
     kick(1.2, .35); kick(1.8, .35); kick(2.4, .5); for (let i = 0; i < 6; i++) snare(2.1 + i * .05, .03 + i * .01); noise(2, .07, 6000, 11000, 1, 2.4, 'highpass');
   }
 };
-const GAP = { shoot: .07, hit: .05, gem: .035, coin: .03, zap: .05, tick: .03 };
+const GAP = { shoot: .07, hit: .05, gem: .035, coin: .03, zap: .05, tick: .03, spawn: .16 };
 let sfxLast = {};
 function snd(name, a) {
   if (!S.set.snd || !audio() || !SFX[name] || VOX > 90) return;
@@ -239,7 +240,7 @@ function musTick() {
   if (musT < AC.currentTime - .25) musT = AC.currentTime + .05;
   const o = TRK, lead = DLY || o;
   while (musT < AC.currentTime + .32) {
-    const barAll = musStep >> 4, cyc = barAll >> 4, sec = barAll >> 3, pl = POOL[musMode], sn = pl ? pl[(cyc + (musSeed % pl.length)) % pl.length] : musMode, s = song(sn), sd = 15 / s.bpm;
+    const barAll = musStep >> 4, cyc = barAll >> 4, sec = barAll >> 3, pl = POOL[musMode], sn = pl ? pl[(cyc + (musSeed % pl.length)) % pl.length] : musMode, s = song(sn), MST = S.set.mst | 0, sd = 15 / (s.bpm * (MST === 1 ? 1.05 : 1));
     const at = Math.max(0, musT - AC.currentTime), st = musStep % 16, bar = barAll % 8, rep = (barAll >> 3) % 4, fk = s.form[rep % s.form.length], part = s[fk], full = barAll >= 8, lv = s.style ? musLv : (full ? .6 : 0);
     const isB = fk === 'B', al = ARRS[s.style], arr = al ? al[sec % al.length] : { m: 1 }, D = arr.d === undefined ? 1 : arr.d, K = Math.pow(2, ((s.style === 3 ? 0 : KEYC[cyc % 8]) + (s.style === 1 || s.style === 2 ? musKey : 0)) / 12);
     const c = part.ch[bar].map(f => f * K), b = part.bass[bar] * K;
@@ -266,10 +267,11 @@ function musTick() {
       if (D) { if (st % 2 === 0) hat(at, st % 4 === 2 ? .022 : .012, o); else if (full) hat(at, .007, o, .025); }
     } else {
       const boss = s.style === 2;
+      if (st === 0 && MST === 1) { pad(c.map(f => f / 2), sd * 16.5, .03, at, o); tone(b, sd * 15, 'triangle', .07, 0, at, o); if (bar % 4 === 0) { kick(at, .3, o); noise(sd * 6, .03, 5000, 9000, 1, at, 'highpass', o); } }
       if (st === 0) { pad(c, sd * 16.5, boss ? .03 : .02, at, o); if (boss || lv > .5) c.forEach(f => tone(f * 2, sd * 4, 'triangle', .022, 0, at, o)); }
       if (boss || st % 2 === 0 || (lv > .4 && st % 4 === 3)) pluck(b * (st % 4 === 2 ? 4 : st % 8 === 7 ? 3 : 2), sd * (boss ? 1.3 : 2), boss ? .075 : .085, at, o);
       if (st % 8 === 0) tone(b * 2, sd * 4, 'sine', .1, 0, at, o);
-      if (m) { if (arr.m === 2 && sec % 2) bell(m, sd * 4, .05, at, lead); else { pluck(m, sd * 3.4, .05, at, lead, 'triangle'); bell(m * 2, sd * 3, .014, at, lead); if (cyc % 2) tone(m, sd * 2.2, 'sine', .03, 0, at, o); } if (lv > .3 || boss) pluck(m * (boss ? 1.5 : 2), sd * 2.6, .017, at, o); }
+      if (m) { if (arr.m === 2 && sec % 2) bell(m, sd * 4, .05, at, lead); else { if (MST === 2) pluck(m, sd * 3, .04, at, lead, 'square'); else if (MST === 1) { pluck(m, sd * 3.6, .04, at, lead, 'sawtooth'); tone(m / 2, sd * 3, 'triangle', .035, 0, at, o); bell(m, sd * 3, .02, at, lead); } else { pluck(m, sd * 3.4, .05, at, lead, 'triangle'); bell(m * 2, sd * 3, .014, at, lead); if (cyc % 2) tone(m, sd * 2.2, 'sine', .03, 0, at, o); } } if (lv > .3 || boss) pluck(m * (boss ? 1.5 : 2), sd * 2.6, .017, at, o); }
       if (m2 && (lv > .2 || boss)) bell(m2, sd * 3, .03, at, lead);
       if (lv > .15 || full) pluck(c[st % 3] * 2, sd * 1.2, .012 + lv * .008, at, o, 'triangle');
       if (D === 2 ? st === 0 || st === 10 : D && (boss ? [0, 3, 6, 8, 11, 14].includes(st) : (st % 4 === 0 || ((lv > .6 || D === 3) && st === 14)))) kick(at, .2, o);
