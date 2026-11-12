@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 5.7', BUILD = '57';
+let AR = 1300; const VERSION = 'mobile 5.8', BUILD = '58';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,10 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '5.8', date: '12 novembre 2026', title: 'Combats plus percutants', items: [
+    { img: 'ic/swords.webp', t: 'Des coups qui se sentent', d: 'Les monstres reculent à chaque coup et volent sur un critique, avec un bref arrêt sur image, une secousse et un « CRIT ! ».' },
+    { img: 'ic/skull.webp', t: 'Boss : frappe au sol', d: 'Les boss frappent le sol sous tes pieds : trois cercles rouges préviennent, puis une onde de choc blesse et repousse. Esquive ou sors du cercle.' },
+    { img: 'ic/star.webp', t: 'Entrée et mort des boss', d: 'Arrivée fracassante, barre de vie qui encaisse chaque coup, et mort au ralenti dans une série d’explosions.' } ] },
   { v: '5.7', date: '12 novembre 2026', title: 'Régénération', items: [
     { img: 'ic/heart.webp', t: 'Les gardiens se soignent', d: 'Après 4 secondes sans prendre de coup, chaque gardien récupère 2 % de ses PV par seconde. La barre de vie s’entoure de vert pendant ce temps.' } ] },
   { v: '5.6', date: '12 novembre 2026', title: 'Liste d’amis', items: [

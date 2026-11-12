@@ -704,3 +704,28 @@ const REGW = 4, REGK = .02;
   if (dt > 0 && dt < .5 && G.state === 'play' && NETROLE !== 2) for (const p of G.ps) { if (p.dead || p.gone || p.hp >= p.maxhp) { p.rg = 0; continue; } if (G.t - (p.lastHit || -99) < REGW) { p.rg = 0; continue; } p.rg = 1; p.hp = Math.min(p.maxhp, p.hp + p.maxhp * REGK * dt);
     p.rgt = (p.rgt || 0) - dt; if (p.rgt <= 0) { p.rgt = 1; try { addTxt(p.x, p.y, 150, '+' + Math.max(1, Math.round(p.maxhp * REGK)), '#8cff7a'); } catch (e) {} } }
   const me = G.p, on = NETROLE === 2 ? (me.hp > (me._h0 || 0) + .01 && me.hp < me.maxhp) : !!me.rg; me._h0 = me.hp; const el = $('.hhp'); if (el && el._rg !== on) { el._rg = on; el.classList.toggle('regen', on); } }; }
+
+/* ================= combats plus percutants : coups qui repoussent, arrêts sur image, gros chiffres, boss qui frappent le sol ================= */
+{ const _dm2 = dmgE; let lastStop = -9, lastShk = -9; dmgE = function (e, d, crit, by) {
+    if (!e || e.dead) return _dm2(e, d, crit, by); const boss = e.m && e.m.boss, p = by || G.p, big = d >= (e.max || e.hp + d) * .25 || crit;
+    /* recul : les petits monstres volent, les boss encaissent */
+    if (p && !boss) { const dx = e.x - p.x, dy = e.y - p.y, l = Math.hypot(dx, dy) || 1, k = (crit ? 420 : 170) * (e.el ? .6 : 1); e.kx = (e.kx || 0) + dx / l * k; e.ky = (e.ky || 0) + dy / l * k; }
+    const r = _dm2(e, d, crit, by);
+    if (crit) { try { addTxt(e.x, e.y, e.r * 2.6, 'CRIT !', '#ff6adf', true); } catch (x) {} if (!multi() && G.t - lastStop > .18) { lastStop = G.t; G.stop = Math.max(G.stop || 0, .045); } if (G.t - lastShk > .1) { lastShk = G.t; G.shake = Math.max(G.shake || 0, .14); } }
+    if (boss && !e.dead) { e.flash = .16; if (big && G.t - lastShk > .12) { lastShk = G.t; G.shake = Math.max(G.shake || 0, .22); addFx(e.x, e.y, e.r * 1.7, '#ffffff', .18); spark(e.x, e.y, e.m.col, 6); } const b = $('#bossb'); if (b && G.t - (b._t || 0) > .12) { b._t = G.t; b.classList.remove('hitb'); void b.offsetWidth; b.classList.add('hitb'); } }
+    return r; }; }
+/* mort d'un monstre : les élites et les gros explosent avec une onde, la mort d'un boss se joue au ralenti avec une série d'explosions */
+{ const _k4 = kill; kill = function (e) { const boss = e && e.m && e.m.boss, was = e && !e.dead, x = e && e.x, y = e && e.y, col = e && e.m ? e.m.col : '#fff', r0 = e ? e.r : 30; const r = _k4(e);
+    if (!was) return r; try {
+      if (boss) { G.slowmo = 1.4; G.ts = .22; G.flash = .7; G.shake = 1.1; vib(260); for (let i = 0; i < 9; i++) fdo(i * .13, () => { const a = Math.random() * 6.283, d = Math.random() * r0 * 2.2; addFx(x + Math.cos(a) * d, y + Math.sin(a) * d, 180 + Math.random() * 260, i % 2 ? '#ffd45e' : col, .5); spark(x + Math.cos(a) * d, y + Math.sin(a) * d, i % 2 ? '#ffffff' : col, 10); gsnd('boom'); G.shake = Math.max(G.shake, .5); });
+        fdo(1.25, () => { addFx(x, y, 900, '#ffffff', .9); addFx(x, y, 620, col, .8); addPil(x, y, 200, 1500, '#ffd45e', 1.2); G.flash = .8; gsnd('ult'); }); }
+      else if (e.el || r0 >= 40) { addFx(x, y, r0 * 3.4, col, .32); spark(x, y, col, 9); G.shake = Math.max(G.shake || 0, .2); }
+    } catch (x2) {} return r; }; }
+/* boss : frappe au sol annoncée par un cercle rouge, puis onde de choc qui blesse et repousse */
+function bossSlam(e) { if (!e || e.dead || G.state !== 'play') return; const q = nearest(e.x, e.y); if (!q) return; const x = q.x, y = q.y, R = e.m.myth ? 300 : 240;
+  for (let i = 0; i < 3; i++) fdo(i * .3, () => { addFx(x, y, R, '#ff3a3a', .32); if (!i) gsnd('ultc'); });
+  fdo(.95, () => { if (e.dead) return; addFx(x, y, R * 1.25, '#ffffff', .4); addFx(x, y, R, e.m.col, .6); addPil(x, y, R * .5, 700, e.m.col, .7); spark(x, y, e.m.col, 22); G.shake = Math.max(G.shake || 0, .75); G.flash = Math.max(G.flash || 0, .22); evp(['sh', .75, .22]); vib(120); gsnd('boom');
+    for (const p of alive()) { const d = Math.hypot(p.x - x, p.y - y); if (d < R + p.r * .5 && !(p.dash > 0)) { hurt(p, e.dmg * .9); const l = d || 1; p.x += (p.x - x) / l * 90; p.y += (p.y - y) / l * 90; } } }); }
+{ const _ht5 = hudTick; hudTick = function () { _ht5.apply(this, arguments); if (!G || NETROLE === 2 || G.state !== 'play' || G.cine) return; const dt = G.t - (G._lt5 === undefined ? G.t : G._lt5); G._lt5 = G.t; if (!(dt > 0 && dt < .5)) return;
+    for (const e of G.en) { if (!e.m || !e.m.boss || e.dead) continue; if (!e._in) { e._in = 1; e.slamT = 3.5; G.shake = Math.max(G.shake || 0, .8); addFx(e.x, e.y, 520, e.m.col, .7); addFx(e.x, e.y, 300, '#ffffff', .5); for (let i = 0; i < 6; i++) addPil(e.x + Math.cos(i * 1.047) * 200, e.y + Math.sin(i * 1.047) * 200, 60, 900, e.m.col, .9); vib(140); }
+      if (e.stun > 0) continue; e.slamT -= dt; if (e.slamT <= 0) { e.slamT = (e.m.myth ? 5 : 6.5) - (e.ph || 1) * .7 + Math.random() * 1.5; bossSlam(e); } } }; }
