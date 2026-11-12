@@ -352,7 +352,7 @@ SCR.menu = () => {
     <div class="m2col"><img class="m2logo" src="img/ui/logo.webp" draggable="false" alt="Eclyptia">
       <div class="m2grid">${B.map((b, i) => `<button class="m2b" data-a="go" data-v="${b[0]}" style="--i:${i}"><img src="img/ui/b_${b[0]}.webp" draggable="false" alt="${b[1]}">${b[0] === 'shop' && dayFree() ? '<i class="dot"></i>' : ''}</button>`).join('')}</div>
       <button class="m2play" data-a="go" data-v="hero"><img src="img/ui/play.webp" draggable="false" alt="Jouer"></button></div>
-    <div class="m3bl"><button class="m3day ${dayFree() ? 'free' : ''}" data-a="dayGo">${ic('tox')}<span>TOX DU JOUR<small>${dayFree() ? 'Gratuit : à prendre !' : 'Revient dans ' + dayLeft()}</small></span></button>
+    <div class="m3bl"><button class="m3day ${dayFree() ? 'free' : ''}" data-a="dayGo">${ic('tox')}<span>TOX DU JOUR<small>${dayFree() ? 'Gratuit : à prendre !' : 'Revient dans ' + dayLeft()}</small></span>${dayFree() ? '<i class="dot"></i>' : ''}</button>
       <button class="m3pk" data-a="orb">${orbImg('myst')}<span class="m3pt"><b>PACKS ÉTOILES</b><span class="m3st">${[0, 1, 2, 3].map(i => `<i class="${i < st ? 'on' : ''}">★</i>`).join('')}</span><small>${4 - st} étoile${4 - st > 1 ? 's' : ''} avant le prochain pack</small></span><u>${S.orbs || 0}</u></button></div>
     <div class="ver">${VERSION}</div></div>`;
 };
@@ -443,7 +443,7 @@ ACT.drOpen = () => { snd('open'); drUI(); };
 ACT.drClose = () => { const d = $('#drw'); if (d) d.remove(); snd('pick'); if (SCREEN === 'menu') show('menu'); };
 ACT.drTake = () => { const st = drState(); if (!st.can) return ACT.drClose(); const r = DRW[st.n]; S.dr = { t: dayNum(), n: st.tot }; save(); give(r); save(); snd('buy'); const d = $('#drw'); if (d) d.remove(); if (SCREEN === 'menu') show('menu'); buyFx(drIc(r), 'JOUR ' + (st.n + 1), drTx(r), '#ffd45e'); };
 { const _sh = show; show = function (n, enter) { _sh(n, enter); if (n === 'menu' && enter && drState().can) setTimeout(() => { if (SCREEN === 'menu' && !$('#pnotes') && !$('#drw') && !$('#upd') && !$('#askn') && drState().can) drUI(); }, 1900); }; }
-{ const _m4 = SCR.menu; SCR.menu = () => { const st = drState(); return _m4().replace('<div class="m3bl">', `<div class="m3bl"><button class="m3day ${st.can ? 'free' : ''}" data-a="drOpen"><img class="ici" src="img/kit/r_gift.webp" draggable="false" alt=""><span>CADEAU DU JOUR<small>${st.can ? 'Jour ' + (st.n + 1) + ' : à récupérer !' : 'Série : jour ' + (st.n + 1) + ' sur 7'}</small></span></button>`); }; }
+{ const _m4 = SCR.menu; SCR.menu = () => { const st = drState(); return _m4().replace('<div class="m3bl">', `<div class="m3bl"><button class="m3day ${st.can ? 'free' : ''}" data-a="drOpen"><img class="ici" src="img/kit/r_gift.webp" draggable="false" alt=""><span>CADEAU DU JOUR<small>${st.can ? 'Jour ' + (st.n + 1) + ' : à récupérer !' : 'Jour ' + (st.n + 1) + ' sur 7 · dans ' + dayLeft()}</small></span>${st.can ? '<i class="dot"></i>' : ''}</button>`); }; }
 
 
 /* ================= sauvegarde du compte : code à garder, restauration, copies automatiques des 3 derniers jours ================= */
@@ -535,3 +535,12 @@ ACT.shopBuy = v => {
   const bw = T.it ? Math.min(b.height, 60) : b.width, tx = (T.it ? b.left + 30 : b.left + b.width / 2) - (a.left + a.width / 2), ty = b.top + b.height / 2 - (a.top + a.height / 2);
   requestAnimationFrame(() => requestAnimationFrame(() => { f.style.transform = `translate(${tx}px,${ty}px) scale(${bw / a.width}) rotate(360deg)`; })); setTimeout(() => { f.remove(); land(); }, 620);
 };
+
+
+/* ================= énergie : moins de chauffe. Éco = 30 images/s et image plus légère ; Auto s'adapte tout seul ; Max = tout à fond ================= */
+function ecoApply() { const e = S.set.eco | 0; ECO30 = e === 1; document.documentElement.classList.toggle('slow', e === 1 || (S.crash | 0) > 0); if (window.R3) { R3.q = e === 1 ? .72 : e === 2 ? 1.1 : ((S.crash | 0) > 0 ? .7 : .9); try { R3.resize(); } catch (x) {} } }
+ecoApply();
+ACT.eco = v => { S.set.eco = +v; save(); ecoApply(); snd('pick'); show('settings'); };
+{ const _se3 = SCR.settings; SCR.settings = () => _se3().replace(/<div class="sub">Astuce[^<]*<\/div>/, `<div class="sub" style="font-size:26px;color:#ffd45e">Énergie</div><div class="row" style="gap:8px">${['Auto', 'Éco', 'Max'].map((n, i) => `<button class="btn sm ${(S.set.eco | 0) === i ? '' : 'gray'}" data-a="eco" data-v="${i}" style="min-width:0;flex:1;padding:0 6px 5px;font-size:27px">${n}</button>`).join('')}</div><div class="sub" style="font-size:20px">Éco : le téléphone chauffe moins (30 images/s)</div>`); }
+/* menus : après 20 s sans toucher l'écran, les animations se mettent en pause (le téléphone se repose) */
+{ let idleT = 0; const wake = () => { clearTimeout(idleT); document.documentElement.classList.remove('idle'); idleT = setTimeout(() => { if (SCREEN !== 'game') document.documentElement.classList.add('idle'); }, 20000); }; for (const ev of ['pointerdown', 'touchstart', 'keydown']) addEventListener(ev, wake, { passive: true }); wake(); }

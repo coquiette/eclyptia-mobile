@@ -1332,3 +1332,36 @@ button.s3e:active{transform:scale(.96)}
 .sv2l .lvl2{animation:shxlv .6s var(--spring)}
 .sv2k.sold{transition:opacity .4s}
 .sv2k.just .sv2p{animation:stamp .45s .05s var(--spring) both}
+/* v4.6 : cadeau du jour et TOX du jour bien visibles sur le menu */
+.m3bl{display:grid;grid-template-columns:auto auto;justify-content:start;align-items:end;gap:14px 14px}
+.m3bl .m3pk{grid-column:1 / span 2;justify-self:start}
+.m3day,.m3day.free{position:relative;display:flex;align-items:center;gap:12px;height:124px;min-width:318px;margin:0;padding:0 34px 8px 16px;color:#fff;text-align:left;font-size:34px;line-height:1.02;background:none;box-shadow:none;border-radius:0;border:1px solid transparent;border-image:url(img/kit/bvio.webp) 0 52 fill / 0 56px stretch;overflow:visible;animation:none;opacity:.92}
+.m3day .ici{width:92px;height:92px;flex:none;margin-left:-4px;filter:none}
+.m3day span{text-shadow:0 3px 0 #2a0a5a}
+.m3day small{display:block;font-size:22px;color:#e8dcff;margin-top:4px;white-space:nowrap}
+.m3day.free{border-image-source:url(img/kit/bgold.webp);color:#4a2200;opacity:1;animation:m3beat .8s ease-in-out infinite alternate}
+.m3day.free span{text-shadow:0 2px 0 #fff6}
+.m3day.free small{color:#7a2a00;font-weight:800}
+.m3day.free .ici{animation:bob .8s ease-in-out infinite alternate}
+.m3day.free:before{content:"";position:absolute;inset:-10px -6px;border-radius:70px;background:radial-gradient(ellipse at center,#ffd45eaa 0,transparent 70%);z-index:-1;animation:s3gl 1s ease-in-out infinite alternate}
+.m3day.free:after{content:"";position:absolute;top:8%;bottom:14%;left:6%;width:60px;border-radius:30px;background:linear-gradient(100deg,transparent,#ffffffcc,transparent);animation:m3sh 2.2s ease-in-out infinite;pointer-events:none}
+@keyframes m3beat{to{transform:scale(1.06)}}
+@keyframes m3sh{0%,55%{transform:translateX(0);opacity:0}60%{opacity:1}100%{transform:translateX(230px);opacity:0}}
+.m3day .dot{right:2px;top:-6px;width:40px;height:40px}
+.m3day .dot:after{content:"!";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:28px;line-height:1;color:#fff}
+.m3day:nth-child(2).free{animation-delay:.4s}
+.lite .m3day.free:before,.slow .m3day.free:before{display:none}
+.nar .m3day,.nar .m3day.free{min-width:290px;height:112px;font-size:31px}.nar .m3day .ici{width:80px;height:80px}.nar .m3day small{font-size:20px}
+/* v4.6 : repos des animations */
+.idle #ui *,.idle #ui *:before,.idle #ui *:after,.idle #stage>div *{animation-play-state:paused!important}
+.slow .m2b img,.slow .m2logo,.slow .spk,.slow .m2bg,.slow .star{animation:none!important}
+/* v4.6 : cadeau et TOX du jour plus gros sur le menu (icône plus petite que l'étoile des packs) */
+.m3bl{gap:22px 26px}
+.m3day,.m3day.free{height:150px;min-width:400px;padding:0 40px 8px 150px;font-size:42px;border-image-width:0 66px}
+.m3day .ici{position:absolute;left:-6px;top:50%;width:156px;height:156px;margin-top:-84px;filter:drop-shadow(0 6px 8px #0009)}
+.m3day small{font-size:27px;margin-top:6px}
+.m3day .dot{width:48px;height:48px;right:0;top:-10px}.m3day .dot:after{font-size:34px}
+.m3day.free:after{left:36%}
+.m3pk .orbimg{width:210px;height:210px}
+.nar .m3day,.nar .m3day.free{min-width:350px;height:132px;font-size:36px;padding-left:128px}.nar .m3day .ici{width:132px;height:132px;margin-top:-72px}.nar .m3day small{font-size:23px}
+.nar .m3bl{grid-template-columns:auto;gap:16px}.nar .m3bl .m3pk{grid-column:1}

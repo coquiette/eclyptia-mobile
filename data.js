@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 4.5', BUILD = '45';
+let AR = 1300; const VERSION = 'mobile 4.6', BUILD = '46';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,10 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '4.6', date: '12 novembre 2026', title: 'Menu plus voyant, téléphone plus frais', items: [
+    { img: 'kit/r_gift.webp', t: 'Cadeau et TOX du jour', d: 'Deux gros boutons sur le menu : dorés et animés quand il y a quelque chose à prendre, violets avec le temps restant sinon.' },
+    { img: 'ic/bolt.webp', t: 'Énergie', d: 'Nouveau réglage Auto, Éco ou Max. En Éco, le jeu tourne à 30 images par seconde et le téléphone chauffe moins.' },
+    { img: 'ic/hourglass.webp', t: 'Au repos', d: 'Les animations des menus se mettent en pause après 20 secondes sans toucher l’écran, et le jeu calcule beaucoup moins pendant la mini-boutique et la pause.' } ] },
   { v: '4.5', date: '12 novembre 2026', title: 'Mini-boutique plus fluide', items: [
     { img: 'tx/k1.webp', t: 'Achat animé', d: 'La carte flashe, des étincelles jaillissent et l’icône s’envole jusqu’à son emplacement, sans recharger toute la boutique.' },
     { img: 'kit/r_lock.webp', t: 'Cadenas discret', d: 'Un petit cadenas en haut de chaque carte : il s’allume et la carte prend un liseré doré quand elle est gardée.' } ] },
@@ -371,7 +375,7 @@ function defSave() {
   return { v: 2, named: false, friends: [], rp: 0, bst: 0, daily: null, dr: null, dmax: 0, crash: 0, crashAt: '', paid: [], starter: false, bkAt: 0, offOk: 0, name: 'Gardien', coins: 200, prisms: 50, xp: 0, passXp: 0, passClaim: [], passClaimP: [], premium: false, owned: ['kaelion', 'elyra'], hero: 'kaelion',
     up: { hp: 0, dmg: 0, spd: 0 }, hs, tox, skins: [], skin: {}, eq: {}, wp: {}, wpo: {}, boost: {}, bon: {}, bopen: 0, seen: '',
     stats: { games: 0, wins: 0, maxWave: 0, kills: 0, boss: 0, time: 0 }, codex: {}, orbs: 3, pity: 0,
-    q: { day: '', kills: 0, wave: 0, games: 0, claimed: [] }, set: { btn: 1, lefty: false, vib: true, snd: true, mus: true, gfx: 1, fill: 1, mst: 0 } };
+    q: { day: '', kills: 0, wave: 0, games: 0, claimed: [] }, set: { btn: 1, lefty: false, vib: true, snd: true, mus: true, gfx: 1, fill: 1, mst: 0, eco: 0 } };
 }
 function loadSave() {
   const d = defSave();

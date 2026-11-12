@@ -432,7 +432,11 @@ document.addEventListener('gesturestart', e => e.preventDefault());
 document.addEventListener('visibilitychange', () => { if (document.hidden && G && G.state === 'play' && !multi()) pauseGame(); });
 
 let lastTs = 0; const FT = { s: 0, n: 0 };
+let FRN = 0, ECO30 = false;
 function frame(ts) {
+  /* économie d'énergie : 30 images par seconde en mode Éco, et presque rien à calculer quand une fenêtre recouvre la partie */
+  FRN++; const ovl = G && SCREEN === 'game' && (G.state === 'pick' || G.state === 'pause') && NETROLE !== 1;
+  if ((ECO30 && (FRN & 1)) || (ovl && FRN % 6)) { requestAnimationFrame(frame); return; }
   const raw = Math.min(.05, (ts - lastTs) / 1000 || 0); lastTs = ts;
   if (G && SCREEN === 'game') {
     let dt = raw; G.zoomP = Math.max(0, G.zoomP - raw * 1.2); G.shake -= raw; G.flash -= raw; G.hurtT = (G.hurtT || 0) - raw; G.ecl = (G.ecl || 0) - raw; if (G.banner && !G.cine && G.state === 'play') { G.banner.t -= raw; if (G.banner.t <= 0) G.banner = null; } hset('hud', 'opacity', G.cine ? '0' : '1'); if (G.ann) { G.ann.t -= raw; if (G.ann.t <= 0) G.ann = null; }
@@ -449,7 +453,7 @@ function frame(ts) {
     draw(NETROLE === 2 ? raw : G.state === 'pause' || G.state === 'pick' ? 0 : (G.cine ? raw * .3 : G.stop > 0 ? 0 : dt || raw), raw);
   }
   // résolution dynamique : si le téléphone peine, on baisse la finesse du rendu plutôt que la fluidité
-  if (G && SCREEN === 'game' && G.state === 'play' && !G.cine) { FT.s += raw; if (++FT.n >= 50) { const avg = FT.s / FT.n; FT.s = FT.n = 0; if (avg > .021 && (R3.q || 1) > .4) { R3.q = (R3.q || 1) - .15; R3.resize(); if (R3.q < .6) document.documentElement.classList.add('slow'); } } }
+  if (G && SCREEN === 'game' && G.state === 'play' && !G.cine) { FT.s += raw; if (++FT.n >= 50) { const avg = FT.s / FT.n; FT.s = FT.n = 0; if (!ECO30 && avg > .021) { if ((R3.q || 1) > .4) { R3.q = (R3.q || 1) - .15; R3.resize(); if (R3.q < .6) document.documentElement.classList.add('slow'); } else if ((S.set.eco | 0) === 0) { ECO30 = true; document.documentElement.classList.add('slow'); } } } }
   if (typeof fxTick === 'function') fxTick(raw);
   requestAnimationFrame(frame);
 }
