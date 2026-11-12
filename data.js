@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 6.4', BUILD = '64';
+let AR = 1300; const VERSION = 'mobile 6.5', BUILD = '65';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -212,7 +212,7 @@ const MON = {
   ver:    { n: 'Ver des sables', img: 'm6', hp: 950, spd: 88, dmg: 26, r: 84, col: '#ffcf5a', from: 99, w: 0, boss: 1, d: 'BOSS. Charge le gardien et crache un anneau de projectiles.' }
 };
 const MON_IDS = Object.keys(MON);
-const LAST_WAVE = 10;
+const LAST_WAVE = 15;
 
 const UPG = [
   { ic: 'swords', n: 'Dégâts +20 %', f: m => m.dmg *= 1.2 },
@@ -234,7 +234,7 @@ const QUESTS = [
   { id: 'b', ic: 'crown', t: 'Vaincre 2 boss', goal: 2, get: s => s.q.boss || 0, rew: { coins: 200, passXp: 100 } },
   { id: 'v', ic: 'swords', t: 'Gagner une partie', goal: 1, get: s => s.q.wins || 0, rew: { orbs: 1, passXp: 120 } },
   { id: 'k2', ic: 'skull', t: 'Vaincre 500 ennemis', goal: 500, get: s => s.q.kills, rew: { coins: 300, passXp: 150 } },
-  { id: 'w2', ic: 'wave', t: 'Atteindre la vague 8', goal: 8, get: s => s.q.wave, rew: { prisms: 25, passXp: 150 } },
+  { id: 'w2', ic: 'wave', t: 'Atteindre la vague 10', goal: 10, get: s => s.q.wave, rew: { prisms: 25, passXp: 150 } },
   { id: 'e', ic: 'bolt', t: 'Vaincre 3 élites', goal: 3, get: s => s.q.elite || 0, rew: { coins: 150, passXp: 80 } },
   { id: 's', ic: 'tox', t: 'Acheter 6 TOX en partie', goal: 6, get: s => s.q.buy || 0, rew: { cards: 2, passXp: 80 } },
   { id: 'p', ic: 'friends', t: 'Jouer une partie en groupe', goal: 1, get: s => s.q.grp || 0, rew: { prisms: 20, passXp: 100 } },
@@ -251,8 +251,15 @@ const SHOP_UP = [
 const upCost = l => 100 * (l + 1);
 
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
-const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
+const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins', 'Nébuleuse d’Orion', 'Système solaire', 'Mer de la Tranquillité', 'Planète rouge', 'Anneaux de Saturne', 'Horizon du trou noir', 'Station Éclipse', 'Comète de glace'];
 const PATCH = [
+  { v: '6.5', date: '12 novembre 2026', title: 'L’espace, 15 vagues et cosmétiques', items: [
+    { img: 'ic/star.webp', t: '8 cartes de l’espace', d: 'Nébuleuse, système solaire, Lune, Mars, anneaux de Saturne, trou noir, station, comète : chaque sol est peint différemment. Les arènes flottent au-dessus du vide, la bordure est animée, et les anciennes cartes ont un sol plus détaillé.' },
+    { img: 'ic/skull.webp', t: '15 vagues, 8 monstres, 5 boss', d: 'Un boss toutes les 3 vagues et un grand boss final vague 15. Les boss annoncent mieux leurs attaques et ne se téléportent plus sur toi. Le ver des sables a une vraie queue.' },
+    { img: 'ic/crown.webp', t: 'Cosmétiques', d: 'Dans Profil : titres, bannières, icônes et skins d’arme par gardien, à acheter en pièces d’or. Pack étoile à 2 000 pièces en Boutique. Les tenues ajoutent des ailes, cornes, couronnes… et colorent tous tes effets.' },
+    { img: 'ic/friends.webp', t: 'Profil et amis', d: 'Nouvelle page de profil, amis en ligne, et profil de tes amis consultable. Barres de vie des coéquipiers plus grosses. Si l’hôte quitte, tu continues la partie seul au lieu de perdre.' },
+    { img: 'ic/swords.webp', t: 'Combos et rang', d: 'Les combos montrent les vraies icônes, le bouton suivant clignote, et chaque gardien a sa coupe-scène. En fin de partie, la barre de rang s’anime avec le détail des points gagnés ou perdus.' },
+    { img: 'ic/shard.webp', t: 'En partie', d: 'Éclats bien plus visibles, argent affiché plus gros, cartes de bénédiction refaites, et dans la mini-boutique touche « MES TOX » pour voir tout ce que tu as.' } ] },
   { v: '6.4', date: '12 novembre 2026', title: 'Boss, tenues, quêtes et réglages en partie', items: [
     { img: 'ic/skull.webp', t: 'Boss retravaillés', d: 'Ils respirent, prennent leur élan, s’envolent avant de frapper et s’énervent à chaque phase. Grande barre de vie avec pourcentage, et une flèche te montre le boss quand il sort de l’écran.' },
     { img: 'ic/crown.webp', t: 'Page TENUES', d: 'Toutes les tenues de tous les gardiens sur une page : 4 par gardien. Touche pour voir, puis équipe ou achète. La tenue change aussi l’arme et les tirs.' },

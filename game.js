@@ -64,7 +64,7 @@ function nextWave() {
   for (const p of G.ps) if (p.dead && !p.gone) { p.dead = false; p.hp = Math.round(p.maxhp * .4); p.inv = 2.5; addFx(p.x, p.y, 200, '#8cff7a', .6); addPil(p.x, p.y, 90, 900, '#8cff7a', .9); }
   const w = G.wave, boss = w % 5 === 0, pool = [], k = 1 + .7 * (G.n - 1);
   for (const id of MON_IDS) { const m = MON[id]; if (!m.boss && m.from <= w) for (let i = 0; i < m.w; i++) pool.push(id); }
-  let n = Math.round((26 + 10 * w) * k); if (boss) n = Math.floor(n * .55);
+  let n = Math.round((26 + 10 * Math.min(w, 9) + 4 * Math.max(0, w - 9)) * k); if (boss) n = Math.floor(n * .55);
   G.queue = []; for (let i = 0; i < n; i++) G.queue.push(pool[(Math.random() * pool.length) | 0]);
   if (boss) G.queue.push('ver');
   G.spawnT = 1.2; G.banner = { t: 1.7, s: boss ? 'BOSS !' : 'VAGUE ' + w, boss }; gsnd(boss ? 'boss' : 'wave'); music(boss ? 'boss' : w >= 6 ? 'game2' : 'game'); musLevel(w / LAST_WAVE);
@@ -239,7 +239,7 @@ function update(dt) {
       if (e.wind > 0) { e.wind -= dt; mv = 0; if (e.wind <= 0) { e.chg = .85; gsnd('dash'); } }
       else if (e.chg > 0) { e.chg -= dt; mx = e.cvx; my = e.cvy; mv = 640 * slow; if (Math.random() < .5) addFx(e.x, e.y, 130, '#e2b04a', .3); }
       else {
-        e.cc -= dt * slow; if (e.cc <= 0) { e.cc = 3.4; e.wind = .7; e.cvx = ux; e.cvy = uy; }
+        e.cc -= dt * slow; if (e.cc <= 0) { e.cc = 3.6; e.wind = .95; e.cvx = ux; e.cvy = uy; }
         if (e.cd <= 0) { e.cd = 4; for (let i = 0; i < 16; i++) foeShot(e, i * Math.PI / 8 + G.t, 290, e.dmg * .6); addFx(e.x, e.y, 220, '#ff4d6d', .4); gsnd('boom'); }
       }
     } else if (e.m.ranged) {

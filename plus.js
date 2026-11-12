@@ -93,8 +93,8 @@ Object.assign(MON, {
   scorch: { n: 'Scorch, le brasier vivant', img: 'm7', hp: 2100, spd: 112, dmg: 28, r: 114, col: '#ff5a1e', from: 99, w: 0, boss: 1, myth: 1, pat: ['trail', 'rain', 'nova', 'charge'], d: 'BOSS MYTHIQUE. Trois phases : charges enflammées, pluie de feu et novas.' }
 });
 MON.ver.r = 100; for (const id of ['xalven', 'cyclope', 'scorch']) if (!MON_IDS.includes(id)) MON_IDS.push(id);
-const MYTH = ['xalven', 'cyclope', 'scorch'], BOSSW = [4, 7];   /* boss moyens aux vagues 4 et 7, gros boss mythique à la dernière */
-function ftask(x, y, rad, dmg, delay, col) { if (!G.ftasks) G.ftasks = []; G.ftasks.push({ t: delay, x, y, rad, dmg, col: col || '#ff3a3a' }); addFx(x, y, rad, '#ff3a3a', delay); addFx(x, y, rad * .45, '#ffffff', Math.min(.4, delay)); }
+const MYTH = ['xalven', 'cyclope', 'scorch'], BOSSW = [3, 6, 9, 12];   /* boss moyens aux vagues 4 et 7, gros boss mythique à la dernière */
+function ftask(x, y, rad, dmg, delay, col) { if (!G.ftasks) G.ftasks = []; G.ftasks.push({ t: delay, x, y, rad, dmg, col: col || '#ff3a3a' }); addFx(x, y, rad, '#ff3a3a', delay); addFx(x, y, rad * .45, '#ffffff', Math.min(.4, delay)); /* zone d'avertissement pleine, qui se remplit jusqu'à l'impact */ try { if (typeof addZone === 'function' && delay >= .5) addZone(x, y, rad, delay, '#ff3a3a'); } catch (e) {} }
 function fdo(delay, fn) { if (!G.ftasks) G.ftasks = []; G.ftasks.push({ t: delay, fn }); }
 function plusTick(dt) {
   if (!G || NETROLE === 2 || !G.ftasks || dt <= 0) return;
@@ -117,7 +117,7 @@ function mythAI(e, p, dt, slow, ux, uy, d) {
   if (e.wind > 0) { e.wind -= dt; if (e.wind <= 0) { e.chg = .8; gsnd('dash'); } return [0, ux, uy]; }
   if (e.chg > 0) {
     e.chg -= dt; if (e.trail && Math.random() < dt * 10) ftask(e.x, e.y, 120, e.dmg * .5, .6, '#ff5a1e'); if (Math.random() < .5) addFx(e.x, e.y, 160, e.m.col, .3);
-    if (e.chg <= 0 && e.chn > 0) { e.chn--; e.wind = .38; const q = nearest(e.x, e.y); if (q) { const dd = hyp(q.x - e.x, q.y - e.y) || 1; e.cvx = (q.x - e.x) / dd; e.cvy = (q.y - e.y) / dd; } }
+    if (e.chg <= 0 && e.chn > 0) { e.chn--; e.wind = .62; const q = nearest(e.x, e.y); if (q) { const dd = hyp(q.x - e.x, q.y - e.y) || 1; e.cvx = (q.x - e.x) / dd; e.cvy = (q.y - e.y) / dd; } }
     return [720 * slow, e.cvx, e.cvy];
   }
   e.ai = (e.ai === undefined ? 2.2 : e.ai) - dt * slow * rate;
@@ -125,11 +125,11 @@ function mythAI(e, p, dt, slow, ux, uy, d) {
     e.ai = 3; e.pi = (e.pi || 0) + 1; const pat = e.m.pat[e.pi % e.m.pat.length], col = e.m.col, ph = e.ph;
     if (pat === 'ring') { ringShot(e, 16 + 4 * ph, G.t, 300); fdo(.45, () => ringShot(e, 16 + 4 * ph, G.t + .2, 250)); }
     else if (pat === 'nova') { for (let w = 0; w < 2 + ph; w++) fdo(w * .34, () => ringShot(e, 14, w * .23 + G.t * .3, 250 + 40 * w, .5)); }
-    else if (pat === 'rain') { for (const q of G.ps) { if (q.dead || q.gone) continue; ftask(q.x, q.y, 150, e.dmg * .8, .85, col); for (let k = 0; k < 2 + 2 * ph; k++) ftask(q.x + rnd(-300, 300), q.y + rnd(-300, 300), 140, e.dmg * .8, 1 + k * .14, col); } }
-    else if (pat === 'beam') { for (const off of ph > 1 ? [-.38, 0, .38] : [0]) { const a = Math.atan2(uy, ux) + off, bx = Math.cos(a), by = Math.sin(a); for (let k = 0; k < 9; k++) ftask(e.x + bx * (150 + k * 150), e.y + by * (150 + k * 150), 105, e.dmg, .75 + k * .05, '#ffb03a'); } e.stun = .9; }
-    else if (pat === 'slam') { ftask(e.x, e.y, 400 + 70 * ph, e.dmg * 1.2, 1, col); e.stun = 1.05; fdo(1.05, () => ringShot(e, 12 + 4 * ph, G.t, 330)); }
-    else if (pat === 'charge' || pat === 'trail') { e.wind = .6; e.cvx = ux; e.cvy = uy; e.chn = pat === 'trail' ? ph : ph - 1; e.trail = pat === 'trail' || e.id === 'scorch'; addFx(e.x, e.y, 260, '#ff3a3a', .6); }
-    else if (pat === 'blink') { const tx = p.x - ux * 60, ty = p.y - uy * 60; ftask(tx, ty, 250, e.dmg, .85, col); fdo(.8, () => { if (e.dead) return; addFx(e.x, e.y, 260, col, .4); e.x = tx; e.y = ty; addPil(tx, ty, 120, 1200, col, .8); }); e.stun = .85; }
+    else if (pat === 'rain') { for (const q of G.ps) { if (q.dead || q.gone) continue; ftask(q.x, q.y, 150, e.dmg * .8, 1.1, col); for (let k = 0; k < 2 + 2 * ph; k++) ftask(q.x + rnd(-300, 300), q.y + rnd(-300, 300), 140, e.dmg * .8, 1.25 + k * .14, col); } }
+    else if (pat === 'beam') { for (const off of ph > 1 ? [-.38, 0, .38] : [0]) { const a = Math.atan2(uy, ux) + off, bx = Math.cos(a), by = Math.sin(a); for (let k = 0; k < 9; k++) ftask(e.x + bx * (150 + k * 150), e.y + by * (150 + k * 150), 105, e.dmg, 1.05 + k * .05, '#ffb03a'); } e.stun = 1.2; }
+    else if (pat === 'slam') { ftask(e.x, e.y, 400 + 70 * ph, e.dmg * 1.2, 1.25, col); e.stun = 1.3; fdo(1.3, () => ringShot(e, 12 + 4 * ph, G.t, 330)); }
+    else if (pat === 'charge' || pat === 'trail') { e.wind = .95; e.cvx = ux; e.cvy = uy; e.chn = pat === 'trail' ? ph : ph - 1; e.trail = pat === 'trail' || (e.m.base || e.id) === 'scorch'; addFx(e.x, e.y, 260, '#ff3a3a', .9); }
+    else if (pat === 'blink') { /* téléportation annoncée : le boss arrive à côté du joueur (jamais dessus), après 1,4 s d'avertissement bien visible */ const tx = p.x - ux * 250, ty = p.y - uy * 250; ftask(tx, ty, 210, e.dmg, 1.4, col); addPil(tx, ty, 60, 900, col, 1.4); addFx(e.x, e.y, 200, col, 1.2); fdo(1.35, () => { if (e.dead) return; addFx(e.x, e.y, 260, col, .4); e.x = tx; e.y = ty; addPil(tx, ty, 120, 1200, col, .8); }); e.stun = 1.6; }
   }
   return [e.spd * slow * (1 + .15 * (e.ph - 1)), ux, uy];
 }
@@ -138,7 +138,8 @@ function mythAI(e, p, dt, slow, ux, uy, d) {
   _nw(); const w = G.wave; if (!G.myth) { G.myth = MYTH.slice().sort(() => Math.random() - .5); }
   let q = G.queue.filter(id => !MON[id].boss); const boss = BOSSW.includes(w) || w >= LAST_WAVE;
   q = q.slice(0, Math.max(8, Math.round(q.length * (boss ? .3 : .55)))); let bid = null;
-  if (boss) bid = w >= LAST_WAVE ? G.myth[1] : w === BOSSW[0] ? 'ver' : G.myth[0];
+  /* 15 vagues : un boss toutes les 3 vagues (ver, mythique, autre ver plus fort, autre mythique), puis le grand boss final */
+  if (boss) { const VS = typeof VERS !== 'undefined' ? VERS : ['ver']; if (!G.vers) G.vers = VS.slice().sort(() => Math.random() - .5); bid = w >= LAST_WAVE ? G.myth[2 % G.myth.length] : w === 3 ? G.vers[0] : w === 9 ? G.vers[1 % G.vers.length] : w === 6 ? G.myth[0] : G.myth[1 % G.myth.length]; }
   if (bid) q.push(bid); G.queue = q; G.wtot = q.length; G.bossW = bid;
   G.banner = { t: 1.7, s: bid ? (w >= LAST_WAVE ? 'BOSS MYTHIQUE !' : 'BOSS !') : 'VAGUE ' + w, boss: bid ? 1 : 0 }; music(bid ? 'boss' : w >= 6 ? 'game2' : 'game');
 }; }
@@ -146,7 +147,7 @@ function mythAI(e, p, dt, slow, ux, uy, d) {
   _sp(id); const m = MON[id]; if (!m || !m.boss) return; const e = G.en[G.en.length - 1]; if (!e || e.id !== id) return;
   const w = G.wave, med = m.myth && w < LAST_WAVE; if (med) { e.med = 1; e.r = Math.round(e.r * .72); }
   /* boss rééquilibrés (v6.3) : environ 25 s, 35 s et 55 s de combat ; à plusieurs +80 % de PV par joueur en plus */
-  const hp = m.hp * (med ? 1.4 : m.myth ? 2.3 : 1.9) * (1 + .8 * (G.n - 1)); e.hp = e.max = hp; e.dmg = m.dmg * (1 + .05 * (w - 1)) * (med ? .85 : 1);
+  const hp = m.hp * (m.myth ? (med ? (w >= 10 ? 2.05 : 1.1) : 3.6) : (w >= 8 ? 3.8 : 1.55)) * (1 + .8 * (G.n - 1)); e.hp = e.max = hp; e.dmg = m.dmg * (1 + .05 * (w - 1)) * (med ? .85 : 1);
   if (m.myth) { e.ai = 2.6; if (G.cine) { G.cine.t = med ? 3.2 : 4.4; G.cine.zoom = med ? 1.6 : 1.8; G.cine.orbit = 1.3; G.cine.sub = (med ? 'BOSS' : 'BOSS MYTHIQUE') + ' · VAGUE ' + w; } G.flash = .5; G.shake = .8; for (let i = 0; i < 10; i++) addPil(e.x + Math.cos(i * .628) * 300, e.y + Math.sin(i * .628) * 300, 60, 1300, m.col, 1.6); addFx(e.x, e.y, 900, m.col, 1.2); }
 }; }
 { const _kill = kill; kill = function (e) {
@@ -196,11 +197,11 @@ SCR.game = function () {
   return `<div id="g3"><div class="neb"></div><div class="neb b"></div>${stars(40)}<div class="ecl"></div></div><canvas id="cv2" width="${W}" height="${H}"></canvas><div id="hud" class="h2 ${S.set.lefty ? 'lefty' : ''}">
     <div id="joyzone"><div id="joyb"><div id="joyk"></div></div></div>
     <div class="hhp"><div class="hav">${himg(f.hero, f.skin)}</div><div class="grow"><div class="hnm">${esc(f.name || h.n)}<small>${h.n} · ${h.cls}</small></div><div class="bar hpb"><i id="hpf"></i><span id="hpt"></span></div><div class="bar ulb"><i id="ulf"></i><span>ULTIME</span></div></div></div>
-    <div id="team">${L.infos.map((q, i) => i === L.me ? '' : `<div class="tmb" id="tb${i}">${himg(q.hero, q.skin)}<div class="grow"><span>${esc(q.name)}</span><div class="bar"><i id="tm${i}" style="width:100%"></i></div></div></div>`).join('')}</div>
+    <div id="team">${L.infos.map((q, i) => i === L.me ? '' : `<div class="tmb" id="tb${i}">${himg(q.hero, q.skin)}<div class="grow"><span>${esc(q.name)}<small id="tt${i}"></small></span><div class="bar"><i id="tm${i}" style="width:100%"></i></div></div></div>`).join('')}</div>
     <div class="hwave"><b id="wv">VAGUE 1</b><div class="wpips" id="wpips">${Array.from({ length: LAST_WAVE }, (_, i) => `<i class="${BOSSW.includes(i + 1) || i + 1 === LAST_WAVE ? 'bs' : ''}"></i>`).join('')}</div><div class="bar wbar"><i id="wpf"></i><span id="lf"></span></div></div>
     <div id="bossb"><b id="bsn"></b><div class="bar"><i id="bsf"></i></div><span id="bsp"></span></div>
     <div class="htr"><span class="pill">${ic('shard')} <b id="shd">0</b></span><button class="rnd rb" data-a="pause"><img src="img/kit/r_pause.webp" draggable="false" alt="Pause"></button></div>
-    <div id="cmbs">${cs.map((c, i) => `<div class="cmb ${c.big ? 'big' : ''}" id="cmb${i}"><b>${c.n}</b><span>${c.q.map((k, j) => `<i id="cq${i}_${j}" class="k${k}">${KLAB[k]}</i>`).join('<u>▸</u>')}</span></div>`).join('')}</div>
+    <div id="cmbs">${cs.map((c, i) => `<div class="cmb ${c.big ? 'big' : ''}" id="cmb${i}"><b>${c.n}</b><span>${c.q.map((k, j) => `<i id="cq${i}_${j}" class="k${k}">${k === 'd' ? ic('dash') : tic((f.tx || h.tox)['abcu'.indexOf(k)])}</i>`).join('<u>▸</u>')}</span></div>`).join('')}</div>
     <div id="btns" style="transform:scale(${S.set.btn})">${tb('a', 0)}${tb('b', 1)}${tb('c', 2)}${tb('u', 3, 1)}
       <button class="ab" id="bd" data-k="d"><em>${ic('dash')}</em><div class="cd" id="cdd"></div><div class="ct" id="ctd"></div></button>
     </div><div id="over"></div></div>`;
@@ -212,7 +213,7 @@ SCR.game = function () {
   hset('wpf', 'width', Math.round(100 * (1 - rem / Math.max(1, G._wm))) + '%'); hset('lf', 'text', rem + (rem > 1 ? ' ennemis' : ' ennemi'));
   let bs = null; for (const e of G.en) if (e.m && e.m.boss && !e.dead) { bs = e; break; }
   hset('bossb', 'cls', bs ? 'on' + (bs.m.myth && !bs.med ? ' my' : '') : ''); if (bs) { hset('bsn', 'text', bs.m.n.toUpperCase()); hset('bsf', 'width', Math.max(0, Math.round(100 * bs.hp / bs.max)) + '%'); hset('bsp', 'text', bs.m.myth ? 'PHASE ' + (bs.ph || 1) + ' / ' + (bs.med ? 2 : 3) : 'BOSS'); }
-  const cs = COMBOS[p.hero]; if (cs) cs.forEach((c, i) => { const n = NETROLE === 2 ? 0 : comboProg(p, c), cd = p.cbt && p.cbt[i] > G.t; hset('cmb' + i, 'cls', 'cmb' + (c.big ? ' big' : '') + (cd ? ' cd' : '') + (n ? ' go' : '')); c.q.forEach((k, j) => hset('cq' + i + '_' + j, 'cls', 'k' + k + (j < n ? ' ok' : ''))); });
+  const cs = COMBOS[p.hero]; if (cs) cs.forEach((c, i) => { const n = NETROLE === 2 ? 0 : comboProg(p, c), cd = p.cbt && p.cbt[i] > G.t; hset('cmb' + i, 'cls', 'cmb' + (c.big ? ' big' : '') + (cd ? ' cd' : '') + (n ? ' go' : '')); c.q.forEach((k, j) => hset('cq' + i + '_' + j, 'cls', 'k' + k + (j < n ? ' ok' : j === n && n && !cd ? ' nx' : ''))); });
 }; }
 
 /* ================= « +1 » qui s'envolent vers les compteurs ================= */
@@ -228,15 +229,20 @@ function rankOf(rp) { const t = Math.floor((rp || 0) / RSTEP), i = Math.min(RANK
 { const _sr = startRun; startRun = function (infos, me, role) { _sr(infos, me, role); G.rk = (G && infos && infos[0] && infos[0].rk) | 0; if (!infos) G.rk = rankOf(S.rp).tier; }; }
 { const _se = showEnd; showEnd = function (r) {
   let extra = '';
-  if (!G._rkd) { G._rkd = 1; const w = G.wave | 0, win = !!r.win, st = win ? 2 : w >= 4 ? 1 : 0, r0 = rankOf(S.rp), d = win ? 60 + 4 * r0.i : w >= 4 ? 8 + 3 * w : -12;
-    S.rp = Math.max(0, (S.rp || 0) + d); S.bst = (S.bst || 0) + st; let nb = 0; while (S.bst >= 4) { S.bst -= 4; S.orbs = (S.orbs || 0) + 1; nb++; } save(); const r1 = rankOf(S.rp);
-    extra = `<div class="rkend"><span class="rkb" style="--rc:${r1.c}">${r1.n}</span><b class="${d >= 0 ? 'up' : 'dn'}">${d >= 0 ? '+' : ''}${d} points</b>${r1.tier > r0.tier ? '<em>RANG SUPÉRIEUR !</em>' : ''}<span class="rks">${st ? '★'.repeat(st) + ' +' + st + ' étoile' + (st > 1 ? 's' : '') + ' de booster' : 'Atteins la vague 4 pour gagner une étoile'} · ${S.bst} / 4${nb ? ' · +' + nb + ' BOOSTER !' : ''}</span></div>`; }
-  _se(r); const o = $('#over'); if (o && extra) o.insertAdjacentHTML('beforeend', extra);
+  /* points de rang (v6.5) : une règle simple et affichée — on gagne à partir de la vague 7, on perd avant ; chaque boss et la victoire rapportent en plus */
+  if (!G._rkd) { G._rkd = 1; const w = G.wave | 0, win = !!r.win, bs = (r.boss | 0), st = win ? 2 : w >= 6 ? 1 : 0, r0 = rankOf(S.rp), rp0 = S.rp || 0, pw = (w - 6) * 5, pb = bs * 5, pv = win ? 40 : 0, d = Math.max(-30, pw + pb + pv);
+    S.rp = Math.max(0, rp0 + d); S.bst = (S.bst || 0) + st; let nb = 0; while (S.bst >= 4) { S.bst -= 4; S.orbs = (S.orbs || 0) + 1; nb++; } save(); const r1 = rankOf(S.rp), real = S.rp - rp0, sg = v => (v >= 0 ? '+' : '') + v;
+    G._rk9 = { r0, r1, d: real };
+    extra = `<div class="rkend rk9 ${real >= 0 ? 'up' : 'dn'}"><div class="rk9h"><span class="rkb" id="rk9b" style="--rc:${r0.c}">${r0.n}</span><b id="rk9d">${real >= 0 ? '▲' : '▼'} <i id="rk9n">0</i> points</b></div>
+      <div class="bar rk9bar"><i id="rk9f" style="width:${r0.in}%"></i><span id="rk9t">${r0.in} / ${RSTEP}</span></div>
+      <div class="rk9l"><span style="--i:0">Vague ${w} atteinte<b class="${pw >= 0 ? 'p' : 'm'}">${sg(pw)}</b></span><span style="--i:1">${bs} boss vaincu${bs > 1 ? 's' : ''}<b class="p">${sg(pb)}</b></span>${win ? '<span style="--i:2">Victoire<b class="p">+40</b></span>' : ''}</div>
+      <span class="rks">${st ? '★'.repeat(st) + ' +' + st + ' étoile' + (st > 1 ? 's' : '') + ' de booster' : 'Atteins la vague 6 pour gagner une étoile'} · ${S.bst} / 4${nb ? ' · +' + nb + ' BOOSTER !' : ''}</span></div>`; }
+  _se(r); const o = $('#over'); if (o && extra) { const rw = o.querySelector('.erew'); if (rw) rw.insertAdjacentHTML('afterend', extra); else o.insertAdjacentHTML('beforeend', extra); } if (o && extra && G._rk9) rk9Anim(G._rk9);
 }; }
 { const _menu = SCR.menu; SCR.menu = () => { const k = rankOf(S.rp); return _menu().replace("Gardien de l'Aube", `<b style="color:${k.c}">${k.n}</b> · ${k.in} / ${RSTEP}`).replace('<span class="olab">BOOSTERS</span>', `<span class="olab">BOOSTERS</span><i class="bst">★ ${S.bst || 0} / 4</i>`); }; }
 
 /* ================= monstres propres à chaque carte : nom, portrait et caractère ================= */
-const MAPFAM = ['arc', 'nat', 'nat', 'mar', 'feu', 'arc', 'arc', 'arc', 'mar'], FAMK = { nat: { hp: 1.18, spd: .95, dmg: 1 }, mar: { hp: .92, spd: 1.13, dmg: 1 }, feu: { hp: 1, spd: 1, dmg: 1.16 } };
+const MAPFAM = ['arc', 'nat', 'nat', 'mar', 'feu', 'arc', 'arc', 'arc', 'mar', 'arc', 'arc', 'arc', 'feu', 'arc', 'arc', 'arc', 'mar'], FAMK = { nat: { hp: 1.18, spd: .95, dmg: 1 }, mar: { hp: .92, spd: 1.13, dmg: 1 }, feu: { hp: 1, spd: 1, dmg: 1.16 } };
 const FAMN = {
   nat: { larve: ['Limace-champignon', 'Lente mais coriace, elle rampe en bande dans les sous-bois.'], chauve: ['Guêpe géante', 'Fonce en piqué sur le gardien.'], esprit: ['Feu follet des bois', 'Reste à distance et crache des graines.'], bombe: ['Cactus explosif', 'Court vers sa cible et éclate en épines.'], mage: ['Chaman des bois', 'Lance trois orbes de sève en éventail.'], garde: ['Golem de bois', 'Lent, très résistant, frappe fort.'] },
   mar: { larve: ['Méduse des abysses', 'Fragile mais rapide, elle arrive en banc.'], chauve: ['Piranha volant', 'Le plus rapide des monstres marins.'], esprit: ['Esprit d\'eau', 'Garde ses distances et tire des gouttes.'], bombe: ['Poisson-globe', 'Gonfle, fonce et explose au contact.'], mage: ['Pieuvre mage', 'Lance trois orbes d\'encre en éventail.'], garde: ['Crabe géant', 'Carapace épaisse et pinces redoutables.'] },
@@ -369,7 +375,7 @@ let CPG = -1;
     <div class="col grow cx3m"><div class="cx3g">${ids.map((id, i) => { const o = !!S.codex[id]; return `<button class="cx3c ${id === CSEL ? 'on' : ''} ${o ? '' : 'lock'}" data-a="csel" data-v="${id}" style="--i:${i}"><img src="img/${MON[id].img}.jpg" draggable="false" alt="">${o ? `<u>×${S.codex[id]}</u>` : '<span class="lk">' + ic('lock') + '</span>'}<b>${o ? MON[id].n : '???'}</b></button>`; }).join('')}</div>
       <div class="cx3p"><button class="rb" data-a="cpg" data-v="-1"><img src="img/kit/r_left.webp" draggable="false" alt="Précédent"></button><span>${Array.from({ length: NP }, (_, i) => `<i class="${i === CPG ? 'on' : ''}"></i>`).join('')}<b>Page ${CPG + 1} / ${NP}</b></span><button class="rb" data-a="cpg" data-v="1"><img src="img/kit/r_right.webp" draggable="false" alt="Suivant"></button></div></div>
     <div class="pn col cxm cx3d" style="width:470px;flex:none">${ok ? `<div class="cx3i"><img src="img/${m.img}.jpg" draggable="false" alt=""></div><div class="gold cx3n">${m.n.toUpperCase()}</div><div class="sub">${m.d}</div>
-      <div class="cx3s"><div class="tile">PV<b>${m.hp}</b></div><div class="tile">Dégâts<b>${m.dmg}</b></div><div class="tile">Vitesse<b>${m.spd}</b></div><div class="tile">Vaincus<b>${S.codex[CSEL]}</b></div><div class="tile">Dès la vague<b>${m.boss ? (m.myth ? 7 : 4) : m.from}</b></div></div>` : `<div class="grow col" style="align-items:center;justify-content:center;text-align:center;gap:20px"><div class="cx3k">${ic('lock')}</div><div class="sub">Vaincs cette créature en partie pour la découvrir.</div></div>`}</div></div>`;
+      <div class="cx3s"><div class="tile">PV<b>${m.hp}</b></div><div class="tile">Dégâts<b>${m.dmg}</b></div><div class="tile">Vitesse<b>${m.spd}</b></div><div class="tile">Vaincus<b>${S.codex[CSEL]}</b></div><div class="tile">Dès la vague<b>${m.boss ? (m.myth ? 6 : 3) : m.from}</b></div></div>` : `<div class="grow col" style="align-items:center;justify-content:center;text-align:center;gap:20px"><div class="cx3k">${ic('lock')}</div><div class="sub">Vaincs cette créature en partie pour la découvrir.</div></div>`}</div></div>`;
 }; }
 ACT.cpg = v => { const NP = Math.ceil(MON_IDS.length / 10); CPG = (CPG + (+v) + NP) % NP; CSEL = MON_IDS[CPG * 10]; snd('pick'); show('codex'); };
 
@@ -390,8 +396,8 @@ let SV2CARD = null, SV2BL = () => '';
   SV2CARD = card; SV2BL = () => Object.keys(p.itn || {}).map(id => `<i class="it">${tic(id)}×${p.itn[id]}</i>`).join('') + (bl.length ? bl.slice(-5).map(n => `<i>${n}</i>`).join('') : (p.itn && Object.keys(p.itn).length ? '' : '<i class="none">Aucun pour l’instant</i>'));
   over(`<div class="sv2"><div class="sv2t"><span class="pill shxw ${G.justP ? 'spent' : ''}">${ic('shard')} <b>${w}</b>${G.justP ? `<i class="minus">-${G.justP}</i>` : ''}</span><div class="sv2h"><b class="gold">BOUTIQUE</b><small>Vague ${G.wave} terminée · achète ce que tu veux · le cadenas garde une carte</small></div><button class="shxr ${w < rc ? 'poor' : ''}" data-a="shopRoll"><img class="sv2dice" src="img/kit/r_dice.webp" draggable="false" alt="">RELANCER <b>${rc}</b> ${ic('shard')}</button></div>
     <div class="sv2g ${G.justR ? 'rl' : ''}">${c.t.map(card).join('')}</div>
-    <div class="sv2b"><div class="sv2m"><small>MES TOX</small><div>${p.tx.map((id, i) => `<span class="shxo ${p.tl[i] ? '' : 'lk'} ${G.justS === i ? 'lvl' : ''}" style="--rc:${RARC[i]}">${tic(id)}<b>${p.tl[i] ? 'Niv. ' + p.tl[i] : ic('lock')}</b></span>`).join('')}</div></div>
-      <div class="sv2l"><small>OBJETS ET BÉNÉDICTIONS</small><div>${SV2BL()}</div></div>
+    <div class="sv2b"><div class="sv2m" data-a="invOpen"><small>MES TOX · TOUCHE POUR VOIR</small><div>${p.tx.map((id, i) => `<span class="shxo ${p.tl[i] ? '' : 'lk'} ${G.justS === i ? 'lvl' : ''}" style="--rc:${RARC[i]}">${tic(id)}<b>${p.tl[i] ? 'Niv. ' + p.tl[i] : ic('lock')}</b></span>`).join('')}</div></div>
+      <div class="sv2l" data-a="invOpen"><small>OBJETS ET BÉNÉDICTIONS · TOUCHE POUR VOIR</small><div>${SV2BL()}</div></div>
       <button class="btn big shxgo" data-a="shopReady">PRÊT ▸ VAGUE ${G.wave + 1}</button></div></div>`);
 }; }
 
@@ -1039,3 +1045,158 @@ ACT.skDo = () => { const [h, k0] = SKP.split(':'), k = +k0, D = skDef(h, k); if 
   addEventListener('pointermove', e => { if (!sc) return; const d = (pos(e) - sc.y) / (SC || 1); sc.mv = Math.max(sc.mv, Math.abs(d)); if (sc.mv > 10) sc.el.scrollTop = sc.s0 - d; }, true);
   const end = () => { if (sc && sc.mv > 14) noClk = Date.now(); sc = null; }; addEventListener('pointerup', end, true); addEventListener('pointercancel', end, true);
   document.addEventListener('click', e => { if (Date.now() - noClk < 350) { e.stopPropagation(); e.preventDefault(); } }, true); }
+
+/* ================= v6.5 : si l'hôte disparaît pour de bon, l'invité ne perd plus — il continue la partie seul ================= */
+function soloTakeover() {
+  if (!G || SCREEN !== 'game' || G.state === 'end') return false;
+  try { const w = Math.max(1, G.wave | 0), me = G.p; rjStop(); NET.leave(true); NETROLE = 0;
+    for (const p of G.ps) if (p !== me) { p.gone = true; p.dead = true; p.away = 0; p.picked = true; }
+    G.n = 1; G.sh = []; G.tasks = G.tasks || []; G.ftasks = []; G.queue = G.queue || []; G.evq = []; G.spawnT = 1; G.uid = Math.max(G.uid | 0, ...G.en.map(e => (e.uid | 0) + 1), 1);
+    for (const e of G.en) { const m = e.m || MON[e.id]; e.m = m; if (e.tx !== undefined) { e.x = e.tx; e.y = e.ty; } const d = { spd: m.spd, dmg: m.dmg * (m.boss ? 1 + .05 * (w - 1) : .8 * (1 + .08 * (w - 1))), cd: 1.5, cc: 2.5, hit: 0, flash: 0, kx: 0, ky: 0, wind: 0, chg: 0, cvx: 0, cvy: 1, bob: 0, el: false, slowT: 0 }; for (const k in d) if (typeof e[k] !== 'number' && typeof e[k] !== 'boolean') e[k] = d[k]; if (!(e.max > 0)) e.max = e.hp > 0 ? e.hp : m.hp; if (!(e.hp > 0)) e.hp = e.max;
+      if (m.boss) { e.ai = 3; e.slamT = 4; e._in = 1; e.ph = e.ph || 1; if (m.myth && w < LAST_WAVE) e.med = 1; } }
+    const boss = G.en.some(e => e.m.boss); G.bossW = boss ? 1 : null; G.wpool = [...new Set(G.en.filter(e => !e.m.boss).map(e => e.id))]; if (!G.wpool.length) G.wpool = ['larve', 'chauve']; G.wq = []; G.wn = 30; G.wrel = 1; G.wdur = G.wdur || 30; if (boss) { G.wtimed = false; G.wt = 0; } else if (!(G.wt > 0)) { G.wtimed = true; G.wt = 8; }
+    if (me.dead) { me.dead = false; me.hp = Math.round(me.maxhp * .5); me.inv = 3; } if (G.state !== 'pick') G.state = 'play'; else { G.p.picked = false; }
+    announce('TU CONTINUES EN SOLO', '#ffd45e'); toast('L’hôte a quitté : la partie continue pour toi'); return true;
+  } catch (e) { return false; }
+}
+{ const _l9 = NET.lost; NET.lost = function (hard, force) { if (this.role === 2 && G && SCREEN === 'game' && G.state !== 'end' && (hard || (RJ.t0 && Date.now() - RJ.t0 > RJ.MAX))) { if (soloTakeover()) return; } return _l9.call(this, hard, force); };
+  /* rjTry appelle NET.lost(true) quand les 30 s sont écoulées : la reprise en solo passe par là aussi */ }
+
+/* ================= v6.5 : tenues jusqu'au bout — la couleur de la tenue devient celle des tirs, des pouvoirs et de tous les effets du gardien ================= */
+{ const _mk5 = mkPlayer; mkPlayer = function (info, i, n) { const p = _mk5(info, i, n); try { if (p.skin && SKINS[p.hero]) p.h = Object.assign({}, p.h, { col: '#' + skDef(p.hero, p.skin | 0).acc.toString(16).padStart(6, '0') }); } catch (e) {} return p; };
+  const _sk5 = skill; skill = function (k, p) { if (!p || !p.skin || NETROLE === 2) return _sk5(k, p); const ids = (p.tx || []).filter(id => TOX[id]), old = ids.map(id => TOX[id].col); ids.forEach(id => { TOX[id].col = p.h.col; }); try { return _sk5(k, p); } finally { ids.forEach((id, j) => { TOX[id].col = old[j]; }); } }; }
+
+/* ================= v6.5 : 8 nouveaux monstres et 5 nouveaux boss (mêmes modèles que leurs cousins, recolorés, avec leurs propres forces) ================= */
+const VERS = ['ver'];
+{ const V = (id, base, o) => { if (MON[id]) return; MON[id] = Object.assign({}, MON[base], { base }, o); if (!MON_IDS.includes(id)) MON_IDS.push(id); };
+  V('rampant', 'larve', { n: 'Rampant de givre', hp: 15, spd: 168, dmg: 7, r: 24, col: '#7ad8ff', tint: 0x7ad8ff, sc: .85, from: 3, w: 6, d: 'Minuscule et très rapide. Arrive en meute.' });
+  V('goliath', 'larve', { n: 'Larve géante', hp: 130, spd: 82, dmg: 17, r: 46, col: '#ff5a5a', tint: 0xff6a5a, sc: 1.7, from: 5, w: 2, d: 'Énorme et lente. Encaisse beaucoup de coups.' });
+  V('vampire', 'chauve', { n: 'Chauve-souris de sang', hp: 32, spd: 205, dmg: 10, col: '#ff4d6d', tint: 0xff4d6d, sc: 1.15, from: 4, w: 4, d: 'Plus solide et plus vive que sa cousine violette.' });
+  V('spectre', 'esprit', { n: 'Spectre doré', hp: 52, spd: 125, dmg: 13, col: '#ffd45e', tint: 0xffd45e, sc: 1.15, from: 6, w: 3, d: 'Tire de loin, et ses éclats font mal.' });
+  V('mine', 'bombe', { n: 'Bombe de givre', hp: 60, spd: 120, dmg: 34, r: 34, col: '#7ad8ff', tint: 0x8ae0ff, sc: 1.3, from: 6, w: 2, d: 'Plus lente, mais son explosion est terrible.' });
+  V('archimage', 'mage', { n: 'Archimage du néant', hp: 95, spd: 78, dmg: 15, r: 34, col: '#ff6adf', tint: 0xff6adf, sc: 1.2, from: 7, w: 2, d: 'Trois orbes plus puissants. À abattre en priorité.' });
+  V('sentinelle', 'garde', { n: "Sentinelle d'or", hp: 150, spd: 112, dmg: 16, r: 38, col: '#ffd45e', tint: 0xffd45e, sc: .88, from: 5, w: 2, d: 'Un garde plus léger, qui court vite.' });
+  V('colosse', 'garde', { n: "Colosse d'obsidienne", hp: 430, spd: 60, dmg: 30, r: 56, col: '#8a7aff', tint: 0x6a5ac8, sc: 1.4, from: 8, w: 1, d: 'Gigantesque. Très lent, très résistant, frappe très fort.' });
+  /* boss de la vague 4 : trois vers différents */
+  V('verlave', 'ver', { n: 'Ver de lave', hp: 880, spd: 100, dmg: 30, col: '#ff5a1e', tint: 0xff5a2a, d: 'BOSS. Plus rapide que le ver des sables, et ses charges brûlent.' });
+  V('verabysse', 'ver', { n: 'Ver des abysses', hp: 1100, spd: 80, dmg: 24, col: '#5ac8ff', tint: 0x4aa8ff, sc: 1.12, d: 'BOSS. Plus gros et plus résistant, mais plus lent.' }); VERS.push('verlave', 'verabysse');
+  /* boss mythiques : trois nouveaux, avec un autre enchaînement d'attaques */
+  V('nyxalis', 'xalven', { n: 'Nyxalis, reine du vide', hp: 2200, spd: 104, dmg: 27, col: '#c06bff', tint: 0xb060ff, pat: ['blink', 'rain', 'ring', 'nova'], d: 'BOSS MYTHIQUE. Se téléporte sans cesse et fait pleuvoir des cristaux d’ombre.' });
+  V('titan', 'cyclope', { n: 'Le Titan de givre', hp: 3000, spd: 74, dmg: 34, col: '#8ae0ff', tint: 0x8ad0ff, sc: 1.08, pat: ['slam', 'charge', 'slam', 'beam'], d: 'BOSS MYTHIQUE. Frappes au sol à répétition : ne reste jamais sous lui.' });
+  V('azurion', 'scorch', { n: 'Azurion, la flamme froide', hp: 2000, spd: 122, dmg: 27, col: '#5a8aff', tint: 0x5a8aff, pat: ['charge', 'trail', 'nova', 'rain'], d: 'BOSS MYTHIQUE. Le plus rapide de tous : il charge et laisse un sillage brûlant.' });
+  for (const id of ['nyxalis', 'titan', 'azurion']) if (!MYTH.includes(id)) MYTH.push(id); }
+
+/* ================= v6.5 : barres de vie des coéquipiers plus lisibles (en haut à gauche et au-dessus de leur tête) ================= */
+{ const _ht8 = hudTick; hudTick = function () { _ht8.apply(this, arguments); if (!G || G.n < 2) return; G.ps.forEach((p, i) => { if (p === G.p) return; const st = p.gone ? 'gone' : p.away ? 'away' : p.dead ? 'down' : p.hp < p.maxhp * .3 ? 'low' : ''; hset('tb' + i, 'cls', 'tmb ' + st); hset('tt' + i, 'text', p.gone ? 'PARTI' : p.away ? 'RECONNEXION…' : p.dead ? 'À TERRE' : Math.max(0, Math.ceil(p.hp)) + ' / ' + Math.round(p.maxhp)); }); };
+  drawTeam = function (x) { if (G.n < 2) return; x.textAlign = 'center'; x.lineJoin = 'round';
+    for (const p of G.ps) { if (p === G.p || p.gone) continue; const [sx, sy] = R3.proj(p.x, p.y, 245), k = Math.max(0, Math.min(1, p.hp / p.maxhp)), bw = 150, bh = 20;
+      x.font = '800 34px "Baloo 2",sans-serif'; x.lineWidth = 8; x.strokeStyle = '#150a2e'; x.strokeText(p.name, sx, sy - 6); x.fillStyle = p.dead ? '#ff6a6a' : '#ffffff'; x.fillText(p.name, sx, sy - 6);
+      x.fillStyle = '#150a2e'; x.beginPath(); x.roundRect ? x.roundRect(sx - bw / 2 - 5, sy + 2, bw + 10, bh + 10, 12) : x.rect(sx - bw / 2 - 5, sy + 2, bw + 10, bh + 10); x.fill(); x.strokeStyle = p.h.col; x.lineWidth = 3; x.stroke();
+      if (p.dead) { x.font = '800 20px "Baloo 2",sans-serif'; x.fillStyle = '#ff6a6a'; x.fillText('À TERRE', sx, sy + 23); } else { x.fillStyle = k > .5 ? '#6aff7a' : k > .25 ? '#ffd45e' : '#ff4d5e'; x.beginPath(); x.roundRect ? x.roundRect(sx - bw / 2, sy + 7, bw * k, bh, 8) : x.rect(sx - bw / 2, sy + 7, bw * k, bh); x.fill(); }
+      x.strokeStyle = '#150a2e'; } }; }
+
+/* ================= v6.5 : combos — icônes des vrais boutons, prochaine touche qui clignote, coupe-scène et attaque propre à chaque gardien ================= */
+function comboCut(p, c) { const o = $('#ccut'); if (o) o.remove(); const e = document.createElement('div'); e.id = 'ccut'; e.className = c.big ? 'big' : ''; e.style.setProperty('--rc', p.h.col);
+  e.innerHTML = `<i class="cc1"></i><i class="cc2"></i><span class="ccp">${himg(p.hero, p.skin)}</span><span class="cct"><small>${c.big ? 'COMBO MYTHIQUE' : 'COMBO'}</small><b>${c.n.toUpperCase()}</b></span>`; $('#stage').appendChild(e); setTimeout(() => { if (e.parentNode) e.remove(); }, c.big ? 2300 : 1500); }
+const COMBOFX = {
+  kaelion(p, col) { for (let i = 0; i < 4; i++) fdo(i * .09, () => { for (let j = -5; j <= 5; j++) { const a = i * 1.5708, d = j * 95; addPil(p.x + Math.cos(a) * d, p.y + Math.sin(a) * d, 46, 1300, j % 2 ? '#ffffff' : col, .7); } addFx(p.x, p.y, 200 + i * 130, col, .35); }); },
+  elyra(p, col) { for (let i = 0; i < 4; i++) fdo(i * .14, () => { const R = 170 + i * 130; addFx(p.x, p.y, R, i % 2 ? '#ffe07a' : col, .45); for (let j = 0; j < 10; j++) { const a = j * .628 + i * .3; addPil(p.x + Math.cos(a) * R, p.y + Math.sin(a) * R, 40, 700 + i * 150, col, .5); } }); },
+  aria(p, col) { for (let i = 0; i < 5; i++) fdo(i * .12, () => { addFx(p.x, p.y, 120 + i * 110, i % 2 ? '#ffffff' : col, .5); try { addZone(p.x, p.y, 120 + i * 110, .4, col); } catch (e) {} }); for (const q of G.ps) if (!q.dead && !q.gone) addPil(q.x, q.y, 90, 900, '#8cff7a', .9); },
+  vesper(p, col) { const T = G.en.slice().sort((a, b) => hyp(a.x - p.x, a.y - p.y) - hyp(b.x - p.x, b.y - p.y)).slice(0, 8); T.forEach((e, i) => fdo(i * .06, () => { if (!e || e.dead) return; const a = Math.random() * 6.283; for (let j = -3; j <= 3; j++) addFx(e.x + Math.cos(a) * j * 46, e.y + Math.sin(a) * j * 46, 40, j % 2 ? '#ffffff' : col, .22); addFx(e.x, e.y, 120, col, .25); spark(e.x, e.y, '#ffffff', 6); })); },
+  brakkor(p, col) { G.shake = Math.max(G.shake || 0, .8); for (let j = 0; j < 8; j++) { const a = j * .785; for (let i = 1; i <= 5; i++) fdo(i * .06, () => { addFx(p.x + Math.cos(a) * i * 100, p.y + Math.sin(a) * i * 100, 62 - i * 5, i % 2 ? col : '#ffe9a8', .4); if (i === 5) addPil(p.x + Math.cos(a) * 500, p.y + Math.sin(a) * 500, 80, 1100, col, .8); }); } },
+  nyxara(p, col) { for (let i = 0; i < 26; i++) fdo(i * .03, () => { const a = i * .55, R = 60 + i * 19; addFx(p.x + Math.cos(a) * R, p.y + Math.sin(a) * R, 54, i % 3 ? col : '#ffffff', .45); if (i % 4 === 0) addPil(p.x + Math.cos(a) * R, p.y + Math.sin(a) * R, 50, 900, col, .6); }); }
+};
+{ const _cf9 = comboFire; comboFire = function (p, c, idx) { try { if (p === G.p) comboCut(p, c); const fx = COMBOFX[p.hero]; if (fx) { fx(p, p.h.col); if (c.big) fdo(2.7, () => fx(p, p.h.col)); } if (p === G.p && !multi() && !c.big) { G.zoomP = Math.max(G.zoomP || 0, .35); } } catch (e) {} return _cf9(p, c, idx); };
+  /* le bouton à toucher ensuite clignote, pour suivre le combo sans lire */
+  const _ht7 = hudTick, cur = {}; hudTick = function () { _ht7.apply(this, arguments); if (!G || NETROLE === 2) return; const p = G.p, cs = COMBOS[p.hero] || [], want = {}; cs.forEach((c, i) => { if (p.cbt && p.cbt[i] > G.t) return; const n = comboProg(p, c); if (n > 0 && n < c.q.length) want[c.q[n]] = 1; });
+    for (const k of 'abcud') { const w = !!want[k]; if (cur[k] !== w || !cur._g || cur._g !== G) { const el = document.getElementById('b' + k); if (el) el.classList.toggle('cnx', w); cur[k] = w; } } cur._g = G; }; }
+
+/* ================= v6.5 : en mini-boutique, toucher « MES TOX » ouvre tout ce que tu as, en grand ================= */
+function invUI() { let d = $('#invp9'); if (!d) { d = document.createElement('div'); d.id = 'invp9'; $('#stage').appendChild(d); } const p = G.p, it = Object.keys(p.itn || {}), bl = p.bl || [], pct = v => (v >= 0 ? '+' : '') + Math.round(v * 100) + ' %';
+  const m = p.mods, st = [['Dégâts', pct(m.dmg - 1)], ['Cadence', pct(m.rate - 1)], ['Vitesse', pct(m.spd - 1)], ['Critique', Math.round(m.crit * 100) + ' %'], ['PV max', Math.round(p.maxhp)], ['Recharge', pct(m.cdr - 1)], ['Régénération', (p.regen || 0) + ' PV/s'], ['Vol de vie', (m.leech || 0) + ' PV']];
+  d.innerHTML = `<div class="iv9"><div class="gst"><b class="gold">TOUT CE QUE J’AI</b><button class="rb" data-a="invClose"><img src="img/kit/r_close.webp" draggable="false" alt="Fermer"></button></div>
+    <div class="iv9b"><div class="iv9c"><small>MES 4 POUVOIRS</small><div class="iv9g g4">${p.tx.map((id, i) => `<div class="iv9t" style="--rc:${RARC[TOX[id].r]}"><em>${tic(id)}<i>Niv. ${p.tl[i] || 1}</i></em><b>${TOX[id].n}</b><span>${tfx(TOX[id], p.tl[i] || 1)}</span></div>`).join('')}</div>
+      <small>MES OBJETS (${it.reduce((a, id) => a + p.itn[id], 0)})</small><div class="iv9g g5">${it.length ? it.map(id => `<div class="iv9t sm" style="--rc:${RARC[TOX[id].r]}"><em>${tic(id)}<i>×${p.itn[id]}</i></em><span>${tmn(TOX[id], p.itn[id])}</span></div>`).join('') : '<div class="iv9e">Aucun objet acheté pour l’instant</div>'}</div></div>
+      <div class="iv9s"><small>MON GARDIEN</small>${st.map(x => `<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}<small>BÉNÉDICTIONS (${bl.length})</small><div class="iv9l">${bl.length ? bl.map(n => `<i>${n}</i>`).join('') : '<i class="none">Aucune</i>'}</div></div></div></div>`; }
+ACT.invOpen = () => { if (!G || SCREEN !== 'game') return; snd('open'); invUI(); };
+ACT.invClose = () => { const d = $('#invp9'); if (d) d.remove(); snd('pick'); };
+{ const _sr9 = ACT.shopReady; ACT.shopReady = function () { const d = $('#invp9'); if (d) d.remove(); return _sr9.apply(this, arguments); }; const _sh7 = show; show = function (n, e) { const d = $('#invp9'); if (d) d.remove(); return _sh7(n, e); }; }
+
+/* ================= v6.5 : COSMÉTIQUES — titres, bannières et icônes de profil, à acheter avec les pièces d'or ================= */
+const COSM = {
+  t: [['t0', 'Gardien de l’Aube', 0], ['t1', 'Chasseur de larves', 500], ['t2', 'Briseur de vagues', 1000], ['t3', 'Dompteur de vers', 1500], ['t4', 'Tueur de boss', 2000], ['t5', 'Lame du néant', 2500], ['t6', 'Enfant des étoiles', 3000], ['t7', 'Seigneur de la forge', 3500], ['t8', 'Voyageur du vide', 4000], ['t9', 'Maître des combos', 5000], ['t10', 'Légende de l’Éclipse', 8000], ['t11', 'Roi du cosmos', 12000]],
+  b: [['b0', 'Classique', 0, '#241048'], ['b1', 'Aurore', 800, 'linear-gradient(100deg,#ff9a2e,#ffd45e)'], ['b2', 'Braise', 1200, 'linear-gradient(100deg,#7a1410,#ff5a1e)'], ['b3', 'Marée', 1200, 'linear-gradient(100deg,#0c2a66,#2a9ad8)'], ['b4', 'Néant', 1500, 'linear-gradient(100deg,#150a2e,#7a3ad0)'], ['b5', 'Émeraude', 1500, 'linear-gradient(100deg,#0a4a2a,#3ad08a)'], ['b6', 'Givre', 2000, 'linear-gradient(100deg,#3a6aa8,#bfe8ff)'], ['b7', 'Sang', 2500, 'linear-gradient(100deg,#2a0408,#c0203a)'], ['b8', 'Galaxie', 3000, 'linear-gradient(100deg,#2a0f4a,#ff4fa8 50%,#2ad0ff)'], ['b9', 'Or pur', 5000, 'linear-gradient(100deg,#a86a00,#ffe9a0 50%,#c98a10)'], ['b10', 'Arc-en-ciel', 6000, 'linear-gradient(100deg,#ff5a5a,#ffd45e,#6aff7a,#5ac8ff,#b07bff)'], ['b11', 'Éclipse', 8000, 'radial-gradient(circle at 78% 50%,#000 0 26%,#ffd45e 27% 30%,#1a0c36 46%)']],
+  i: [['i0', 'Mon gardien', 0, ''], ['i1', 'Kaelion', 600, 'h0'], ['i2', 'Elyra', 600, 'h1'], ['i3', 'Aria', 600, 'h2'], ['i4', 'Vesper', 600, 'h3'], ['i5', 'Brakkor', 600, 'h6'], ['i6', 'Nyxara', 600, 'h5'], ['i7', 'Larve d’ombre', 1000, 'm0'], ['i8', 'Chauve-souris', 1000, 'm3'], ['i9', 'Garde de pierre', 1500, 'm5'], ['i10', 'Ver des sables', 2500, 'm6'], ['i11', 'Xalven', 4000, 'mx_xalven'], ['i12', 'Le Cyclope', 4000, 'mx_cyclope'], ['i13', 'Scorch', 4000, 'mx_scorch']]
+};
+const cosS = () => { if (!S.cos || !S.cos.own) S.cos = { t: 't0', b: 'b0', i: 'i0', own: ['t0', 'b0', 'i0'] }; return S.cos; }, cosGet = (k, id) => COSM[k].find(x => x[0] === id) || COSM[k][0];
+const cosTitle = () => cosGet('t', cosS().t)[1], cosBan = () => cosGet('b', cosS().b)[3], cosIcon = () => { const x = cosGet('i', cosS().i); return x[3] ? `<img src="img/${x[3]}.jpg" draggable="false" alt="">` : himg(S.hero); };
+let CTB = 't', CSL = null;
+SCR.cosm = () => { const c = cosS(), L = COSM[CTB]; if (!CSL || CSL[0] !== CTB || !L.find(x => x[0] === CSL)) CSL = c[CTB]; const X = cosGet(CTB, CSL), has = c.own.includes(X[0]), on = c[CTB] === X[0];
+  const pv = (k, x) => k === 't' ? `<span class="co9tt">${x[1]}</span>` : k === 'b' ? `<span class="co9bn" style="background:${x[3]}"></span>` : `<span class="co9ic">${x[3] ? `<img src="img/${x[3]}.jpg" draggable="false" alt="">` : himg(S.hero)}</span>`;
+  const T = [['t', 'TITRES', 'crown'], ['b', 'BANNIÈRES', 'star'], ['i', 'ICÔNES', 'shield']];
+  const card = (t, b, i) => `<div class="co9card" style="background:${cosGet('b', b)[3]}"><span class="av">${(() => { const x = cosGet('i', i); return x[3] ? `<img src="img/${x[3]}.jpg" draggable="false" alt="">` : himg(S.hero); })()}</span><span class="tx">${esc(S.name)}<i>${cosGet('t', t)[1]}</i><small>Niv. ${level()}</small></span></div>`;
+  return head('COSMÉTIQUES', 'profile') + `<div class="body co9"><div class="pn col co9l"><small>APERÇU</small>${card(CTB === 't' ? X[0] : c.t, CTB === 'b' ? X[0] : c.b, CTB === 'i' ? X[0] : c.i)}<div class="gold co9n">${X[1]}</div>
+      <button class="btn big ${on || (!has && S.coins < X[2]) ? 'gray' : ''}" data-a="cosDo">${on ? 'ÉQUIPÉ ✓' : has ? 'ÉQUIPER' : X[2] + ' ' + ic('coin')}</button><div class="sub">${c.own.length} / ${COSM.t.length + COSM.b.length + COSM.i.length} cosmétiques</div></div>
+    <div class="col grow" style="gap:12px;min-width:0"><div class="row" style="gap:10px">${T.map(x => `<button class="tab ${CTB === x[0] ? 'on' : ''}" data-a="cosTab" data-v="${x[0]}" style="flex:1">${ic(x[2])}<span>${x[1]}<small>${COSM[x[0]].filter(y => c.own.includes(y[0])).length} / ${COSM[x[0]].length}</small></span></button>`).join('')}</div>
+      <div class="pn co9g scroll ${CTB}">${L.map(x => { const h = c.own.includes(x[0]), e = c[CTB] === x[0]; return `<button class="co9t ${CSL === x[0] ? 'sel' : ''} ${h ? '' : 'lk'}" data-a="cosPick" data-v="${x[0]}">${pv(CTB, x)}${CTB === 't' ? '' : `<b>${x[1]}</b>`}<i class="${e ? 'ok' : ''}">${e ? 'ÉQUIPÉ' : h ? 'POSSÉDÉ' : x[2] + ' ' + ic('coin')}</i></button>`; }).join('')}</div></div></div>`; };
+ACT.cosTab = v => { if (v === CTB) return; CTB = v; CSL = null; snd('pick'); show('cosm'); };
+ACT.cosPick = v => { if (v === CSL) return; CSL = v; snd('pick'); const sc = $('.co9g'), st = sc ? sc.scrollTop : 0; show('cosm'); const s2 = $('.co9g'); if (s2) s2.scrollTop = st; };
+ACT.cosDo = () => { const c = cosS(), X = cosGet(CTB, CSL); if (c[CTB] === X[0]) return; if (!c.own.includes(X[0])) { if (S.coins < X[2]) return no('Il te manque ' + (X[2] - S.coins) + ' pièces'); S.coins -= X[2]; c.own.push(X[0]); c[CTB] = X[0]; save(); snd('buy'); show('cosm'); try { buyFx(ic('crown'), 'NOUVEAU COSMÉTIQUE', X[1], '#ffd45e'); } catch (e) {} return; } c[CTB] = X[0]; save(); snd('buy'); show('cosm'); };
+{ const _m9 = SCR.menu; SCR.menu = () => { let h = _m9(); try { h = h.replace('<button class="m2prof"', `<button class="m2prof cosb" style="background:${cosBan()}"`).replace(/<span class="av">[\s\S]*?<\/span>/, `<span class="av">${cosIcon()}</span>`).replace('<span class="sub">Niv.', `<span class="cti">${cosTitle()}</span><span class="sub">Niv.`); } catch (e) {} return h; };
+  const _pf9 = SCR.profile; SCR.profile = () => { let h = _pf9(); try { h = h.replace(/<div class="card on" style="width:230px;height:230px;border-radius:50%">[\s\S]*?<\/div>/, `<div class="card on" style="width:230px;height:230px;border-radius:50%">${cosIcon()}</div>`).replace('<div class="sub">Touche le pseudo pour le changer</div>', `<div class="cti big">${cosTitle()}</div><button class="btn sm" data-a="go" data-v="cosm" style="width:100%;min-width:0">COSMÉTIQUES</button>`); } catch (e) {} return h; }; }
+/* --- un pack étoile s'achète aussi avec 2 000 pièces d'or --- */
+const ORBC = 2000;
+ACT.buyOrb = () => { if (S.coins < ORBC) return no('Il te manque ' + (ORBC - S.coins) + ' pièces'); S.coins -= ORBC; S.orbs = (S.orbs || 0) + 1; save(); snd('buy'); show('shop'); try { buyFx(orbImg('myst'), 'PACK ÉTOILE', '+1 pack à ouvrir', '#ffd45e'); } catch (e) {} };
+{ const _s9 = SCR.shop; SCR.shop = function () { let h = _s9(); if (STAB === 3) h = h.replace('<div class="s3g g4">', `<div class="s3g g4"><div class="s3e bo orb9" style="--i:0"><i class="s3n">${S.orbs || 0}</i><em>${orbImg('myst')}</em><b>Pack étoile</b><small>4 étoiles à ouvrir</small><button class="btn ${S.coins < ORBC ? 'gray' : ''}" data-a="buyOrb">${ORBC} ${ic('coin')}</button></div>`); return h; }; }
+
+/* ================= v6.5 : skins d'arme par gardien (onglet ARMES des cosmétiques) — la couleur de la lame et de sa lueur ================= */
+COSM.w = [['w0', 'Classique', 0, null], ['w1', 'Dorée', 1500, [0xffd45e, 0xfff2b0]], ['w2', 'Cristal', 1500, [0x8ae8ff, 0x5af0ff]], ['w3', 'Ombre', 2000, [0x8a4ae0, 0xd06bff]], ['w4', 'Braise', 2000, [0xff6a2a, 0xffc23a]], ['w5', 'Émeraude', 2500, [0x3ad08a, 0x8cffb0]], ['w6', 'Rose', 2500, [0xff7ab8, 0xffc0e0]], ['w7', 'Éclipse', 5000, [0x1a1030, 0xffd45e]]];
+let CWH = null;
+const cosH = () => (CWH && S.owned.includes(CWH)) ? CWH : (CWH = S.hero), cosHas = (k, id) => { const c = cosS(); if (k !== 'w') return c.own.includes(id); return id === 'w0' || (c.wo || []).includes(cosH() + ':' + id); }, cosOn = k => { const c = cosS(); return k === 'w' ? ((c.w || {})[cosH()] || 'w0') : c[k]; };
+const wskOf = h => { const c = cosS(), id = (c.w || {})[h] || 'w0', x = COSM.w.find(y => y[0] === id); return id !== 'w0' && x && (c.wo || []).includes(h + ':' + id) ? x[3] : null; };
+SCR.cosm = () => { const c = cosS(), L = COSM[CTB], h = cosH(); if (!CSL || CSL[0] !== CTB || !L.find(x => x[0] === CSL)) CSL = cosOn(CTB); const X = cosGet(CTB, CSL), has = cosHas(CTB, X[0]), on = cosOn(CTB) === X[0], hx = v => '#' + v.toString(16).padStart(6, '0');
+  const icn = x => x[3] ? `<img src="img/${x[3]}.jpg" draggable="false" alt="">` : himg(S.hero), wpv = x => `<span class="co9wp" style="--a:${x[3] ? hx(x[3][0]) : '#e8ecff'};--b:${x[3] ? hx(x[3][1]) : HEROES[h].col}"><img src="img/tx/wp_${h}${(S.wpo && S.wpo[h]) ? 1 : 0}.webp" draggable="false" alt="" onerror="this.src='img/tx/wp_${h}0.webp'"></span>`;
+  const pv = (k, x) => k === 't' ? `<span class="co9tt">${x[1]}</span>` : k === 'b' ? `<span class="co9bn" style="background:${x[3]}"></span>` : k === 'w' ? wpv(x) : `<span class="co9ic">${icn(x)}</span>`;
+  const T = [['t', 'TITRES', 'crown'], ['b', 'BANNIÈRES', 'star'], ['i', 'ICÔNES', 'shield'], ['w', 'ARMES', 'swords']], cnt = k => k === 'w' ? (c.wo || []).length : COSM[k].filter(y => c.own.includes(y[0])).length;
+  const card = `<div class="co9card" style="background:${cosGet('b', CTB === 'b' ? X[0] : c.b)[3]}"><span class="av">${icn(cosGet('i', CTB === 'i' ? X[0] : c.i))}</span><span class="tx">${esc(S.name)}<i>${cosGet('t', CTB === 't' ? X[0] : c.t)[1]}</i><small>Niv. ${level()}</small></span></div>`;
+  return head('COSMÉTIQUES', 'profile') + `<div class="body co9"><div class="pn col co9l"><small>${CTB === 'w' ? 'ARME DE ' + HEROES[h].n.toUpperCase() : 'APERÇU'}</small>${CTB === 'w' ? `<div class="co9wh"><button class="rb" data-a="cosHero" data-v="-1"><img src="img/kit/r_left.webp" draggable="false" alt="Précédent"></button><span class="co9big">${wpv(X)}</span><button class="rb" data-a="cosHero" data-v="1"><img src="img/kit/r_right.webp" draggable="false" alt="Suivant"></button></div>` : card}<div class="gold co9n">${X[1]}</div>
+      <button class="btn big ${on || (!has && S.coins < X[2]) ? 'gray' : ''}" data-a="cosDo">${on ? 'ÉQUIPÉ ✓' : has ? 'ÉQUIPER' : X[2] + ' ' + ic('coin')}</button><div class="sub">${CTB === 'w' ? 'Chaque gardien a ses propres skins d’arme' : c.own.length + ' / ' + (COSM.t.length + COSM.b.length + COSM.i.length) + ' cosmétiques'}</div></div>
+    <div class="col grow" style="gap:12px;min-width:0"><div class="row" style="gap:8px">${T.map(x => `<button class="tab ${CTB === x[0] ? 'on' : ''}" data-a="cosTab" data-v="${x[0]}" style="flex:1;min-width:0">${ic(x[2])}<span>${x[1]}<small>${cnt(x[0])}${x[0] === 'w' ? '' : ' / ' + COSM[x[0]].length}</small></span></button>`).join('')}</div>
+      <div class="pn co9g scroll ${CTB}">${L.map(x => { const hh = cosHas(CTB, x[0]), e = cosOn(CTB) === x[0]; return `<button class="co9t ${CSL === x[0] ? 'sel' : ''} ${hh ? '' : 'lk'}" data-a="cosPick" data-v="${x[0]}">${pv(CTB, x)}${CTB === 't' ? '' : `<b>${x[1]}</b>`}<i class="${e ? 'ok' : ''}">${e ? 'ÉQUIPÉ' : hh ? 'POSSÉDÉ' : x[2] + ' ' + ic('coin')}</i></button>`; }).join('')}</div></div></div>`; };
+ACT.cosHero = v => { const o = S.owned, i = (o.indexOf(cosH()) + (+v) + o.length) % o.length; CWH = o[i]; CSL = null; snd('pick'); show('cosm'); };
+ACT.cosDo = () => { const c = cosS(), X = cosGet(CTB, CSL), h = cosH(), put = () => { if (CTB === 'w') { c.w = c.w || {}; c.w[h] = X[0]; } else c[CTB] = X[0]; }; if (cosOn(CTB) === X[0]) return;
+  if (!cosHas(CTB, X[0])) { if (S.coins < X[2]) return no('Il te manque ' + (X[2] - S.coins) + ' pièces'); S.coins -= X[2]; if (CTB === 'w') (c.wo = c.wo || []).push(h + ':' + X[0]); else c.own.push(X[0]); put(); save(); snd('buy'); show('cosm'); try { buyFx(ic(CTB === 'w' ? 'swords' : 'crown'), CTB === 'w' ? 'NOUVEAU SKIN D’ARME' : 'NOUVEAU COSMÉTIQUE', X[1], '#ffd45e'); } catch (e) {} return; } put(); save(); snd('buy'); show('cosm'); };
+{ const _mi9 = myInfo; myInfo = function () { const f = _mi9(); try { const w = wskOf(f.hero); if (w) f.wsk = w; } catch (e) {} return f; };
+  const _mk6 = mkPlayer; mkPlayer = function (info, i, n) { const p = _mk6(info, i, n); if (info && Array.isArray(info.wsk)) p.wsk = [info.wsk[0] | 0, info.wsk[1] | 0]; return p; }; }
+
+/* ================= v6.5 : nouvelle page de profil (carte avec bannière, icône, titre, rang), amis en ligne et profil des amis ================= */
+let FPN = '';
+const pubProfile = () => { const s = S.stats, c = cosS(); return { n: S.name, lv: level(), rp: S.rp | 0, h: S.hero, sk: skinOf(S.hero), t: cosTitle(), b: c.b, i: c.i, st: [s.games | 0, s.wins | 0, s.maxWave | 0, s.kills | 0, s.boss | 0, Math.floor((s.time || 0) / 60)], own: S.owned.length, tox: TOX_IDS.filter(id => (S.tox[id] || {}).l).length, at: Date.now() }; };
+function profCard(P, edit) { const hero = HEROES[P.h] ? P.h : 'kaelion', bn = cosGet('b', P.b)[3], ix = cosGet('i', P.i), k = rankOf(P.rp | 0);
+  return `<div class="pf9c" style="background:${bn}"><span class="pf9a">${ix[3] ? `<img src="img/${ix[3]}.jpg" draggable="false" alt="">` : himg(hero, P.sk | 0)}<i>${P.lv | 0}</i></span>
+    ${edit ? `<input id="nm" maxlength="14" value="${esc(P.n)}">` : `<b class="pf9n">${esc(String(P.n || 'Gardien').slice(0, 14))}</b>`}<span class="cti big">${esc(String(P.t || '').slice(0, 30))}</span>
+    <span class="pf9r" style="--rc:${k.c}">${k.n}</span><span class="pf9h">${himg(hero, P.sk | 0)}<small>Gardien préféré<b>${HEROES[hero].n}</b></small></span></div>`; }
+const profStats = P => { const s = P.st || [0, 0, 0, 0, 0, 0], T = [['pad', 'Parties', s[0]], ['crown', 'Victoires', s[1]], ['wave', 'Vague max', s[2]], ['skull', 'Ennemis vaincus', s[3]], ['swords', 'Boss vaincus', s[4]], ['hourglass', 'Temps de jeu', (s[5] | 0) + ' min'], ['shield', 'Gardiens', (P.own | 0) + ' / ' + HERO_IDS.length], ['tox', 'TOX et objets', P.tox | 0]]; return `<div class="pf9s">${T.map((x, i) => `<div class="pf9t" style="--i:${i}">${ic(x[0])}<b>${typeof x[2] === 'number' ? x[2] | 0 : esc(String(x[2]))}</b><span>${x[1]}</span></div>`).join('')}</div>`; };
+SCR.profile = () => { const F = (S.friends || []).slice().sort((a, b) => (fOn(b) ? 1 : 0) - (fOn(a) ? 1 : 0)), on = F.filter(fOn).length, xp = S.xp % 400;
+  return head('PROFIL') + `<div class="body pf9"><div class="col pf9l">${profCard(pubProfile(), 1)}<div class="bar pf9x"><i style="width:${xp / 4}%"></i><span>Niveau ${level()} · ${xp} / 400 XP</span></div>
+      <div class="pf9bt"><button class="btn sm" data-a="go" data-v="cosm">COSMÉTIQUES</button><button class="btn sm vio" data-a="go" data-v="accounts">COMPTES</button><button class="btn sm vio" data-a="go" data-v="backup">SAUVEGARDE</button></div></div>
+    <div class="col grow pf9m">${profStats(pubProfile())}<div class="row" style="gap:12px"><button class="btn vio grow" data-a="go" data-v="collection" style="min-width:0">COLLECTION</button><button class="btn vio grow" data-a="go" data-v="settings" style="min-width:0">RÉGLAGES</button></div></div>
+    <div class="pn col pf9f"><div class="pf9fh"><b>AMIS</b><small>${on} en ligne · ${F.length}</small></div><div class="pf9fl">${F.length ? F.slice(0, 7).map(n => `<button class="pf9fr ${fOn(n) ? 'on' : ''}" data-a="fpOpen" data-v="${esc(n)}"><i>${esc(n).slice(0, 1).toUpperCase()}</i><span>${esc(n)}<small>${fOn(n) ? 'en ligne' : 'hors ligne'}</small></span></button>`).join('') : '<div class="sub" style="text-align:center;margin:auto">Ajoute des amis pour voir qui est en ligne et consulter leur profil.</div>'}</div>
+      <button class="btn sm" data-a="go" data-v="friends" style="width:100%;min-width:0">${F.length ? 'GÉRER MES AMIS' : 'AJOUTER UN AMI'}</button></div></div>`; };
+SCR.fprof = () => { const P = (S.fpc || {})[fkey(FPN)], onl = fOn(FPN);
+  return head('PROFIL DE ' + esc(FPN).toUpperCase(), 'profile') + (P ? `<div class="body pf9"><div class="col pf9l">${profCard(P, 0)}<div class="sub pf9o ${onl ? 'on' : ''}">${onl ? '● en ligne' : 'hors ligne · profil vu ' + (dayNum() - Math.floor(((P.at || Date.now()) - new Date().getTimezoneOffset() * 60000) / 864e5) <= 0 ? 'aujourd’hui' : 'il y a quelques jours')}</div>
+      <div class="row" style="gap:10px"><button class="btn grow ${onl ? '' : 'gray'}" data-a="fpInv" style="min-width:0">INVITER À JOUER</button></div></div><div class="col grow pf9m">${profStats(P)}</div></div>`
+    : `<div class="body"><div class="pn col grow" style="align-items:center;justify-content:center;text-align:center;gap:18px"><div style="font-size:120px;line-height:1">${ic('friends')}</div><div class="gold" style="font-size:46px">${onl ? 'Chargement du profil…' : 'Profil pas encore disponible'}</div><div class="sub" style="max-width:900px">${onl ? '' : 'Pour voir le profil de ' + esc(FPN) + ', il faut qu’il ait le jeu ouvert en même temps que toi au moins une fois.'}</div></div></div>`); };
+ACT.fpOpen = v => { FPN = String(v || ''); nav('fprof'); presSend(FPN, { t: 'pf?', from: S.name }); };
+ACT.fpInv = () => { if (!fOn(FPN)) return no(FPN + ' n’est pas en ligne'); invSend(FPN); };
+function presSend(name, d) { if (!PRES.id || navigator.onLine === false) return; if (PRES.bc) { PRES.bc.postMessage({ to: presId(name), f: PRES.id, d }); return; } if (!PRES.ok || !PRES.peer) return; try { const c = PRES.peer.connect(presId(name), { reliable: true }); c.on('open', () => { try { c.send(d); } catch (e) {} setTimeout(() => { try { c.close(); } catch (e) {} }, 2500); }); c.on('error', () => {}); } catch (e) {} }
+{ let last = 0; const recv = d => { if (!d || typeof d !== 'object') return false; if (d.t === 'pf?') { if (Date.now() - last > 800 && d.from) { last = Date.now(); presSend(String(d.from).slice(0, 14), { t: 'pf', from: S.name, d: pubProfile() }); } return true; }
+    if (d.t === 'pf' && d.d && d.from) { const k = fkey(d.from); if (!(S.friends || []).some(n => fkey(n) === k)) return true; const q = d.d; S.fpc = S.fpc || {}; S.fpc[k] = { n: String(q.n || d.from).slice(0, 14), lv: q.lv | 0, rp: q.rp | 0, h: HEROES[q.h] ? q.h : 'kaelion', sk: q.sk | 0, t: String(q.t || '').slice(0, 30), b: String(q.b || 'b0').slice(0, 4), i: String(q.i || 'i0').slice(0, 4), st: (Array.isArray(q.st) ? q.st : []).slice(0, 6).map(v => v | 0), own: q.own | 0, tox: q.tox | 0, at: Date.now() }; frSeen(d.from, false); save(); if (SCREEN === 'fprof' && fkey(FPN) === k) show('fprof'); return true; } return false; };
+  const _ph9 = window.presHook; window.presHook = function () { if (_ph9) _ph9(); if (PRES.bc && !PRES.bc._pf) { PRES.bc._pf = 1; const o = PRES.bc.onmessage; PRES.bc.onmessage = e => { const m = e.data || {}; if (m.to === PRES.id && m.d && recv(m.d)) return; if (o) o(e); }; }
+    if (PRES.peer && !PRES.peer._pf) { PRES.peer._pf = 1; PRES.peer.on('connection', c => { c.on('data', recv); }); } }; }
+
+/* fin de partie : la barre de rang se remplit ou se vide sous tes yeux, le compteur défile, et le changement de rang est annoncé */
+function rk9Anim(K) { const f = $('#rk9f'), n = $('#rk9n'), t = $('#rk9t'), b = $('#rk9b'); if (!f || !n) return; const d = K.d, up = K.r1.tier > K.r0.tier, down = K.r1.tier < K.r0.tier; let v = 0; const steps = 28, iv = setInterval(() => { v++; const k = v / steps, cur = Math.round(d * k); n.textContent = (d >= 0 ? '+' : '') + cur; if (v >= steps) { clearInterval(iv); n.textContent = (d >= 0 ? '+' : '') + d; } }, 40);
+  setTimeout(() => { if (!f.isConnected) return; f.style.transition = 'width .8s cubic-bezier(.2,.8,.2,1)'; if (!up && !down) { f.style.width = K.r1.in + '%'; if (t) t.textContent = K.r1.in + ' / ' + RSTEP; return; }
+    f.style.width = up ? '100%' : '0%'; setTimeout(() => { if (!f.isConnected) return; f.style.transition = 'none'; f.style.width = up ? '0%' : '100%'; if (b) { b.textContent = K.r1.n; b.style.setProperty('--rc', K.r1.c); b.classList.add('chg'); } const box = f.closest('.rk9'); if (box) box.insertAdjacentHTML('afterbegin', `<em class="rk9up ${up ? '' : 'dn'}">${up ? 'RANG SUPÉRIEUR !' : 'RANG INFÉRIEUR'}</em>`); try { snd(up ? 'win' : 'no'); } catch (e) {}
+      setTimeout(() => { if (!f.isConnected) return; f.style.transition = 'width .7s cubic-bezier(.2,.8,.2,1)'; f.style.width = K.r1.in + '%'; if (t) t.textContent = K.r1.in + ' / ' + RSTEP; }, 80); }, 900); }, 500); }

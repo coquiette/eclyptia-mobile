@@ -227,7 +227,7 @@ Object.assign(SONGS, {
 const POOL = { game: ['game', 'game6', 'game3', 'game8', 'game5'], game2: ['game2', 'game7', 'game4', 'game6', 'game3'], menu: ['menu', 'menu3', 'menu2'], pages: ['pages', 'menu2', 'menu3'], boss: ['boss', 'boss3', 'boss2'] };
 const ARRS = { 0: [{ m: 1 }, { m: 1, cm: 1 }, { m: 2 }, { m: 0, arp: 1, d: 0 }, { m: 3, cm: 1 }, { m: 2, arp: 1 }, { m: 1, d: 0, arp: 1 }, { m: 3 }, { m: 2, cm: 1 }], 1: [{ m: 1 }, { m: 1, cm: 1 }, { d: 3, m: 2 }, { d: 0, m: 0, arp: 1 }, { d: 2, m: 3, arp: 1 }, { m: 3, cm: 1 }, { d: 3, m: 2, cm: 1 }, { d: 0, m: 1, arp: 1 }, { d: 2, m: 2 }, { d: 3, m: 1, cm: 1 }, { d: 3, m: 2 }], 2: [{ m: 1 }, { d: 3, m: 2 }, { m: 3, cm: 1 }, { d: 2, m: 0, arp: 1 }, { d: 3, m: 2, cm: 1 }, { d: 3, m: 3 }] };
 const KEYC = [0, 0, 2, -3, 5, -2, 3, -5]; let musKey = 0, musSeed = (Math.random() * 9999) | 0, MGEN = null, MTHM = null, MPK = '';
-function musMap(i) { musKey = [0, 2, -2, 3, -3, 5, -1, -5, 4][i | 0] || 0; musSeed = ((Math.random() * 9999) | 0) + (i | 0) * 13; }
+function musMap(i) { musKey = [0, 2, -2, 3, -3, 5, -1, -5, 4, 1, -4, 6, -6, 2, -2, 5, 3][i | 0] || 0; musSeed = ((Math.random() * 9999) | 0) + (i | 0) * 13; }
 function phrase(c, seed, busy) {
   let a = (seed * 2654435761) >>> 0; const r = () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
   const pool = []; for (const f of c) pool.push(f * 2, f * 4); pool.sort((x, y) => x - y);
