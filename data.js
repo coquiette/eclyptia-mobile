@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 5.2', BUILD = '52';
+let AR = 1300; const VERSION = 'mobile 5.3', BUILD = '53';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,9 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '5.3', date: '12 novembre 2026', title: 'Effets des TOX bien lisibles', items: [
+    { img: 'tx/ki1.webp', t: 'L’effet sous l’image', d: 'Dans les packs, le TOX du jour et la mini-boutique, ce que fait le TOX est écrit juste sous son image, avec les mots-clés en jaune (vitesse, dégâts, recharge…).' },
+    { img: 'ui/b_shop.webp', t: 'Onglets', d: 'Toucher plusieurs fois le même onglet ne recharge plus la page.' } ] },
   { v: '5.2', date: '12 novembre 2026', title: 'Parrainage et récompenses ×2 en groupe', items: [
     { img: 'ic/friends.webp', t: 'Parraine tes amis', d: 'Dans Amis, bouton PARRAINAGE : envoie ton lien. Ton ami reçoit 300 pièces, 50 prismes et 1 pack. Quand il rejoint ton groupe la première fois, tu gagnes 1 pack et 100 prismes.' },
     { img: 'ic/chest.webp', t: 'Bonus de parrain', d: 'Chaque filleul te donne +5 % de pièces et d’XP pour toujours (jusqu’à +25 %), et des paliers à 1, 3, 5 et 10 filleuls offrent packs, prismes et une tenue.' },

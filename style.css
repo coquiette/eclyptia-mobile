@@ -1451,3 +1451,15 @@ button.s3e:active{transform:scale(.96)}
 .erew .x2{font-size:26px;padding:4px 16px 6px;border-radius:16px;background:linear-gradient(#ff7a4d,#e0245a);border:3px solid #fff;color:#fff;white-space:nowrap}
 .erew .x2.rb{background:linear-gradient(#5ad06a,#1f9a3c)}
 .nar .rfp{width:560px!important}.nar .rfc{font-size:60px}.nar .rfm em img{width:96px;height:96px}.nar .rfm b{font-size:22px}
+/* v5.3 : effet des TOX sous l'image, mots-clés en jaune */
+.kw{color:#ffd45e;font-weight:800}
+.ccard .cfx{font-size:23px;line-height:1.12;color:#fff;font-weight:700;margin-top:2px}
+.ccard .cd{font-size:18px;line-height:1.12;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1}
+.ccard .cn{font-size:27px}.ccard .cimg{width:118px;height:118px}
+.sv2d{min-height:0;font-size:25px;color:#fff;font-weight:700;line-height:1.12;margin-top:2px}
+.nar .sv2d{font-size:22px}
+.s3fx{font-size:24px;line-height:1.12;color:#fff;font-weight:700}
+.tcard .gold.sub,.txc .sub.gold{color:#fff!important}
+.tcard .gold.sub{font-size:28px!important;font-weight:700}
+.sv2d{display:block;text-align:center}
+.s3fx{display:block}
