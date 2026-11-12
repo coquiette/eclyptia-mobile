@@ -658,11 +658,11 @@ SCR.collection = () => {
 ACT.clHero = v => { SEL = v; TTAB = 0; nav('htox'); };
 
 /* ================= clavier du jeu : pour taper un pseudo, sans le clavier du téléphone ================= */
-const VKIDS = { askin: 'TON PSEUDO', nm: 'TON PSEUDO', gcode: 'PSEUDO DE TON AMI', refin: 'PSEUDO DE TON PARRAIN' }, VKROWS = ['1234567890', 'AZERTYUIOP', 'QSDFGHJKLM', 'WXCVBN'];
+const VKIDS = { askin: 'TON PSEUDO', nm: 'TON PSEUDO', gcode: 'PSEUDO DE TON AMI', refin: 'PSEUDO DE TON PARRAIN', frin: 'PSEUDO DE L’AMI À AJOUTER' }, VKROWS = ['1234567890', 'AZERTYUIOP', 'QSDFGHJKLM', 'WXCVBN'];
 let VK = null;
 function vkDraw() { const d = $('#vkb'); if (!d) return; const t = d.querySelector('.vkt'); t.innerHTML = (VK.v ? esc(VK.v) : `<i>${VK.ph}</i>`) + '<u></u>'; d.querySelector('.vkc').textContent = VK.v.length + ' / ' + VK.max; d.classList.toggle('lo', !VK.up); d.querySelector('[data-k="ok"]').classList.toggle('gray', pslug(VK.v).length < 3); }
 function vkOpen(inp) {
-  if ($('#vkb')) return; VK = { el: inp, v: inp.value || '', max: +inp.maxLength > 0 ? +inp.maxLength : 14, up: inp.id === 'gcode' || inp.id === 'refin' || !(inp.value || '').length, caps: inp.id === 'gcode' || inp.id === 'refin', ph: VKIDS[inp.id] };
+  if ($('#vkb')) return; VK = { el: inp, v: inp.value || '', max: +inp.maxLength > 0 ? +inp.maxLength : 14, up: true, caps: inp.id === 'gcode' || inp.id === 'refin' || inp.id === 'frin', ph: VKIDS[inp.id] };
   const d = document.createElement('div'); d.id = 'vkb';
   d.innerHTML = `<div class="vkp"><div class="vkh"><b class="gold">${VK.ph}</b><span class="vkc"></span></div><div class="vkt"></div>
     ${VKROWS.map((r, i) => `<div class="vkr r${i}">${i === 3 ? `<button class="vkk w sh" data-k="shift">⇧</button>` : ''}${[...r].map(c => `<button class="vkk" data-k="${c}">${c}</button>`).join('')}${i === 3 ? `<button class="vkk w del" data-k="del"><img src="img/kit/r_left.webp" draggable="false" alt="Effacer"></button>` : ''}</div>`).join('')}
@@ -676,5 +676,23 @@ function vkOpen(inp) {
   d.addEventListener('click', e => e.stopPropagation());
 }
 function vkClose(ok) { const d = $('#vkb'), k = VK; if (d) d.remove(); VK = null; if (!k) return; if (!ok) { snd('back'); return; } const el = k.el, v = k.v.trim(); if (el && el.isConnected) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }
-  snd('buy'); if (el && el.id === 'askin') ACT.nameOk(); else if (el && el.id === 'gcode') ACT.grpJoin(); else if (el && el.id === 'refin') ACT.refOk(); else if (el && el.id === 'nm') { if (pslug(v).length >= 3) { S.name = v; S.named = true; save(); show('profile'); } } }
+  snd('buy'); if (el && el.id === 'askin') ACT.nameOk(); else if (el && el.id === 'gcode') ACT.grpJoin(); else if (el && el.id === 'refin') ACT.refOk(); else if (el && el.id === 'frin') frAdd(v); else if (el && el.id === 'nm') { if (pslug(v).length >= 3) { S.name = v; S.named = true; save(); show('profile'); } } }
 for (const ev of ['pointerdown', 'touchstart', 'mousedown', 'focusin']) document.addEventListener(ev, e => { const t = e.target; if (!t || !t.id || !VKIDS[t.id] || t.tagName !== 'INPUT') return; if (e.cancelable) e.preventDefault(); t.readOnly = true; t.setAttribute('inputmode', 'none'); try { t.blur(); } catch (x) {} if (ev !== 'focusin' || !$('#vkb')) vkOpen(t); }, { capture: true, passive: false });
+
+
+/* ================= amis : ajouter par pseudo, rejoindre ou inviter d'un toucher ================= */
+function frAdd(v) { v = String(v || '').trim().slice(0, 14); const s = pslug(v); if (s.length < 3) return no('Pseudo trop court'); if (s.toUpperCase() === pslug(S.name).toUpperCase()) return no('C’est ton propre pseudo'); S.friends = S.friends || []; if (S.friends.some(n => pslug(n).toUpperCase() === s.toUpperCase())) return no('Déjà dans tes amis'); if (S.friends.length >= 12) return no('12 amis au maximum'); S.friends.unshift(v); save(); snd('buy'); toast(v + ' ajouté à tes amis'); if (SCREEN === 'friends') show('friends'); }
+ACT.frAddOpen = () => vkOpen({ id: 'frin', value: '', maxLength: 14 });
+ACT.frDel = v => { const i = +v; if (ACT._fd !== i) { ACT._fd = i; return toast('Touche encore pour retirer ' + S.friends[i]); } ACT._fd = -1; S.friends.splice(i, 1); save(); snd('back'); show('friends'); };
+ACT.frInvite = v => { const n = S.friends[+v]; if (pslug(S.name).length < 3) return no('Choisis d’abord ton pseudo dans ton profil'); if (navigator.onLine === false) return no('Il faut internet pour inviter');
+  const url = location.origin + location.pathname + '?g=' + pslug(S.name), d = { title: 'ECLYPTIA', text: (n ? n + ', r' : 'R') + 'ejoins mon groupe sur ECLYPTIA ! Mon pseudo : ' + S.name, url };
+  if (navigator.share) navigator.share(d).catch(() => {}); else if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('Lien d’invitation copié')).catch(() => toast(url)); else toast(url);
+  if (!NET.role) setTimeout(() => { try { ACT.grpHost(); } catch (e) {} }, 400); };
+{ const _fr3 = SCR.friends; SCR.friends = () => { if (NET.role) return _fr3(); const F = S.friends || [], claim = REFM.some(([nd], i) => refN() >= nd && !(S.refClaim || []).includes(i));
+  return head('AMIS') + `<div class="body fr2"><div class="pn col fr2l"><div class="bkh">${ic('friends')}<b>Jouer à plusieurs</b></div><div class="sub">Jusqu’à 3 dans la même partie · récompenses <b class="kw">×2</b> en groupe</div>
+      <button class="btn big" data-a="grpHost" style="min-width:0;padding:0 20px 8px;font-size:50px">CRÉER UN GROUPE</button>
+      <div class="row" style="gap:10px"><input id="gcode" maxlength="14" placeholder="PSEUDO D’UN AMI" readonly><button class="btn vio" data-a="grpJoin" style="min-width:0">REJOINDRE</button></div>
+      <button class="fr2r" data-a="go" data-v="refer">${ic('chest')}<span>PARRAINAGE<small>${refN()} filleul${refN() > 1 ? 's' : ''} · cadeaux à gagner</small></span>${claim ? '<i class="dot"></i>' : ''}</button>
+      <div class="sub fr2m">Ton pseudo : <b class="kw">${esc(S.name)}</b></div></div>
+    <div class="pn col grow fr2p"><div class="row fr2h"><div class="bkh" style="flex:1"><b>Mes amis</b><small>${F.length} / 12</small></div><button class="btn" data-a="frAddOpen" style="min-width:0"><img class="ici" src="img/kit/r_plus.webp" draggable="false" alt=""> AJOUTER UN AMI</button></div>
+      ${F.length ? `<div class="fr2g">${F.map((n, i) => `<div class="fr2c" style="--i:${i}"><span class="fr2a">${esc(n).slice(0, 1).toUpperCase()}</span><b>${esc(n)}</b><button class="btn sm vio" data-a="frJoin" data-v="${esc(n)}">REJOINDRE</button><button class="btn sm" data-a="frInvite" data-v="${i}">INVITER</button><button class="rb fr2x" data-a="frDel" data-v="${i}"><img src="img/kit/r_close.webp" draggable="false" alt="Retirer"></button></div>`).join('')}</div>` : `<div class="grow col fr2e">${ic('friends')}<div class="sub">Ajoute un ami avec son pseudo : tu pourras rejoindre son groupe ou l’inviter d’un toucher.</div></div>`}</div></div>`; }; }

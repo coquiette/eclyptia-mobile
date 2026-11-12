@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 5.5', BUILD = '55';
+let AR = 1300; const VERSION = 'mobile 5.6', BUILD = '56';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,8 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '5.6', date: '12 novembre 2026', title: 'Liste d’amis', items: [
+    { img: 'kit/r_plus.webp', t: 'Ajouter un ami', d: 'Dans Amis, bouton AJOUTER UN AMI : tape son pseudo. Chaque ami a ensuite deux boutons, REJOINDRE son groupe ou l’INVITER dans le tien.' } ] },
   { v: '5.5', date: '12 novembre 2026', title: 'Clavier du jeu', items: [
     { img: 'ic/friends.webp', t: 'Tape ton pseudo dans le jeu', d: 'Un clavier violet et or s’ouvre pour ton pseudo, celui d’un ami ou d’un parrain. Le clavier du téléphone ne recouvre plus l’écran.' } ] },
   { v: '5.4', date: '12 novembre 2026', title: 'Objets simplifiés et Collection', items: [
