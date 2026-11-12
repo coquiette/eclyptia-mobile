@@ -951,8 +951,91 @@ function m3gFit() { const g = $('.m3g'), p = $('.m2prof'); if (!g || !p) return;
     else if (prev.length) { const add = 7 * (G.n - 1) + G.wave; for (let i = 0; i < add; i++) G.queue.unshift(prev[(Math.random() * prev.length) | 0]); G.wtot = G.queue.length; } }; }
 
 /* v6.3 : chaque gardien a son tir (forme propre) ; avec la tenue rare, le tir prend la couleur de la tenue */
-const shotCol = p => p && p.skin && SKINS[p.hero] ? '#' + SKINS[p.hero].pal.acc.toString(16).padStart(6, '0') : p.h.col;
+const shotCol = p => p && p.skin && SKINS[p.hero] ? '#' + skDef(p.hero, p.skin | 0).acc.toString(16).padStart(6, '0') : p.h.col;
 { const _f9 = fire; fire = function (p) { const n0 = G.sh.length, ok = _f9(p); if (ok && p && p.skin) { const c = shotCol(p); for (let i = n0; i < G.sh.length; i++) if (G.sh[i].by === p) G.sh[i].col = c; } return ok; }; }
 
 /* v6.3 : quand la vague se termine, plus aucun tir ni zone ne reste à l'écran */
 { const _sp9 = startPick; startPick = function () { if (G) { G.sh.length = 0; if (G.tasks) G.tasks.length = 0; if (G.zn) G.zn.length = 0; } return _sp9.apply(this, arguments); }; }
+
+/* ======================================================= v6.4 ======================================================= */
+/* --- TOX de soin : deux objets de plus par gardien (régénération permanente, soin par ennemi vaincu) --- */
+{ const NEW = { kaelion: ['Calice de l’aube', 'Sceau du serment'], elyra: ['Cendre tiède', 'Cœur de braise'], aria: ['Berceuse des flots', 'Perle de rosée'], vesper: ['Fiole d’ombre', 'Croc vampirique'], brakkor: ['Chope du forgeron', 'Rune de sang'], nyxara: ['Tisane de lune', 'Poupée d’âmes'] };
+  for (const h in NEW) [['regen', 1, 1], ['leech', 1, 2]].forEach((x, j) => { const id = h[0] + 'i' + (9 + j); if (TOX[id]) return; TOX[id] = { id, n: NEW[h][j], t: 'pas', it: 1, h, s: 4, k: x[0], v: x[1], r: x[2], d: 'Objet de ' + HEROES[h].n + ' : soigne le gardien, toujours actif.' }; HITEM[h].push(id); HTOX[h].push(id); TOX_IDS.push(id); });
+  const HL = { regen: 'PV par seconde', leech: 'PV par ennemi vaincu' }, heal = T => T && T.it && HL[T.k];
+  const _ai = applyItem; applyItem = function (p, T, l) { if (!p || !T || !l) return; if (T.k === 'regen') { p.regen = (p.regen || 0) + T.v * l; return; } if (T.k === 'leech') { p.mods.leech = (p.mods.leech || 0) + T.v * l; return; } return _ai(p, T, l); };
+  const _tm = tmn; tmn = function (T, l, up) { if (heal(T)) return kwH('+' + T.v * (up ? 1 : Math.max(1, l | 0)) + ' ' + HL[T.k]); return _tm(T, l, up); };
+  const _tf9 = tfx; tfx = function (T, l) { if (heal(T)) return kwH('+' + T.v * Math.max(1, l | 0) + ' ' + HL[T.k]); return _tf9(T, l); };
+  const _u8 = update; update = function (dt) { _u8(dt); if (!G || NETROLE === 2 || G.state !== 'play') return; for (const p of G.ps) if (p.regen > 0 && !p.dead && !p.gone && p.hp < p.maxhp) p.hp = Math.min(p.maxhp, p.hp + p.regen * dt); }; }
+
+/* --- quêtes : nouveaux compteurs du jour --- */
+{ const _gr9 = grant; grant = function (res) { try { dayCheck(); S.q.boss = (S.q.boss || 0) + (res.boss || 0); S.q.wins = (S.q.wins || 0) + (res.win ? 1 : 0); S.q.grp = (S.q.grp || 0) + ((res.n || 1) > 1 ? 1 : 0); S.q.time = (S.q.time || 0) + (res.time || 0); S.q.elite = (S.q.elite || 0) + ((G && G.elK) || 0); S.q.buy = (S.q.buy || 0) + ((G && G.buyN) || 0); } catch (e) {} return _gr9(res); };
+  const _k9 = kill; kill = function (e) { if (e && e.el && !e.dead && G) G.elK = (G.elK || 0) + 1; return _k9(e); };
+  const _sb9 = ACT.shopBuy; ACT.shopBuy = v => { const was = G && G.sold && G.sold[+v]; _sb9(v); if (G && G.sold && G.sold[+v] && !was) G.buyN = (G.buyN || 0) + 1; }; }
+
+/* --- groupe : l'hôte peut exclure un joueur (il ne peut pas revenir pendant 2 minutes) --- */
+NET.ban = {};
+ACT.grpKick = v => { const i = +v; if (NET.role !== 1 || i < 1 || !NET.lobby[i]) return; const f = NET.lobby[i], c = NET.conns[i]; if (f.uid) NET.ban[f.uid] = Date.now(); NET.to(i, { t: 'kick' }); snd('back'); toast(f.name + ' a été retiré du groupe');
+  setTimeout(() => { try { if (NET.conns[i] === c) { NET.conns[i] = null; NET.lobby[i] = null; if (c && c.close) c.close(); NET.sync(); } } catch (e) {} }, 350); };
+{ const _oh4 = NET.onHost; NET.onHost = function (i, d) { if (this.role === 1 && d && d.t === 'hi' && d.info && d.info.uid && this.ban[d.info.uid] && Date.now() - this.ban[d.info.uid] < 120000) { this.to(i, { t: 'kick' }); const c = this.conns[i]; this.conns[i] = null; this.lobby[i] = null; setTimeout(() => { try { c && c.close && c.close(); } catch (e) {} }, 350); return; } return _oh4.call(this, i, d); };
+  const _og4 = NET.onGuest; NET.onGuest = function (d) { if (d && d.t === 'kick' && this.role === 2) { rjStop(); this.leave(true); toast('L’hôte t’a retiré du groupe'); snd('no'); if (SCREEN === 'friends') show('friends'); else if (SCREEN === 'menu') show('menu'); return; } return _og4.call(this, d); }; }
+
+/* --- en partie : bouton Réglages à côté de Pause (sons, musique, vibrations, taille des boutons, énergie, quitter) --- */
+function gsetUI() { let d = $('#gset'); if (!d) { d = document.createElement('div'); d.id = 'gset'; $('#stage').appendChild(d); }
+  const on = k => S.set[k] ? '' : 'gray', row = (n, b) => `<div class="gsr"><span>${n}</span><div>${b}</div></div>`, e = S.set.eco | 0;
+  d.innerHTML = `<div class="gsp"><div class="gst"><b class="gold">RÉGLAGES</b><button class="rb" data-a="gsetClose"><img src="img/kit/r_close.webp" draggable="false" alt="Fermer"></button></div>
+    ${row('Sons', `<button class="btn sm ${on('snd')}" data-a="gtog" data-v="snd">${S.set.snd ? 'OUI' : 'NON'}</button>`)}${row('Musique', `<button class="btn sm ${on('mus')}" data-a="gtog" data-v="mus">${S.set.mus ? 'OUI' : 'NON'}</button>`)}${row('Vibrations', `<button class="btn sm ${on('vib')}" data-a="gtog" data-v="vib">${S.set.vib ? 'OUI' : 'NON'}</button>`)}
+    ${row('Boutons', [[.85, 'Petits'], [1, 'Normaux'], [1.18, 'Grands']].map(b => `<button class="btn sm ${S.set.btn === b[0] ? '' : 'gray'}" data-a="gbsz" data-v="${b[0]}">${b[1]}</button>`).join(''))}
+    ${row('Énergie', [['Auto', 0], ['Éco', 1], ['Max', 2]].map(b => `<button class="btn sm ${e === b[1] ? '' : 'gray'}" data-a="geco" data-v="${b[1]}">${b[0]}</button>`).join(''))}
+    <div class="gsb"><button class="btn big" data-a="gsetClose">▶ REPRENDRE</button><button class="btn red" data-a="gquit">${multi() ? 'QUITTER LA PARTIE' : 'ABANDONNER'}</button></div>${multi() ? '<small>En groupe, la partie continue pendant que ce menu est ouvert.</small>' : ''}</div>`; }
+ACT.gset = () => { if (!G || SCREEN !== 'game' || G.state === 'end' || G.cine) return; snd('open'); if (!multi() && G.state === 'play') { G.state = 'pause'; G._gsp = 1; } gsetUI(); };
+ACT.gsetClose = () => { const d = $('#gset'); if (d) d.remove(); snd('pick'); if (G && G._gsp) { G._gsp = 0; if (G.state === 'pause') G.state = 'play'; } };
+ACT.gtog = v => { S.set[v] = !S.set[v]; save(); if (v === 'mus') music(); gsetUI(); };
+ACT.gbsz = v => { S.set.btn = +v; save(); const b = $('#btns'); if (b) b.style.transform = 'scale(' + S.set.btn + ')'; gsetUI(); };
+ACT.geco = v => { S.set.eco = +v; save(); ecoApply(); gsetUI(); };
+ACT.gquit = () => { const d = $('#gset'); if (d) d.remove(); if (!G) return; G._gsp = 0; if (multi()) { rjStop(); NET.leave(true); NETROLE = 0; } G.state = 'play'; over(''); endRun(false); };
+{ const _g9 = SCR.game; SCR.game = function () { return _g9().replace('<button class="rnd rb" data-a="pause">', '<button class="rnd rb" data-a="gset"><img src="img/kit/r_gear.webp" draggable="false" alt="Réglages"></button><button class="rnd rb" data-a="pause">').replace('<div id="bossb"><b id="bsn"></b>', '<div id="bossb"><img class="bsi" src="img/ic/skull.webp" draggable="false" alt=""><b id="bsn"></b>'); };
+  /* en groupe, le bouton Pause ouvre ce menu (pas de pause possible à plusieurs) */
+  const _p9 = ACT.pause; ACT.pause = () => { if (multi()) return ACT.gset(); return _p9(); };
+  const _sh8 = show; show = function (n, enter) { if (n !== 'game') { const d = $('#gset'); if (d) d.remove(); } return _sh8(n, enter); }; }
+
+/* --- boss : barre de vie plus lisible (pourcentage) et flèche au bord de l'écran quand il est hors champ --- */
+{ const _ht9 = hudTick; hudTick = function () { _ht9.apply(this, arguments); if (!G) return; let bs = null; for (const e of G.en) if (e.m && e.m.boss && !e.dead) { bs = e; break; } if (bs) { const pc = Math.max(0, Math.ceil(100 * bs.hp / bs.max)); hset('bsp', 'text', (bs.m.myth ? 'PHASE ' + (bs.ph || 1) + ' / ' + (bs.med ? 2 : 3) + '  ·  ' : '') + pc + ' %'); hset('bossb', 'cls', 'on' + (bs.m.myth && !bs.med ? ' my' : '') + (pc <= 25 ? ' low' : '')); } };
+  const _dr9 = draw; draw = function (dt, raw) { _dr9(dt, raw); if (!G || !cx || G.cine || G.state === 'end') return; const x = cx;
+    for (const e of G.en) { if (!e.m || !(e.m.boss || e.el) || e.dead) continue; const [sx, sy] = R3.proj(e.x, e.y, e.r), mx = 150, my0 = 190, my1 = 150; if (sx > mx * .5 && sx < W - mx * .5 && sy > my0 * .6 && sy < H - my1 * .5) continue;
+      const cxm = W / 2, cym = H / 2, a = Math.atan2(sy - cym, sx - cxm), k = Math.min((W / 2 - mx) / Math.abs(Math.cos(a) || 1e-6), (H / 2 - my1) / Math.abs(Math.sin(a) || 1e-6)), px = cxm + Math.cos(a) * k, py = Math.max(my0, cym + Math.sin(a) * k), boss = !!e.m.boss, s = (boss ? 1 : .62) * (1 + Math.sin(G.t * 8) * .08), col = boss ? '#ff4d5e' : '#ffd45e';
+      x.save(); x.translate(px, py); x.scale(s, s); x.rotate(a); x.fillStyle = '#150a2e'; x.beginPath(); x.moveTo(74, 0); x.lineTo(26, -40); x.lineTo(26, 40); x.closePath(); x.fill(); x.fillStyle = col; x.beginPath(); x.moveTo(64, 0); x.lineTo(32, -27); x.lineTo(32, 27); x.closePath(); x.fill(); x.rotate(-a);
+      x.beginPath(); x.arc(0, 0, 44, 0, 7); x.fillStyle = '#150a2e'; x.fill(); x.lineWidth = 7; x.strokeStyle = col; x.stroke(); x.beginPath(); x.arc(0, 0, 44, -Math.PI / 2, -Math.PI / 2 + 6.283 * Math.max(0, e.hp / e.max)); x.lineWidth = 9; x.strokeStyle = '#fff'; x.stroke();
+      x.font = '800 30px "Baloo 2",sans-serif'; x.textAlign = 'center'; x.fillStyle = col; x.fillText(boss ? 'BOSS' : 'ÉLITE', 0, 11); x.restore(); x.strokeStyle = '#150a2e'; } }; }
+
+/* --- fin de vague : les zones d'attaque de boss en attente disparaissent aussi --- */
+{ const _sp8 = startPick; startPick = function () { if (G && G.ftasks) G.ftasks.length = 0; return _sp8.apply(this, arguments); }; }
+
+/* --- optimisation : quand l'écran est chargé, on allège ce qui ne se voit presque pas --- */
+{ let spk = 0, lastT = -1; const _spk = spark; spark = function (x, y, col, n) { if (G && G.t !== lastT) { lastT = G.t; spk = 0; } if (++spk > 10) return; const busy = G && G.en.length > 45; return _spk(x, y, col, busy ? Math.max(1, (n || 3) >> 1) : n); };
+  const _at = addTxt; addTxt = function (x, y, h, s, c, big) { if (G && !big && G.en.length > 40 && G.txt.length > 16) return; return _at(x, y, h, s, c, big); };
+  const _af = addFx; addFx = function (x, y, r, col, life) { if (G && G.fx.length > 90 && r < 130) return; return _af(x, y, r, col, life); };
+  /* en groupe avec beaucoup de monstres, l'hôte envoie l'état un peu moins souvent pour ne pas saturer le réseau */
+  const _sn9 = snapshot; snapshot = function () { const s = _sn9(); if (G) G.snapT = G.en.length > 110 ? .13 : G.en.length > 60 ? .1 : .066; return s; };
+  /* contours des monstres coupés quand ils sont très nombreux (deux fois moins à dessiner) */
+  const _u7 = update; let olOn = true; update = function (dt) { _u7(dt); if (!G || !window.R3 || !R3.olSet) return; const want = G.en.length < (document.documentElement.classList.contains('slow') ? 26 : 48); if (want !== olOn && (want ? G.en.length < 40 : true)) { olOn = want; R3.olSet(want); } }; }
+
+/* --- TENUES : toutes les tenues de tous les gardiens sur une page, on touche pour voir, puis on équipe ou on achète --- */
+let SKP = null, SKBK = 'menu';
+SCR.skins = () => { if (!SKP) SKP = S.hero + ':' + skinOf(S.hero); const [ph, pk0] = SKP.split(':'), pk = +pk0, D = skDef(ph, pk), own = S.owned.includes(ph), has = skOwn(ph, pk), on = skinOf(ph) === pk, cur = D.curr === 'coins' ? 'coin' : 'prism';
+  const tile = (h, k) => { const d = skDef(h, k), o = S.owned.includes(h), hs = skOwn(h, k), eq = skinOf(h) === k; return `<button class="sk9t ${SKP === h + ':' + k ? 'sel' : ''} ${o ? '' : 'off'} ${hs ? '' : 'lk'}" data-a="skPick" data-v="${h}:${k}" style="--rc:${k ? '#' + d.acc.toString(16).padStart(6, '0') : HEROES[h].col}"><em>${himg(h, k)}</em>${eq && o ? '<i class="ok">✓</i>' : hs ? '' : `<i class="pr">${d.cost} ${ic(d.curr === 'coins' ? 'coin' : 'prism')}</i>`}</button>`; };
+  return head('TENUES', SKBK) + `<div class="body sk9"><div class="sk9g">${HERO_IDS.map(h => `<div class="sk9c"><b>${HEROES[h].n}</b>${[0, 1, 2, 3].map(k => tile(h, k)).join('')}</div>`).join('')}</div>
+    <div class="pn col sk9p" style="--rc:${pk ? '#' + D.acc.toString(16).padStart(6, '0') : HEROES[ph].col}"><div class="sk9b">${himg(ph, pk)}</div><div class="gold sk9n">${D.n}</div><div class="sub">${HEROES[ph].n} · ${pk ? 'change aussi la couleur de l’arme et des tirs' : 'tenue de départ'}</div>
+      <button class="btn big ${!own || on || (!has && S[D.curr] < D.cost) ? 'gray' : ''}" data-a="skDo">${!own ? ic('lock') + ' Gardien verrouillé' : on ? 'ÉQUIPÉE ✓' : has ? 'ÉQUIPER' : 'ACHETER ' + D.cost + ' ' + ic(cur)}</button></div></div>`; };
+ACT.skOpen = () => { SKBK = SCREEN === 'skins' ? SKBK : SCREEN; const h = SCREEN === 'htox' && SEL ? SEL : S.hero; SKP = h + ':' + skinOf(h); nav('skins'); };
+ACT.skPick = v => { if (v === SKP) return; SKP = v; snd('pick'); show('skins'); };
+ACT.skDo = () => { const [h, k0] = SKP.split(':'), k = +k0, D = skDef(h, k); if (!S.owned.includes(h)) return no('Débloque d’abord ' + HEROES[h].n); if (skinOf(h) === k) return;
+  if (!skOwn(h, k)) { if ((S[D.curr] || 0) < D.cost) return no('Il te manque ' + (D.cost - (S[D.curr] || 0)) + (D.curr === 'coins' ? ' pièces' : ' prismes')); S[D.curr] -= D.cost; if (k === 1) S.skins.push(h); else { S.sk2 = S.sk2 || {}; S.sk2[h] = (S.sk2[h] || []).concat(k); } S.skin[h] = k; save(); snd('buy'); show('skins'); try { buyFx(himg(h, k), 'NOUVELLE TENUE', D.n, '#' + D.acc.toString(16).padStart(6, '0')); } catch (e) {} return; }
+  S.skin[h] = k; save(); snd('buy'); if (NET.role) { try { grpPush(); } catch (e) {} } show('skins'); };
+{ const _st9 = ACT.stab; ACT.stab = v => { if (+v === 2) { SKBK = 'shop'; SKP = S.hero + ':' + skinOf(S.hero); return nav('skins'); } return _st9(v); }; }
+
+/* --- listes qui défilent au doigt (quêtes) : le jeu bloque le défilement du navigateur, on le fait nous-mêmes --- */
+{ let sc = null, noClk = 0; const pos = e => ROT ? -e.clientX : e.clientY;
+  addEventListener('pointerdown', e => { const el = e.target && e.target.closest ? e.target.closest('.pn.scroll') : null; sc = el ? { el, y: pos(e), s0: el.scrollTop, mv: 0 } : null; }, true);
+  addEventListener('pointermove', e => { if (!sc) return; const d = (pos(e) - sc.y) / (SC || 1); sc.mv = Math.max(sc.mv, Math.abs(d)); if (sc.mv > 10) sc.el.scrollTop = sc.s0 - d; }, true);
+  const end = () => { if (sc && sc.mv > 14) noClk = Date.now(); sc = null; }; addEventListener('pointerup', end, true); addEventListener('pointercancel', end, true);
+  document.addEventListener('click', e => { if (Date.now() - noClk < 350) { e.stopPropagation(); e.preventDefault(); } }, true); }

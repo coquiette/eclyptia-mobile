@@ -55,7 +55,7 @@ const NET = {
   idx(i) { return i; },
   start() {
     if (this.role !== 1) return; this.lobby[0] = myInfo(); this.map = [0, 1, 2].filter(i => this.lobby[i]); const infos = this.map.map(i => this.lobby[i]);
-    const conns = this.conns; this.map.forEach((slot, k) => { if (slot) this.to(slot, { t: 'go', infos: infos.map(f => ({ hero: f.hero, name: f.name, skin: f.skin, hs: f.hs, tl: f.tl, tx: f.tx, ps: f.ps, wp: f.wp, bon: f.bon || {} })), you: k }); });
+    const conns = this.conns; this.map.forEach((slot, k) => { if (slot) this.to(slot, { t: 'go', infos: infos.map(f => ({ hero: f.hero, name: f.name, skin: f.skin, hs: f.hs, tl: f.tl, tx: f.tx, ps: f.ps, wp: f.wp, bon: f.bon || {}, map: infos[0].map | 0, rk: infos[0].rk | 0 })), you: k }); });
     /* à partir d'ici, les joueurs sont numérotés dans l'ordre de la partie */
     const nc = [null, null, null]; this.map.forEach((slot, k) => { nc[k] = conns[slot]; }); this.conns = nc; this.lobby = infos; this.map = null;
     launch(infos, 0, infos.length > 1 ? 1 : 0);

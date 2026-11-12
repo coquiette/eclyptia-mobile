@@ -347,7 +347,8 @@ function tickFx(dt) {
 }
 function grant(res) {
   dayCheck(); const b = G.bon || {}; res.orb = res.win ? 1 : 0;
-  res.coins = Math.round((res.shards + res.wave * 20 + (res.win ? 200 : 0)) * (b.coins ? 2 : 1) * (1 + .05 * pasLv('p4'))); res.prisms = res.win ? 40 : Math.floor(res.wave / 3) * 5; res.xp = (res.kills + res.wave * 40 + (res.win ? 200 : 0)) * (b.xp ? 2 : 1); res.passXp = (res.wave * 30 + (res.win ? 100 : 0)) * (b.xp ? 2 : 1);
+  /* v6.4 : progression ralentie (environ 2 à 3 parties par niveau, 2 parties gagnées par palier du pass) */
+  res.coins = Math.round((res.shards * .5 + res.wave * 12 + (res.win ? 120 : 0)) * (b.coins ? 2 : 1) * (1 + .05 * pasLv('p4'))); res.prisms = res.win ? 20 : Math.floor(res.wave / 3) * 3; res.xp = Math.round((res.kills * .2 + res.wave * 12 + (res.win ? 60 : 0)) * (b.xp ? 2 : 1)); res.passXp = (res.wave * 10 + (res.win ? 50 : 0)) * (b.xp ? 2 : 1);
   const l0 = level();
   S.coins += res.coins; S.prisms += res.prisms; S.xp += res.xp; S.passXp += res.passXp;
   S.stats.games++; if (res.win) S.stats.wins++; S.stats.maxWave = Math.max(S.stats.maxWave, res.wave); S.stats.kills += res.kills; S.stats.boss += res.boss || 0; S.stats.time += res.time;

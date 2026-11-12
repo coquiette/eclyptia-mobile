@@ -1,18 +1,18 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 6.3', BUILD = '63';
+let AR = 1300; const VERSION = 'mobile 6.4', BUILD = '64';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 const HEROES = {
-  kaelion: { n: 'Kaelion', cls: 'Paladin solaire', img: 'h0', hp: 150, spd: 320, dmg: 14, rate: 2.2, col: '#ffc94a', cost: 0, tox: ['k1', 'k2', 'k3', 'k4'] },
+  kaelion: { n: 'Kaelion', cls: 'Paladin solaire', img: 'h0', hp: 150, spd: 320, dmg: 15, rate: 2.2, col: '#ffc94a', cost: 0, tox: ['k1', 'k2', 'k3', 'k4'] },
   elyra:   { n: 'Elyra',   cls: 'Pyromancienne',   img: 'h1', hp: 100, spd: 345, dmg: 11, rate: 3.4, col: '#ff6a3d', cost: 0, tox: ['e1', 'e2', 'e3', 'e4'] },
-  aria:    { n: 'Aria',    cls: 'Barde des marées', img: 'h2', hp: 110, spd: 340, dmg: 10, rate: 2.8, pierce: 2, col: '#5ac8ff', cost: 600, curr: 'coins', tox: ['a1', 'a2', 'a3', 'a4'] },
-  vesper:  { n: 'Vesper',  cls: 'Lame du néant',   img: 'h3', hp: 95,  spd: 400, dmg: 13, rate: 2.6, crit: .25, col: '#b07bff', cost: 900, curr: 'coins', tox: ['v1', 'v2', 'v3', 'v4'] },
-  brakkor: { n: 'Brakkor', cls: 'Forgeron runique', img: 'h6', hp: 190, spd: 290, dmg: 21, rate: 1.5, col: '#ff9d3d', cost: 1500, curr: 'coins', tox: ['b1', 'b2', 'b3', 'b4'] },
-  nyxara:  { n: 'Nyxara',  cls: "Sorcière d'ombre", img: 'h5', hp: 90,  spd: 335, dmg: 9,  rate: 2.6, multi: 2, col: '#d06bff', cost: 250, curr: 'prisms', tox: ['n1', 'n2', 'n3', 'n4'] }
+  aria:    { n: 'Aria',    cls: 'Barde des marées', img: 'h2', hp: 115, spd: 340, dmg: 11, rate: 2.8, pierce: 2, col: '#5ac8ff', cost: 600, curr: 'coins', tox: ['a1', 'a2', 'a3', 'a4'] },
+  vesper:  { n: 'Vesper',  cls: 'Lame du néant',   img: 'h3', hp: 95,  spd: 390, dmg: 12, rate: 2.6, crit: .25, col: '#b07bff', cost: 900, curr: 'coins', tox: ['v1', 'v2', 'v3', 'v4'] },
+  brakkor: { n: 'Brakkor', cls: 'Forgeron runique', img: 'h6', hp: 190, spd: 295, dmg: 21, rate: 1.65, col: '#ff9d3d', cost: 1500, curr: 'coins', tox: ['b1', 'b2', 'b3', 'b4'] },
+  nyxara:  { n: 'Nyxara',  cls: "Sorcière d'ombre", img: 'h5', hp: 95,  spd: 335, dmg: 8,  rate: 2.6, multi: 2, col: '#d06bff', cost: 250, curr: 'prisms', tox: ['n1', 'n2', 'n3', 'n4'] }
 };
 const HERO_IDS = Object.keys(HEROES);
 
@@ -184,6 +184,14 @@ const SKINS = {
   brakkor: { n: 'Forge de givre', hue: 180, pal: { hair: 0xcfe8ff, cloth: 0x2a4a7a, acc: 0x9ad8ff, cape: 0x16304a } },
   nyxara: { n: "Sorcière d'émeraude", hue: 240, pal: { hair: 0x1a9a5a, cloth: 0x0a4a2a, acc: 0x6bffb0, cape: 0x06301a, orb: 0x6bffb0 } }
 };
+const SKX = {
+  kaelion: [{ n: "Garde d'émeraude", hue: 80, acc: 0x6bffb0, cost: 2500, curr: 'coins' }, { n: 'Paladin de sang', hue: 320, acc: 0xff5a6a, cost: 500, curr: 'prisms' }],
+  elyra: [{ n: 'Flamme verte', hue: 110, acc: 0x8cff7a, cost: 2500, curr: 'coins' }, { n: 'Rose ardente', hue: 300, acc: 0xff7ad8, cost: 500, curr: 'prisms' }],
+  aria: [{ n: 'Marée violette', hue: 60, acc: 0xb07bff, cost: 2500, curr: 'coins' }, { n: "Chant d'or", hue: 200, acc: 0xffd45e, cost: 500, curr: 'prisms' }],
+  vesper: [{ n: 'Venin', hue: 190, acc: 0x9dff5a, cost: 2500, curr: 'coins' }, { n: 'Lame de givre', hue: 290, acc: 0x7ad8ff, cost: 500, curr: 'prisms' }],
+  brakkor: [{ n: 'Forge de jade', hue: 110, acc: 0x6bffb0, cost: 2500, curr: 'coins' }, { n: "Forge d'améthyste", hue: 250, acc: 0xc08bff, cost: 500, curr: 'prisms' }],
+  nyxara: [{ n: 'Sorcière écarlate', hue: 90, acc: 0xff5a6a, cost: 2500, curr: 'coins' }, { n: 'Sorcière des glaces', hue: 290, acc: 0x7ad8ff, cost: 500, curr: 'prisms' }]
+};
 /* boosts : achetés en prismes, utilisés pour une partie */
 const BOOSTS = [
   { id: 'coins', ic: 'bx_coins', n: 'Double pièces', d: 'Pièces ×2 à la fin de la partie', cost: 30 },
@@ -220,9 +228,17 @@ const UPG = [
 ];
 
 const QUESTS = [
-  { id: 'k', ic: 'skull', t: 'Vaincre 150 ennemis', goal: 150, get: s => s.q.kills, rew: { coins: 150, passXp: 150 } },
-  { id: 'w', ic: 'wave', t: 'Atteindre la vague 5', goal: 5, get: s => s.q.wave, rew: { coins: 200, passXp: 150 } },
-  { id: 'g', ic: 'pad', t: 'Jouer 2 parties', goal: 2, get: s => s.q.games, rew: { prisms: 20, passXp: 100 } }
+  { id: 'k', ic: 'skull', t: 'Vaincre 150 ennemis', goal: 150, get: s => s.q.kills, rew: { coins: 120, passXp: 80 } },
+  { id: 'w', ic: 'wave', t: 'Atteindre la vague 5', goal: 5, get: s => s.q.wave, rew: { coins: 150, passXp: 80 } },
+  { id: 'g', ic: 'pad', t: 'Jouer 2 parties', goal: 2, get: s => s.q.games, rew: { prisms: 15, passXp: 80 } },
+  { id: 'b', ic: 'crown', t: 'Vaincre 2 boss', goal: 2, get: s => s.q.boss || 0, rew: { coins: 200, passXp: 100 } },
+  { id: 'v', ic: 'swords', t: 'Gagner une partie', goal: 1, get: s => s.q.wins || 0, rew: { orbs: 1, passXp: 120 } },
+  { id: 'k2', ic: 'skull', t: 'Vaincre 500 ennemis', goal: 500, get: s => s.q.kills, rew: { coins: 300, passXp: 150 } },
+  { id: 'w2', ic: 'wave', t: 'Atteindre la vague 8', goal: 8, get: s => s.q.wave, rew: { prisms: 25, passXp: 150 } },
+  { id: 'e', ic: 'bolt', t: 'Vaincre 3 élites', goal: 3, get: s => s.q.elite || 0, rew: { coins: 150, passXp: 80 } },
+  { id: 's', ic: 'tox', t: 'Acheter 6 TOX en partie', goal: 6, get: s => s.q.buy || 0, rew: { cards: 2, passXp: 80 } },
+  { id: 'p', ic: 'friends', t: 'Jouer une partie en groupe', goal: 1, get: s => s.q.grp || 0, rew: { prisms: 20, passXp: 100 } },
+  { id: 't', ic: 'heart', t: 'Jouer 15 minutes', goal: 15, get: s => Math.floor((s.q.time || 0) / 60), rew: { coins: 200, passXp: 100 } }
 ];
 const PASS_STEP = 300, PASS_PRICE = '4,99 €';
 const PASS = [{ coins: 150 }, { orbs: 1 }, { coins: 250 }, { prisms: 20 }, { orbs: 1 }, { coins: 350 }, { prisms: 30 }, { orbs: 1 }, { coins: 500 }, { prisms: 80 }];
@@ -237,6 +253,14 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '6.4', date: '12 novembre 2026', title: 'Boss, tenues, quêtes et réglages en partie', items: [
+    { img: 'ic/skull.webp', t: 'Boss retravaillés', d: 'Ils respirent, prennent leur élan, s’envolent avant de frapper et s’énervent à chaque phase. Grande barre de vie avec pourcentage, et une flèche te montre le boss quand il sort de l’écran.' },
+    { img: 'ic/crown.webp', t: 'Page TENUES', d: 'Toutes les tenues de tous les gardiens sur une page : 4 par gardien. Touche pour voir, puis équipe ou achète. La tenue change aussi l’arme et les tirs.' },
+    { img: 'tx/ki9.webp', t: 'TOX de soin', d: 'Deux nouveaux objets par gardien : +1 PV par seconde, et +1 PV par ennemi vaincu.' },
+    { img: 'ic/quest.webp', t: '11 quêtes par jour', d: 'Boss, élites, victoire, groupe, achats en partie, temps de jeu… La progression est aussi un peu moins rapide.' },
+    { img: 'ic/gear.webp', t: 'Réglages et pause en partie', d: 'Nouveau bouton Réglages à côté de Pause : sons, musique, vibrations, taille des boutons, énergie.' },
+    { img: 'ic/friends.webp', t: 'Groupe', d: 'Le chef peut exclure un joueur. Tout le groupe joue bien sur la même carte.' },
+    { img: 'ic/star.webp', t: 'Cartes et équilibrage', d: 'Sols plus sombres et plus fins : les tirs se voient mieux. Gardiens rééquilibrés. Le jeu allège l’affichage quand il y a beaucoup de monstres.' } ] },
   { v: '6.3', date: '12 novembre 2026', title: 'Tirs, armes, tenues et groupe', items: [
     { img: 'ic/swords.webp', t: 'Un tir par gardien', d: 'Lame de lumière, boule de feu, anneau d’eau, étoile de lancer, bloc de rune, larme d’ombre : chaque gardien a son tir, plus gros et plus visible.' },
     { img: 'ic/crown.webp', t: 'Armes et tenues', d: 'Les armes sont tenues proprement et redessinées. La tenue rare recolore vraiment le gardien, son arme et ses tirs.' },
@@ -434,7 +458,7 @@ function defSave() {
   const tox = {}; for (const id of TOX_IDS) tox[id] = { l: TOX[id].h && HEROES[TOX[id].h].tox[0] === id ? 1 : 0, c: 0 };
   const hs = {}; for (const h of HERO_IDS) hs[h] = { hp: 0, dmg: 0, spd: 0 };
   return { v: 2, named: false, friends: [], rp: 0, bst: 0, daily: null, dr: null, dmax: 0, crash: 0, crashAt: '', paid: [], starter: false, bkAt: 0, offOk: 0, uid: '', refBy: '', refGot: false, refs: [], refClaim: [], name: 'Gardien', coins: 200, prisms: 50, xp: 0, passXp: 0, passClaim: [], passClaimP: [], premium: false, owned: ['kaelion', 'elyra'], hero: 'kaelion',
-    up: { hp: 0, dmg: 0, spd: 0 }, hs, tox, skins: [], skin: {}, eq: {}, wp: {}, wpo: {}, boost: {}, bon: {}, bopen: 0, seen: '',
+    up: { hp: 0, dmg: 0, spd: 0 }, hs, tox, skins: [], skin: {}, sk2: {}, eq: {}, wp: {}, wpo: {}, boost: {}, bon: {}, bopen: 0, seen: '',
     stats: { games: 0, wins: 0, maxWave: 0, kills: 0, boss: 0, time: 0 }, codex: {}, orbs: 3, pity: 0,
     q: { day: '', kills: 0, wave: 0, games: 0, claimed: [] }, set: { btn: 1, lefty: false, vib: true, snd: true, mus: true, gfx: 1, fill: 1, mst: 0, eco: 0 } };
 }
@@ -481,8 +505,11 @@ function give(r) {
   if (r.skin) { const lk = S.owned.filter(h => !S.skins.includes(h)); if (lk.length) { const h = lk[(Math.random() * lk.length) | 0]; S.skins.push(h); t.push('Tenue : ' + SKINS[h].n); } else { S.prisms += 100; t.push('+100 prismes'); } }
   save(); return t.join('  ');
 }
-const skinOf = h => (S.skin[h] && S.skins.includes(h)) ? 1 : 0;
-const himg = (h, sk) => `<img src="img/${HEROES[h].img}.jpg" draggable="false" alt=""${(sk === undefined ? skinOf(h) : sk) ? ` style="filter:hue-rotate(${SKINS[h].hue}deg) saturate(1.15)"` : ''}>`;
+/* tenues : 0 = classique, 1 = tenue rare, 2 et 3 = nouvelles couleurs (SKX) */
+const skOwn = (h, k) => k === 0 || (k === 1 ? S.skins.includes(h) : !!(S.sk2 && S.sk2[h] && S.sk2[h].includes(k)));
+const skinOf = h => { const k = S.skin[h] === true ? 1 : S.skin[h] | 0; return k > 0 && skOwn(h, k) ? k : 0; };
+const skDef = (h, k) => k > 1 && SKX[h] && SKX[h][k - 2] ? SKX[h][k - 2] : k > 0 && SKINS[h] ? { n: SKINS[h].n, hue: SKINS[h].hue, acc: SKINS[h].pal.acc, cost: 300, curr: 'prisms' } : { n: 'Classique', hue: 0 };
+const himg = (h, sk) => { const k = sk === undefined ? skinOf(h) : sk === true ? 1 : sk | 0; return `<img src="img/${HEROES[h].img}.jpg" draggable="false" alt=""${k ? ` style="filter:hue-rotate(${skDef(h, k).hue}deg) saturate(1.15)"` : ''}>`; };
 const tic = (id, cls) => `<img class="tic ${cls || ''}" src="img/tx/${id}.webp" draggable="false" alt="">`;
 
 function vib(ms) { if (S.set.vib && navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} } }
