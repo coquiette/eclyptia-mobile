@@ -1200,3 +1200,23 @@ function rk9Anim(K) { const f = $('#rk9f'), n = $('#rk9n'), t = $('#rk9t'), b = 
   setTimeout(() => { if (!f.isConnected) return; f.style.transition = 'width .8s cubic-bezier(.2,.8,.2,1)'; if (!up && !down) { f.style.width = K.r1.in + '%'; if (t) t.textContent = K.r1.in + ' / ' + RSTEP; return; }
     f.style.width = up ? '100%' : '0%'; setTimeout(() => { if (!f.isConnected) return; f.style.transition = 'none'; f.style.width = up ? '0%' : '100%'; if (b) { b.textContent = K.r1.n; b.style.setProperty('--rc', K.r1.c); b.classList.add('chg'); } const box = f.closest('.rk9'); if (box) box.insertAdjacentHTML('afterbegin', `<em class="rk9up ${up ? '' : 'dn'}">${up ? 'RANG SUPÉRIEUR !' : 'RANG INFÉRIEUR'}</em>`); try { snd(up ? 'win' : 'no'); } catch (e) {}
       setTimeout(() => { if (!f.isConnected) return; f.style.transition = 'width .7s cubic-bezier(.2,.8,.2,1)'; f.style.width = K.r1.in + '%'; if (t) t.textContent = K.r1.in + ' / ' + RSTEP; }, 80); }, 900); }, 500); }
+
+/* ---------- v6.6 : vrais sons enregistrés (packs audio de Kenney — kenney.nl — libres de droits CC0), rangés dans un seul fichier ---------- */
+const SMAP = {"click":[[0.12,0.062],[0.302,0.385],[0.807,1.949],[2.876,0.019]],"back":[[3.015,0.068],[3.203,0.091],[3.415,0.094],[3.629,0.094]],"tick":[[3.843,0.045],[4.008,0.023]],"err":[[4.151,0.104],[4.376,0.205]],"no":[[4.7,0.165],[4.986,0.556]],"open":[[5.662,0.148],[5.93,0.316],[6.366,0.325],[6.811,0.245]],"buy":[[7.177,0.896],[8.192,0.501]],"claim":[[8.813,0.562],[9.494,0.324]],"pop":[[9.938,0.202],[10.26,0.199],[10.579,0.295],[10.993,0.112]],"pick":[[11.225,0.062],[11.407,0.06],[11.587,0.06]],"coin":[[11.766,0.199],[12.085,0.475]],"gem":[[12.68,0.233],[13.034,0.096],[13.249,0.594],[13.963,0.091]],"shoot":[[14.174,0.2],[14.494,0.2],[14.814,0.2],[15.134,0.2],[15.454,0.2]],"hit":[[15.774,0.161],[16.055,0.18],[16.356,0.161],[16.637,0.137],[16.894,0.144]],"crit":[[17.158,0.431],[17.709,0.541],[18.37,0.543]],"kill":[[19.033,0.35],[19.503,0.35],[19.973,0.35]],"hurt":[[20.443,0.618],[21.181,0.474]],"heart":[[21.775,0.432]],"heal":[[22.327,0.406],[22.853,0.51]],"dash":[[23.483,0.406],[24.01,0.337],[24.466,0.36]],"salve":[[24.946,0.677],[25.743,0.744],[26.606,0.693]],"onde":[[27.42,1.0],[28.54,0.909]],"ultc":[[29.569,0.431]],"ult":[[30.12,1.6]],"boom":[[31.84,0.777],[32.737,1.0],[33.857,1.256],[35.233,1.1]],"boss":[[36.453,2.691]],"spawn":[[39.264,0.522],[39.907,0.319],[40.346,0.537]],"ann":[[41.003,0.817]],"fw":[[41.94,0.6]],"star":[[42.66,0.227]],"zap":[[43.007,0.5],[43.627,0.5]],"wipe":[[44.247,0.751],[45.118,0.795]],"whoosh":[[46.033,0.901],[47.054,0.655]],"slam":[[47.829,1.113]],"start":[[49.062,0.34]],"lvl":[[49.522,0.824]],"rar0":[[50.466,0.777]],"rar1":[[51.364,0.459]],"rar2":[[51.943,1.081]],"rar3":[[53.144,0.91]]};
+const SVOL = { shoot: .06, hit: .12, gem: .1, coin: .14, tick: .1, click: .16, back: .16, pop: .16, kill: .16, crit: .2, hurt: .3, dash: .13, spawn: .1, salve: .18, onde: .28, boom: .3, ult: .42, ultc: .22, boss: .42, slam: .34, ann: .2, zap: .14, fw: .22, wipe: .14, whoosh: .16, lvl: .16, rar0: .14, rar1: .16, rar2: .2, rar3: .22 };
+const SKEEP = { lvl: 1, rar0: 1, rar1: 1, rar2: 1, rar3: 1 };   // ceux-là gardent aussi leur petite mélodie
+let SBUF = null, SASK = 0; const sLast = {};
+function sfxLoad() { if (SASK || !AC) return; SASK = 1; fetch('snd/sfx.mp3?v=' + BUILD).then(r => r.arrayBuffer()).then(b => new Promise((ok, ko) => AC.decodeAudioData(b, ok, ko))).then(b => { SBUF = b; }).catch(() => { setTimeout(() => { SASK = 0; }, 8000); }); }
+{ const _snd = snd; snd = function (name, a) {
+  if (!S.set.snd || !audio()) return; sfxLoad();
+  const vs = SBUF && SMAP[name]; if (!vs) return _snd(name, a);
+  if (SKEEP[name]) _snd(name, a);
+  if (VOX > 90) return; const n = AC.currentTime; if (sLast[name] && n - sLast[name] < (GAP[name] || .04)) return; sLast[name] = n;
+  try {
+    const v = vs[(Math.random() * vs.length) | 0], src = AC.createBufferSource(), g = AC.createGain(); src.buffer = SBUF;
+    let rate = 1 + (Math.random() - .5) * .08; if (name === 'kill') rate *= 1 + Math.min(14, Math.max(0, (a || 1) - 1)) * .03; else if (name === 'gem') rate *= 1 + chain('gem9', .7, 14) * .04; else if (name === 'hit') rate *= 1 + chain('hit9', .25, 6) * .03;
+    src.playbackRate.value = rate; g.gain.value = SVOL[name] || .2; src.connect(g);
+    if (AC.createStereoPanner) { const p = AC.createStereoPanner(); p.pan.value = (Math.random() - .5) * .6; g.connect(p); p.connect(MG); } else g.connect(MG);
+    src.start(n, v[0], v[1]); VOX++; src.onended = vend;
+  } catch (e) { }
+}; }

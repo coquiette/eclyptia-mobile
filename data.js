@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 6.5', BUILD = '65';
+let AR = 1300; const VERSION = 'mobile 6.6', BUILD = '66';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -253,6 +253,10 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins', 'Nébuleuse d’Orion', 'Système solaire', 'Mer de la Tranquillité', 'Planète rouge', 'Anneaux de Saturne', 'Horizon du trou noir', 'Station Éclipse', 'Comète de glace'];
 const PATCH = [
+  { v: '6.6', date: '12 novembre 2026', title: 'Nouveaux monstres, effets et sons', items: [
+    { img: 'ic/skull.webp', t: '13 nouveaux modèles 3D', d: '8 monstres et 5 boss ont maintenant leur propre modèle au lieu d’une simple couleur : Colosse d’obsidienne, Archimage du néant, Ver de lave, Nyxalis, Titan de givre, Azurion…' },
+    { img: 'ic/star.webp', t: 'Effets plus spectaculaires', d: 'Cercles magiques, éclairs, flammes et fumées sur les impacts, les explosions et les compétences, à la couleur de ton gardien.' },
+    { img: 'ic/star.webp', t: 'Tous les sons refaits', d: '40 vrais sons avec plusieurs variantes : tirs, coups, explosions, boss, boutons, cartes et récompenses.' } ] },
   { v: '6.5', date: '12 novembre 2026', title: 'L’espace, 15 vagues et cosmétiques', items: [
     { img: 'ic/star.webp', t: '8 cartes de l’espace', d: 'Nébuleuse, système solaire, Lune, Mars, anneaux de Saturne, trou noir, station, comète : chaque sol est peint différemment. Les arènes flottent au-dessus du vide, la bordure est animée, et les anciennes cartes ont un sol plus détaillé.' },
     { img: 'ic/skull.webp', t: '15 vagues, 8 monstres, 5 boss', d: 'Un boss toutes les 3 vagues et un grand boss final vague 15. Les boss annoncent mieux leurs attaques et ne se téléportent plus sur toi. Le ver des sables a une vraie queue.' },
