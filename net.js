@@ -11,10 +11,10 @@ const NET = {
     this.leave(true); this.role = 1; this.me = 0; this.code = !this.noSlug && S.named && pslug(S.name).length >= 3 ? pslug(S.name) : Array.from({ length: 5 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[(Math.random() * 32) | 0]).join(''); this.lobby = [myInfo()]; this.conns = [null, null, null]; this.state = 'wait';
     this.lib(() => {
       if (this.role !== 1) return;
-      if (this.test) { this.bc = new BroadcastChannel('ecl-' + this.code); this.bc.onmessage = e => { const m = e.data; if (m.to !== 'H') return; let i = this.conns.findIndex(c => c && c.id === m.f); if (i < 0) { i = this.slot(); if (i < 0) return; this.conns[i] = { id: m.f }; } this.onHost(i, m.d); }; this.state = 'ok'; lobbyUI(); return; }
+      if (this.test) { this.bc = new BroadcastChannel('ecl-' + this.code); this.bc.onmessage = e => { const m = e.data; if (m.to !== 'H') return; let i = this.conns.findIndex(c => c && c.id === m.f); if (i < 0) { if (this.rejoinBc && this.rejoinBc(m)) return; i = this.slot(); if (i < 0) return; this.conns[i] = { id: m.f }; } this.onHost(i, m.d); }; this.state = 'ok'; lobbyUI(); return; }
       const p = this.peer = new Peer('eclyptia-' + this.code);
       p.on('open', () => { this.state = 'ok'; lobbyUI(); });
-      p.on('connection', c => { const i = this.slot(); if (i < 0 || (G && SCREEN === 'game')) { c.on('open', () => { c.send({ t: 'full' }); setTimeout(() => c.close(), 300); }); return; } this.conns[i] = c; c.on('data', d => this.onHost(this.conns.indexOf(c), d)); c.on('close', () => this.drop(this.conns.indexOf(c))); c.on('error', () => this.drop(this.conns.indexOf(c))); });
+      p.on('connection', c => { if (G && SCREEN === 'game' && this.rejoin && this.rejoin(c)) return; const i = this.slot(); if (i < 0 || (G && SCREEN === 'game')) { c.on('open', () => { c.send({ t: 'full' }); setTimeout(() => c.close(), 300); }); return; } this.conns[i] = c; c.on('data', d => this.onHost(this.conns.indexOf(c), d)); c.on('close', () => this.drop(this.conns.indexOf(c))); c.on('error', () => this.drop(this.conns.indexOf(c))); });
       p.on('error', e => { if (e && e.type === 'unavailable-id') { this.noSlug = true; this.host(); return; } if (this.state === 'wait') { toast('Impossible de créer le groupe (réseau)'); this.leave(); } });
       p.on('disconnected', () => { try { p.reconnect(); } catch (e) {} });
     });

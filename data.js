@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 6.2', BUILD = '62';
+let AR = 1300; const VERSION = 'mobile 6.3', BUILD = '63';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,11 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '6.3', date: '12 novembre 2026', title: 'Tirs, armes, tenues et groupe', items: [
+    { img: 'ic/swords.webp', t: 'Un tir par gardien', d: 'Lame de lumière, boule de feu, anneau d’eau, étoile de lancer, bloc de rune, larme d’ombre : chaque gardien a son tir, plus gros et plus visible.' },
+    { img: 'ic/crown.webp', t: 'Armes et tenues', d: 'Les armes sont tenues proprement et redessinées. La tenue rare recolore vraiment le gardien, son arme et ses tirs.' },
+    { img: 'ic/friends.webp', t: 'Groupe plus solide', d: 'Une coupure de réseau en partie ne t’exclut plus : le jeu se reconnecte tout seul pendant 30 secondes. Le groupe ne passe plus sur l’argent dans le menu.' },
+    { img: 'ic/skull.webp', t: 'Combat', d: 'Plus de monstres à plusieurs. Les boss ont moins de PV. Les tirs disparaissent à la fin de la vague.' } ] },
   { v: '6.2', date: '12 novembre 2026', title: 'Cartes TOX simples et grand nettoyage', items: [
     { img: 'tx/ki8.webp', t: 'TOX faciles à lire', d: 'Partout dans le jeu : une belle carte, l’image, et une seule ligne qui dit ce que ça fait. Par exemple « +4 % chance ».' },
     { img: 'ic/shield.webp', t: 'Chasse aux bugs', d: 'Le jeu se répare tout seul si une valeur se casse en partie : plus de monstre intouchable ni d’écran figé. Le chrono des vagues ne peut plus se bloquer.' },

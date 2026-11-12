@@ -145,7 +145,8 @@ function mythAI(e, p, dt, slow, ux, uy, d) {
 { const _sp = spawn; spawn = function (id) {
   _sp(id); const m = MON[id]; if (!m || !m.boss) return; const e = G.en[G.en.length - 1]; if (!e || e.id !== id) return;
   const w = G.wave, med = m.myth && w < LAST_WAVE; if (med) { e.med = 1; e.r = Math.round(e.r * .72); }
-  const hp = m.hp * (.55 + w * .26) * 1.8 * G.n * (med ? .55 : m.myth ? 1.35 : 1); e.hp = e.max = hp; e.dmg = m.dmg * (1 + .05 * (w - 1)) * (med ? .85 : 1);
+  /* boss rééquilibrés (v6.3) : environ 25 s, 35 s et 55 s de combat ; à plusieurs +80 % de PV par joueur en plus */
+  const hp = m.hp * (med ? 1.4 : m.myth ? 2.3 : 1.9) * (1 + .8 * (G.n - 1)); e.hp = e.max = hp; e.dmg = m.dmg * (1 + .05 * (w - 1)) * (med ? .85 : 1);
   if (m.myth) { e.ai = 2.6; if (G.cine) { G.cine.t = med ? 3.2 : 4.4; G.cine.zoom = med ? 1.6 : 1.8; G.cine.orbit = 1.3; G.cine.sub = (med ? 'BOSS' : 'BOSS MYTHIQUE') + ' · VAGUE ' + w; } G.flash = .5; G.shake = .8; for (let i = 0; i < 10; i++) addPil(e.x + Math.cos(i * .628) * 300, e.y + Math.sin(i * .628) * 300, 60, 1300, m.col, 1.6); addFx(e.x, e.y, 900, m.col, 1.2); }
 }; }
 { const _kill = kill; kill = function (e) {
@@ -574,7 +575,7 @@ ACT.shopRoll = () => {
   G.wpool = pool; G.wn = q.length; G.queue = q.splice(0, Math.min(6, q.length)); G.wq = q; G.wrel = 1.2; G.wtot = G.wn; }; }
 function waveClock(dt) {
   if (!G.wtimed || G.state !== 'play' || NETROLE === 2 || G.cine || !(dt > 0) || G.wt <= 0) return; G.wt -= dt;
-  if (G.wt <= 0) { G.wt = 0; G.queue.length = 0; if (G.wq) G.wq.length = 0; for (const e of G.en) { e.dead = true; e.nost = 1; try { R3.gone(e); } catch (x) {} } G.en.length = 0; G.flash = Math.max(G.flash || 0, .25); return; }
+  if (G.wt <= 0) { G.wt = 0; G.queue.length = 0; if (G.wq) G.wq.length = 0; for (const e of G.en) { e.dead = true; e.nost = 1; try { R3.gone(e); } catch (x) {} } G.en.length = 0; G.sh.length = 0; if (G.tasks) G.tasks.length = 0; if (G.zn) G.zn.length = 0; G.flash = Math.max(G.flash || 0, .25); return; }
   if (G.wt > 1.2) { G.wrel -= dt; if (G.wrel <= 0) { const prog = 1 - G.wt / G.wdur; G.wrel = Math.max(.12, (G.wdur * .88 / G.wn) * (1.4 - .8 * prog)); G.queue.push((G.wq && G.wq.pop()) || G.wpool[(Math.random() * G.wpool.length) | 0]); } }
 }
 { const _sn = snapshot; snapshot = function () { const s = _sn(); s.wt = G.wtimed ? Math.ceil(G.wt) : -1; return s; }; }
@@ -909,3 +910,49 @@ function frPing(hello) { const F = S.friends || []; if (!F.length || !PRES.id ||
     if (!okN(G.shards)) G.shards = 0; if (!okN(G.kills)) G.kills = 0; }; }
 /* une erreur dans un bouton ne fige plus l'écran : on la note et on rend la main */
 addEventListener('error', () => { try { BUSY = false; const w = $('#wipe'); if (w) setTimeout(() => w.classList.remove('in'), 500); } catch (e) {} });
+
+/* ================= v6.3 : coupures réseau en partie — on ne sort plus le joueur, il se reconnecte tout seul (30 s de marge) ================= */
+const RJ = { t0: 0, iv: 0, MAX: 30000 };
+function rjUI(on, txt) { let e = $('#rjn'); if (!on) { if (e) e.remove(); return; } if (!e) { e = document.createElement('div'); e.id = 'rjn'; $('#stage').appendChild(e); } e.innerHTML = '<i></i>' + (txt || 'Connexion perdue · reconnexion…'); }
+function rjStop() { RJ.t0 = 0; clearInterval(RJ.iv); RJ.iv = 0; rjUI(false); }
+function rjConnect() { const p = NET.peer; if (!p || p.destroyed) return; if (p.disconnected) { try { p.reconnect(); } catch (e) {} return; } const old = NET.hc; let c; try { c = p.connect('eclyptia-' + NET.code, { reliable: true }); } catch (e) { return; } if (!c) return;
+  c.on('open', () => { if (!RJ.t0 || NET.role !== 2) { try { c.close(); } catch (e) {} return; } NET.hc = c; try { if (old && old !== c) old.close(); } catch (e) {} try { c.send({ t: 'rj', uid: S.uid, name: S.name }); } catch (e) {} });
+  c.on('data', d => { if (NET.hc === c || (d && d.t === 'rjok')) { NET.hc = c; NET.onGuest(d); } }); c.on('close', () => { if (NET.hc === c) NET.lost(); }); c.on('error', () => { if (NET.hc === c) NET.lost(); }); }
+function rjTry() { if (!RJ.t0 || NET.role !== 2) return rjStop(); if (Date.now() - RJ.t0 > RJ.MAX) { rjStop(); return NET.lost(true); } if (navigator.onLine === false) return;
+  if (NET.bc) { NET.send({ t: 'rj', uid: S.uid, name: S.name }); return; }
+  if (!NET.peer || NET.peer.destroyed) { try { const p = NET.peer = new Peer(); p.on('open', rjConnect); p.on('error', () => {}); } catch (e) {} return; } rjConnect(); }
+{ const _lost = NET.lost; NET.lost = function (hard, force) { if (this.role !== 2) return; const inGame = G && SCREEN === 'game' && G.state !== 'end';
+    if (!inGame || hard) { rjStop(); return _lost.call(this); } if (RJ.t0) return; if (!force && this.hc && this.hc.open) return;
+    RJ.t0 = Date.now(); rjUI(true); snd('no'); clearInterval(RJ.iv); RJ.iv = setInterval(rjTry, 2500); setTimeout(rjTry, 300); };
+  const _og3 = NET.onGuest; NET.onGuest = function (d) { this._rx = Date.now(); if (!d || this.role !== 2) return; if (d.t === 'rjok') { if (RJ.t0) { rjStop(); toast('Reconnecté !'); snd('buy'); } return; } if (d.t === 'bye') return this.lost(true); if (RJ.t0) { if (d.t === 'full') return; if (d.t === 's') { rjStop(); toast('Reconnecté !'); } } return _og3.call(this, d); };
+  /* côté hôte : un invité coupé reste en jeu, protégé, le temps de revenir */
+  const back = (i, c) => { const p = G && G.ps[i]; if (!p || p.gone) return false; if (c) { const o = NET.conns[i]; NET.conns[i] = c; c._seen = Date.now(); try { if (o && o !== c && o.close) o.close(); } catch (e) {} } if (p.away) { p.away = 0; p.inv = Math.max(p.inv || 0, 2); announce(p.name + ' est de retour', '#8cff7a'); } NET.to(i, { t: 'rjok' }); if (G.state === 'pick' && !p.picked && p.ch) NET.to(i, { t: 'pk', ch: p.ch, w: G.wave }); return true; };
+  const who = uid => { if (!uid || !G) return -1; for (let i = 1; i < G.ps.length; i++) if (!G.ps[i].gone && NET.lobby[i] && NET.lobby[i].uid === uid) return i; return -1; };
+  const _drop = NET.drop; NET.drop = function (i, hard) { if (!hard && this.role === 1 && i > 0 && this.conns[i] && G && SCREEN === 'game' && G.state !== 'end' && G.ps[i] && !G.ps[i].gone) { const p = G.ps[i]; if (!p.away) { p.away = Date.now(); announce(p.name + ' se reconnecte…', '#ffd45e'); } return; } if (G && G.ps[i]) G.ps[i].away = 0; return _drop.call(this, i); };
+  const _oh3 = NET.onHost; NET.onHost = function (i, d) { if (this.role === 1 && d && i > 0 && G && SCREEN === 'game') { if (d.t === 'bye') return this.drop(i, true); if (d.t === 'rj') { back(i); return; } if (G.ps[i] && G.ps[i].away && this.conns[i] && (this.conns[i].open || this.bc)) back(i); } return _oh3.call(this, i, d); };
+  NET.rejoin = function (c) { if (this.role !== 1 || !G || G.state === 'end' || G.ps.length < 2) return false; let ok = 0;
+    c.on('data', d => { if (!ok) { const i = d && d.t === 'rj' ? who(d.uid) : -1; if (i < 0) { try { c.send({ t: 'full' }); } catch (e) {} setTimeout(() => { try { c.close(); } catch (e) {} }, 300); return; } ok = 1; back(i, c); return; } const j = this.conns.indexOf(c); if (j > 0) this.onHost(j, d); });
+    const end = () => { const j = this.conns.indexOf(c); if (j > 0) this.drop(j); }; c.on('close', end); c.on('error', end); return true; };
+  NET.rejoinBc = function (m) { if (this.role !== 1 || !G || SCREEN !== 'game' || !m.d || m.d.t !== 'rj') return false; const i = who(m.d.uid); if (i < 0) return false; return back(i, { id: m.f }); };
+  /* surveillance : silence prolongé = coupure (invité : plus de nouvelles de l'hôte ; hôte : plus de nouvelles d'un invité) */
+  let hid = 0; document.addEventListener('visibilitychange', () => { hid = Date.now(); if (!document.hidden) { NET._rx = Date.now(); for (const c of NET.conns || []) if (c) c._seen = Date.now(); } });
+  setInterval(() => { try { if (!G || SCREEN !== 'game' || G.state === 'end' || document.hidden || Date.now() - hid < 4000) return; const n = Date.now();
+      if (NET.role === 2 && !RJ.t0 && NET.state === 'ok' && NET._rx && n - NET._rx > 6000) NET.lost(false, true);
+      if (NET.role === 1) for (let i = 1; i < G.ps.length; i++) { const p = G.ps[i], c = NET.conns[i]; if (!p || p.gone) continue; if (!p.away && c && ((c._seen && n - c._seen > 9000) || (!NET.bc && c.open === false))) NET.drop(i); if (p.away) { p.inv = Math.max(p.inv || 0, 1.5); p.mv = 0; if (G.state === 'pick' && !p.picked) { try { applyPick(p, 0, 0, []); } catch (e) {} } if (n - p.away > RJ.MAX + 4000) NET.drop(i, true); } } } catch (e) {} }, 1000);
+  const _lv3 = NET.leave; NET.leave = function (q) { rjStop(); return _lv3.call(this, q); }; }
+
+/* v6.3 : le widget de groupe du menu se cale sous le profil, quelle que soit la taille du téléphone */
+function m3gFit() { const g = $('.m3g'), p = $('.m2prof'); if (!g || !p) return; g.style.top = (p.offsetTop + p.offsetHeight + 16) + 'px'; g.style.left = p.offsetLeft + 'px'; const c = $('.m2col') || $('.m2logo'); if (c) { const max = c.offsetLeft - p.offsetLeft - 20; if (max > 200 && g.offsetWidth > max) { g.style.transformOrigin = 'left top'; g.style.transform = 'scale(' + Math.max(.6, max / g.offsetWidth).toFixed(3) + ')'; } } }
+{ const _sh9 = show; show = function (n, enter) { _sh9(n, enter); if (n === 'menu') { m3gFit(); setTimeout(m3gFit, 400); } }; addEventListener('resize', () => setTimeout(m3gFit, 150)); }
+
+/* v6.3 : à plusieurs, c'est plus dur — encore plus de monstres (environ ×2,2 à deux et ×3,8 à trois par rapport au solo) et une escorte autour des boss */
+{ const _nw9 = nextWave; nextWave = function () { const prev = (G.wpool || []).slice(); _nw9(); if (!G || G.n < 2) return; const m = 1 + .3 * (G.n - 1);
+    if (G.wtimed) { const add = Math.round(G.wn * (m - 1)), pool = G.wpool && G.wpool.length ? G.wpool : ['larve']; for (let i = 0; i < add; i++) (i < 4 * (G.n - 1) ? G.queue : G.wq).push(pool[(Math.random() * pool.length) | 0]); G.wn += add; G.wtot = G.wn; }
+    else if (prev.length) { const add = 7 * (G.n - 1) + G.wave; for (let i = 0; i < add; i++) G.queue.unshift(prev[(Math.random() * prev.length) | 0]); G.wtot = G.queue.length; } }; }
+
+/* v6.3 : chaque gardien a son tir (forme propre) ; avec la tenue rare, le tir prend la couleur de la tenue */
+const shotCol = p => p && p.skin && SKINS[p.hero] ? '#' + SKINS[p.hero].pal.acc.toString(16).padStart(6, '0') : p.h.col;
+{ const _f9 = fire; fire = function (p) { const n0 = G.sh.length, ok = _f9(p); if (ok && p && p.skin) { const c = shotCol(p); for (let i = n0; i < G.sh.length; i++) if (G.sh[i].by === p) G.sh[i].col = c; } return ok; }; }
+
+/* v6.3 : quand la vague se termine, plus aucun tir ni zone ne reste à l'écran */
+{ const _sp9 = startPick; startPick = function () { if (G) { G.sh.length = 0; if (G.tasks) G.tasks.length = 0; if (G.zn) G.zn.length = 0; } return _sp9.apply(this, arguments); }; }

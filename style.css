@@ -1669,3 +1669,9 @@ button.s3e:active{transform:scale(.96)}
 .tile{font-size:34px;gap:6px}.tile b{font-size:84px}
 .cxm .tile b,.cx3s .tile b{font-size:44px}.cxm .tile,.cx3s .tile{font-size:24px}
 .fr2l #gcode{width:100%!important;box-sizing:border-box;flex:none}
+/* v6.3 : bandeau de reconnexion */
+#rjn{position:absolute;left:50%;top:150px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:18px;padding:14px 34px 18px;border-radius:40px;background:#150a2ef2;box-shadow:0 0 0 4px #ffd45e,0 8px 0 #0d061d;font-size:34px;color:#ffe9a8;white-space:nowrap;pointer-events:none}
+#rjn i{width:36px;height:36px;border-radius:50%;border:6px solid #ffd45e;border-right-color:transparent;animation:rjs .8s linear infinite}
+@keyframes rjs{to{transform:rotate(360deg)}}
+/* v6.3 : le groupe se range toujours sous le profil, jamais sur l'argent */
+.m3g,.nar .m3g{top:170px;left:calc(var(--sl,0px) + 30px);transform:none;height:96px}.m3ga{width:68px;height:68px}
