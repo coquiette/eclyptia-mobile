@@ -1422,3 +1422,9 @@ button.s3e:active{transform:scale(.96)}
 .h2 .hav,.nar .h2 .hav{width:140px;height:140px}
 .h2 .hhp .ulb{height:20px}
 #cmbs{top:182px}
+/* v5.1 : la barre de vie ne disparaît plus quand on prend un coup (la secousse est sur la barre, pas sur toute la fiche) */
+.h2 .hhp.hit{animation:slideL .5s .9s both}
+.h2 .hhp.hit .hpb{filter:none;animation:hhit .3s}
+.h2 .hhp.hit .hav{animation:hhit .3s reverse}
+.h2 .hhp.hit .hpb:after{content:"";position:absolute;inset:0;background:#fff;opacity:0;animation:hpfl .3s ease-out;pointer-events:none}
+@keyframes hpfl{0%{opacity:.75}100%{opacity:0}}

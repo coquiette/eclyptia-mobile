@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 5.0', BUILD = '50';
+let AR = 1300; const VERSION = 'mobile 5.1', BUILD = '51';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,8 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '5.1', date: '12 novembre 2026', title: 'Barre de vie corrigée', items: [
+    { img: 'ic/heart.webp', t: 'Elle ne disparaît plus', d: 'La barre de vie s’effaçait un instant à chaque coup reçu. Elle reste maintenant affichée : seule la barre tremble et flashe.' } ] },
   { v: '5.0', date: '12 novembre 2026', title: 'Des cartes entourées d’un vrai paysage', items: [
     { img: 'ic/wave.webp', t: 'Un monde autour de l’arène', d: 'Les neuf cartes ne flottent plus dans le vide : forêt, dunes, banquise, mer de lave, fond marin, cimetière brumeux, mer de nuages ou champ d’étoiles s’étendent tout autour.' },
     { img: 'ic/star.webp', t: 'Décors jusqu’à l’horizon', d: 'Arbres, cristaux, coraux, tombes, cactus… plantés partout autour, avec des reliefs au loin. Le sol de lave, l’eau et la brume sont animés.' } ] },
