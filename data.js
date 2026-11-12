@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 5.6', BUILD = '56';
+let AR = 1300; const VERSION = 'mobile 5.7', BUILD = '57';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -237,6 +237,8 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins'];
 const PATCH = [
+  { v: '5.7', date: '12 novembre 2026', title: 'Régénération', items: [
+    { img: 'ic/heart.webp', t: 'Les gardiens se soignent', d: 'Après 4 secondes sans prendre de coup, chaque gardien récupère 2 % de ses PV par seconde. La barre de vie s’entoure de vert pendant ce temps.' } ] },
   { v: '5.6', date: '12 novembre 2026', title: 'Liste d’amis', items: [
     { img: 'kit/r_plus.webp', t: 'Ajouter un ami', d: 'Dans Amis, bouton AJOUTER UN AMI : tape son pseudo. Chaque ami a ensuite deux boutons, REJOINDRE son groupe ou l’INVITER dans le tien.' } ] },
   { v: '5.5', date: '12 novembre 2026', title: 'Clavier du jeu', items: [

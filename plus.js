@@ -696,3 +696,11 @@ ACT.frInvite = v => { const n = S.friends[+v]; if (pslug(S.name).length < 3) ret
       <div class="sub fr2m">Ton pseudo : <b class="kw">${esc(S.name)}</b></div></div>
     <div class="pn col grow fr2p"><div class="row fr2h"><div class="bkh" style="flex:1"><b>Mes amis</b><small>${F.length} / 12</small></div><button class="btn" data-a="frAddOpen" style="min-width:0"><img class="ici" src="img/kit/r_plus.webp" draggable="false" alt=""> AJOUTER UN AMI</button></div>
       ${F.length ? `<div class="fr2g">${F.map((n, i) => `<div class="fr2c" style="--i:${i}"><span class="fr2a">${esc(n).slice(0, 1).toUpperCase()}</span><b>${esc(n)}</b><button class="btn sm vio" data-a="frJoin" data-v="${esc(n)}">REJOINDRE</button><button class="btn sm" data-a="frInvite" data-v="${i}">INVITER</button><button class="rb fr2x" data-a="frDel" data-v="${i}"><img src="img/kit/r_close.webp" draggable="false" alt="Retirer"></button></div>`).join('')}</div>` : `<div class="grow col fr2e">${ic('friends')}<div class="sub">Ajoute un ami avec son pseudo : tu pourras rejoindre son groupe ou l’inviter d’un toucher.</div></div>`}</div></div>`; }; }
+
+/* ================= régénération : après 4 s sans prendre de coup, chaque gardien récupère 2 % de ses PV par seconde ================= */
+const REGW = 4, REGK = .02;
+{ const _hu = hurt; hurt = function (p, d) { const h0 = p ? p.hp : 0; const r = _hu.apply(this, arguments); if (p && p.hp < h0) p.lastHit = G.t; return r; }; }
+{ const _ht4 = hudTick; hudTick = function () { _ht4.apply(this, arguments); if (!G || !G.p) return; const dt = G.t - (G._lt4 === undefined ? G.t : G._lt4); G._lt4 = G.t;
+  if (dt > 0 && dt < .5 && G.state === 'play' && NETROLE !== 2) for (const p of G.ps) { if (p.dead || p.gone || p.hp >= p.maxhp) { p.rg = 0; continue; } if (G.t - (p.lastHit || -99) < REGW) { p.rg = 0; continue; } p.rg = 1; p.hp = Math.min(p.maxhp, p.hp + p.maxhp * REGK * dt);
+    p.rgt = (p.rgt || 0) - dt; if (p.rgt <= 0) { p.rgt = 1; try { addTxt(p.x, p.y, 150, '+' + Math.max(1, Math.round(p.maxhp * REGK)), '#8cff7a'); } catch (e) {} } }
+  const me = G.p, on = NETROLE === 2 ? (me.hp > (me._h0 || 0) + .01 && me.hp < me.maxhp) : !!me.rg; me._h0 = me.hp; const el = $('.hhp'); if (el && el._rg !== on) { el._rg = on; el.classList.toggle('regen', on); } }; }

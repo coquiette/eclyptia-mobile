@@ -1545,3 +1545,6 @@ button.s3e:active{transform:scale(.96)}
 .fr2c .btn{font-size:30px;min-height:80px;padding:0 26px 6px}.fr2x{width:64px!important;height:64px!important}
 .fr2l .btn.big{font-size:44px!important}
 .fr2l input{width:100%;box-sizing:border-box}
+/* v5.7 : régénération */
+.h2 .hhp.regen .hpb{box-shadow:0 6px 0 #0d061d,0 0 0 3px #8cff7a,0 0 22px #8cff7a}
+.h2 .hhp.regen .hpb:before{content:"+";position:absolute;right:16px;top:50%;margin-top:-28px;font-size:50px;line-height:56px;color:#8cff7a;text-shadow:0 3px 0 #0d061d;z-index:2;animation:dotp .5s ease-in-out infinite alternate}
