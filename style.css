@@ -1924,3 +1924,10 @@ img{image-rendering:auto;-webkit-user-drag:none}
 .nar .soon7 .rb7{font-size:19px}
 /* ===== v6.9 : pack étoile gratuit du jour ===== */
 .m3pk.free7{animation:pul 1.1s ease-in-out infinite}.m3pk .fr7{color:#7dff8a!important;font-weight:800}.m3pk.free7 .dot{position:absolute;right:6px;top:6px}
+/* ===== v7.0 : kits des gardiens ===== */
+.cmb.k7{flex-direction:column;align-items:flex-start;gap:3px;padding:8px 18px 10px;max-width:470px}.cmb.k7 b{min-width:0;font-size:25px;color:#ffd45e}.cmb.k7 span{display:block;font-size:19px;color:#cdb8ff;line-height:1.1}
+.cmb.k7.go{opacity:1;border-color:#ffe27a;background:#4a2a00e6;box-shadow:0 0 26px #ffb52e;animation:pul .7s ease-in-out infinite}.cmb.k7.go span{color:#fff}.cmb.k7.go span:after{content:" · PRÊT ! Bouton 3"}
+.k7p{font-size:24px;color:#fff;text-shadow:0 2px 0 #150a2e,0 0 8px #150a2e;padding:0 6px;min-height:26px;font-weight:800}
+.ab.k7w .tic{filter:grayscale(.85) brightness(.6)}.ab.rdy.cnx{animation:pul .6s ease-in-out infinite}
+.k7pas{width:100%;text-align:left;background:#150a2eb8;border-radius:18px;padding:8px 12px 10px;box-shadow:0 0 0 3px #6a48c0;display:flex;flex-direction:column;gap:3px}.k7pas b{font-size:20px;color:#ffd45e;line-height:1.1}.k7pas span{font-size:16.5px;line-height:1.15;color:#e6dcff}
+.soon7 .rb7{font-size:17px;padding:6px 0 8px;top:36%}.nar .soon7 .rb7{font-size:14px}.soon7 .sil .em{fill-rule:evenodd}

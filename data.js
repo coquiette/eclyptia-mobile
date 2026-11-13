@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 6.9', BUILD = '69';
+let AR = 1300; const VERSION = 'mobile 7.0', BUILD = '70';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -253,6 +253,11 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins', 'Nébuleuse d’Orion', 'Système solaire', 'Mer de la Tranquillité', 'Planète rouge', 'Anneaux de Saturne', 'Horizon du trou noir', 'Station Éclipse', 'Comète de glace'];
 const PATCH = [
+  { v: '7.0', date: '13 novembre 2026', title: 'Les gardiens ont leurs vraies compétences', items: [
+    { img: 'ic/swords.webp', t: 'Passif, E, A, Combo et R', d: 'Kaelion, Elyra, Aria, Vesper et Brakkor ont chacun un passif et des compétences uniques. Le bouton 3 est maintenant le Combo : il s’allume quand sa condition est remplie.' },
+    { img: 'ic/star.webp', t: 'Invocations', d: 'Le phénix d’Elyra, les clones de Vesper et la forge de Brakkor se battent à tes côtés.' },
+    { img: 'ic/tox.webp', t: 'Dex, Joueur d’Ombres', d: 'Nyxara devient Dex : à chaque vague il lance un dé et peut copier les compétences d’un autre gardien.' },
+    { img: 'ic/lock.webp', t: '7 gardiens annoncés', d: 'Aaron, Seren, Sahra, Aurion, Ashryn, Golem et Arven arrivent dans de prochaines mises à jour.' } ] },
   { v: '6.9', date: '13 novembre 2026', title: 'Un pack étoile offert chaque jour', items: [
     { img: 'ic/star.webp', t: 'Pack étoile du jour', d: 'Chaque jour, touche le bouton PACKS ÉTOILES du menu pour recevoir 1 pack gratuit. Un seul par jour : reviens demain pour le suivant.' },
     { img: 'ic/gear.webp', t: 'Entrer un code', d: 'Un nouveau bouton dans les Réglages permet de saisir un code.' } ] },
