@@ -62,7 +62,7 @@ const SCR = {
         <div class="row" style="gap:14px;width:100%"><div class="card on heroshow" style="width:120px;height:120px;border-radius:50%;flex:none">${himg(SEL)}</div><div style="text-align:left"><div style="font-size:36px;line-height:1" class="gold">${h.n.toUpperCase()}</div><div class="sub" style="font-size:22px">${own} / ${all.length} TOX</div></div></div>
         <div class="sub" style="font-size:21px;line-height:1.15">Paliers : 10, 30, 50, 70 copies… Chaque palier rend le TOX plus fort.</div>
         <div class="wrow">${W2.map((w, i) => { const have = i === 0 || wo, on = wc === i; return `<button class="wpb ${on ? 'on' : ''} ${have ? '' : 'lk'}" data-a="wp" data-v="${i}"><img src="img/tx/wp_${SEL}${i}.webp" draggable="false" alt=""><b>${w.n}</b><small>${have ? (on ? 'ÉQUIPÉE' : w.d) : w.d}</small><em>${have ? (on ? '✔' : 'ÉQUIPER') : w.cost + ' ' + ic('coin')}</em></button>`; }).join('')}</div>
-        <button class="btn sm vio" data-a="skOpen" style="width:100%;margin-top:auto;min-height:88px;font-size:30px;min-width:0">TENUES · ${[0, 1, 2, 3].filter(k => skOwn(SEL, k)).length} / 4</button>
+        <button class="btn sm vio" data-a="skOpen" style="width:100%;margin-top:auto;min-height:88px;font-size:30px;min-width:0">TENUES · ${[0, 1, 2, 3, 4].filter(k => skOwn(SEL, k)).length} / 5</button>
       </div>
       <div class="col grow" style="gap:12px;min-width:0"><div class="row" style="gap:10px">${tabs}</div>
       <div class="grid grow txg t8 ${TTAB === 4 ? '' : 't4'}">${ids.map(id => { const T = TOX[id], s = S.tox[id] || { l: 0, c: 0 }, on = eq.includes(id); return `<div class="txc ${s.l ? '' : 'lk'} ${on ? 'on' : ''}" style="--rc:${RARC[T.r]}">

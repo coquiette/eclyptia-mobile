@@ -24,7 +24,30 @@ const KDEF = {
     E: ['Main Chanceuse', 12, 'Pendant 6 s, +20 % d’Attaque et de chance de critique, +5 % de plus par point d’affinité.', '6 s · attaque et critique'], A: ['Voile d’Ombre', 13, 'Intangible 1 s par point d’affinité (1 s au moins).', 'Intangible'],
     C: null, R: ['Lancer du Destin', 'Un dé, puis une frappe en grand cône. 1 à 3 : dégâts × le résultat. 4 à 6 : encore plus fort, et E et A sont remis à zéro.', 'Dé + frappe en cône'] }
 };
-const KIDS = Object.keys(KDEF), KCOPY = ['kaelion', 'elyra', 'aria', 'vesper', 'brakkor'];
+/* v7.4 : les 7 nouveaux gardiens (fiche de Nolhan, adaptée au jeu mobile) */
+Object.assign(KDEF, {
+  aaron: { n: 'Aaron', cls: 'Cavalier Dimensionnel', role: 'Duelliste', pv: 19, pas: ['Système de Phase Inversé', 'Traverser un portail étourdit les ennemis à la sortie et libère 2 échos d’ombre qui frappent à 35 % de tes dégâts tant que les portails restent ouverts (recharge 6 s).'],
+    E: ['Portails Jumeaux', 4, 'Pose un portail sous toi et un second 9 m devant. Pendant 8 s, ce qui entre dans l’un ressort par l’autre.', '2 portails · 8 s'], A: ['Ligne de Faille', 4.5, 'Une fracture relie tes portails 2,5 s : blessures répétées, ralentit et marque d’une Faille (+15 % de dégâts subis). Sans portails, elle part devant toi, plus large.', 'Fracture 2,5 s'],
+    C: ['Attraction dimensionnelle', 15, 'Les portails attirent violemment les monstres proches et les écrasent.', 'Un monstre traverse un portail'], R: ['Phase Totale', '6 s intouchable et plus rapide : tu blesses tout ce que tu traverses, puis une onde étourdit autour de toi.', 'Intangible 6 s'] },
+  seren: { n: 'Seren', cls: 'Chasseresse Lunaire', role: 'Tireuse', pv: 20, pas: ['Clair de Lune', 'Tes coups à plus de 7 m posent la Marque Lunaire. Tous les 4 coups lointains, un rayon de lune frappe la cible et soigne de 5 % Seren et les alliés proches.'],
+    E: ['Volée Lunaire', 7, 'Un éventail de 7 flèches d’argent qui transpercent et marquent.', '7 flèches perçantes'], A: ['Puits de Lune', 10, 'Un puits de 6 s soigne les alliés à l’intérieur et ralentit les ennemis.', 'Puits 6 s · soin'],
+    C: ['Renaissance lunaire', 30, 'La prochaine Éclipse Lunaire rend 100 % de leurs PV à tous les alliés.', 'Tuer 10 monstres de loin'], R: ['Éclipse Lunaire', 'Pendant 4 s, une pluie de flèches célestes, puis l’équipe récupère 20 % de vie.', 'Pluie de flèches 4 s'] },
+  sahra: { n: 'Sahra', cls: 'Danseuse des Sables', role: 'Mage', pv: 19, pas: ['Danse des Sables', 'Chaque attaque ralentit l’ennemi touché. +5 % d’Attaque par ennemi ralenti (10 max). Une zone de sable t’entoure : elle grandit et fait plus mal avec les charges.'],
+    E: ['Sables Mouvants', 5, 'Pendant 6 s, tes attaques ralentissent plus longtemps et laissent du sable au sol.', '6 s · sable au sol'], A: ['Dune Protectrice', 12, 'Une dune se dresse sous toi 3 s : elle encaisse tous les coups et blesse les ennemis à son pied.', 'Bouclier de sable 3 s'],
+    C: ['Chute de sable', 18, 'Une zone de sable se forme sous chaque ennemi ralenti et le blesse pendant 5 s.', 'La dune se termine'], R: ['Tempête de Sable', 'Une marée de sable déferle en ligne droite : gros dégâts, puis zone qui ralentit sur tout le passage pendant 5 s.', 'Vague de sable'] },
+  aurion: { n: 'Aurion', cls: 'Jouteur Mécanique', role: 'Combattant', pv: 22, pas: ['Destrier du Zénith', 'PV +30 % et dégâts subis réduits. Tant qu’il avance sans s’arrêter, sa vitesse grimpe jusqu’à ×2 en 10 s. S’il tombe, il est désarçonné : 50 % de PV, à pied, sans compétences, plus lent. Il remonte à la vague suivante (ou avec R après 60 s).'],
+    E: ['Charge de Joute', 6.5, 'Charge en ligne droite qui empale et emporte les ennemis. Plus tu vas vite, plus elle frappe fort. Le mur t’étourdit et écrase les empalés.', 'Charge · empale'], A: ['Rempart d’Acier', 16, 'Pendant 10 s, -55 % de dégâts subis, mais tes armes cessent d’attaquer.', 'Défense 10 s'],
+    C: ['Charge triomphale', 40, 'Ta prochaine Charge Triomphale dure 2 s de plus et rebondit vers les ennemis proches.', '15 monstres entraînés'], R: ['Charge Triomphale', 'Embroche l’ennemi le plus proche, le projette vers le plus gros groupe, puis charge 3 s dans cette direction en empalant tout.', 'Charge de 3 s'] },
+  ashryn: { n: 'Ashryn', cls: 'Sang-Dragon des Plaines', role: 'Tank', pv: 23, pas: ['Peau de Dragon', '-20 % de dégâts subis, -40 % quand un ennemi qui brûle est tout près.'],
+    E: ['Tourbillon de Braise', 7, 'Deux frappes tout autour qui enflamment. Pendant 5 s, +25 % de dégâts et chaque attaque brûle.', '2 tourbillons · 5 s'], A: ['Envol Draconique', 11, 'Vol jusqu’à 9 m, invulnérable, puis écrasement dans une gerbe de flammes qui étourdit.', 'Saut · étourdit'],
+    C: ['Éternuement draconique', 18, 'Une énorme explosion de feu en cône.', 'L’envol touche 8 monstres'], R: ['Ciel de Feu', 'Intouchable 5 s dans les airs : pluie de feu sur toute la carte, puis retombée en explosion qui étourdit.', 'Pluie de feu 5 s'] },
+  golem: { n: 'Golem', cls: 'Colosse de Cristal', role: 'Tank', pv: 26, pas: ['Cœur de Cristal', 'À la fin de chaque vague, tes éclats deviennent des PV max (+1 PV par 4 éclats). Le Marchand te coûte 20 % plus cher.'],
+    E: ['Faim de Cristal', 6, 'Pendant 5 s, chaque éclat ramassé en donne 1 de plus.', 'Éclats ×2 · 5 s'], A: ['Petit Golem', 7, 'Dépense 20 éclats pour invoquer 10 s un petit golem solide qui attire les monstres (hors boss) et laisse tomber des éclats.', '20 éclats · 10 s'],
+    C: ['Surcharge cristalline', 10, 'Consomme la moitié de tes éclats et frappe en cercle selon le nombre que tu avais.', 'Plus d’éclats que de PV max'], R: ['Forteresse de Cristal', 'Soin de 15 % des PV max + 1 PV par 4 éclats : 60 % tout de suite, le reste en 10 s.', 'Gros soin'] },
+  arven: { n: 'Arven', cls: 'Souverain des Marées', role: 'Duelliste', pv: 21, pas: ['Maîtrise des Marées', 'Chaque Danse des Trois Marées réussie donne une charge : +5 % de dégâts par charge (5 max) et -1 s de recharge de la Danse. Un coup de la Danse dans le vide fait perdre toutes les charges.'],
+    E: ['Danse des Trois Marées', 6, 'Trois coups enchaînés (touche E à nouveau) : Tranchant Aquatique, Fouet des Marées, Percée des Abysses. Chacun ne se débloque que si le précédent touche.', '3 coups enchaînés'], A: ['Rempart des Marées', 12, 'Un mur d’eau t’entoure 6 s : il a sa propre vie, absorbe coups et tirs et repousse les monstres.', 'Mur d’eau 6 s'],
+    C: ['Marée haute', 20, '+30 % d’Attaque tant que la Maîtrise reste à 5 charges.', 'Réussir la Danse à 5 charges'], R: ['Souverain des Marées', 'Remet la Danse à zéro. Pendant 10 s : +50 % d’Attaque, vol de vie, régénération, et un combo raté n’a plus de pénalité.', 'Puissance 10 s'] } });
+const KIDS = Object.keys(KDEF), KCOPY = ['kaelion', 'elyra', 'aria', 'vesper', 'brakkor', 'aaron', 'seren', 'sahra', 'ashryn', 'arven'];
 /* ---- données : noms, classes, PV, et les 4 pouvoirs de base de chaque gardien deviennent ceux de la fiche ---- */
 for (const h of KIDS) { const D = KDEF[h], H = HEROES[h]; if (!H) continue; H.n = D.n; H.cls = D.cls; H.hp = Math.round(D.pv * 6.5); H.kit = 1;
   const ids = H.tox, set = (id, n, cd, d, mn) => { const T = TOX[id]; if (!T) return; T.n = n; T.d = d; T.kmn = mn; T.kit = 1; if (cd) T.cd = cd; T.t = 'kit'; };
@@ -148,6 +171,178 @@ const KS = {
     tick(p, dt) { const k = p.k; if (k.luck > 0) { k.luck -= dt; if (k.luck <= 0) { p.mods.dmg /= 1 + k.lm; p.mods.crit -= k.lm; } } k.cr = 0; k.st = 'Dé : ' + k.die + ' · affinité ' + k.aff; }
   }
 };
+/* ================= v7.4 : compétences des 7 nouveaux gardiens ================= */
+const kOwnW = p => Math.max(0, (G.shards | 0) - (p.spent | 0));       // éclats du joueur
+const kTp = p => { clampR(p, AR - 60); if (p.remote) evp(['tp', p.i, p.x | 0, p.y | 0]); };
+const kMul = (p, key, f) => { p.mods[key] *= f; };                    // modificateur réversible
+/* IA simple des invocations qui se battent (échos d'Aaron, petit golem) */
+function kFight(p, c, dt, dmg, rate, sp) { const e = kNear(c.x, c.y, 900); c.atk -= dt; c.blink = 0; if (!e) { c.mv = 0; return; } const dx = e.x - c.x, dy = e.y - c.y, d = hyp(dx, dy) || 1; c.fx = dx / d; c.fy = dy / d;
+  if (d > e.r + 110) { c.x += dx / d * sp * dt; c.y += dy / d * sp * dt; c.mv = 1; c.mvx = c.fx; c.mvy = c.fy; } else c.mv = 0; c.ft -= dt; if (c.ft <= 0 && d < e.r + 150) { c.ft = rate; c.atk = .2; dmgE(e, dmg, false, c); } }
+/* charge d'Aurion : avance en ligne, empale, s'arrête au mur */
+function kChargeStep(p, dt) { const k = p.k, c = k.chg; if (!c) return; c.t -= dt; p.inv = Math.max(p.inv, .15);
+  if (c.bounce && (c.rt = (c.rt || 0) - dt) <= 0) { c.rt = .8; const e = kNear(p.x + c.ax * 300, p.y + c.ay * 300, 900, c.hit); if (e) { const dx = e.x - p.x, dy = e.y - p.y, d = hyp(dx, dy) || 1; c.ax = dx / d; c.ay = dy / d; } }
+  p.x += c.ax * c.sp * dt; p.y += c.ay * c.sp * dt; p.fx = c.ax; p.fy = c.ay; p.mvx = c.ax; p.mvy = c.ay; p.mv = 1;
+  const wall = hyp(p.x, p.y) > AR - 90;
+  for (const e of G.en) { if (e.dead) continue; const dx = e.x - p.x, dy = e.y - p.y; if (hyp(dx, dy) > p.r + e.r + 40) continue; if (!c.hit.has(e.uid)) { c.hit.add(e.uid); dmgE(e, kd(p) * c.dm, false, p); if (!e.m.boss && c.imp.length < 12) { c.imp.push(e); k.drag = (k.drag | 0) + 1; } } }
+  c.imp = c.imp.filter(e => !e.dead); c.imp.forEach((e, i) => { const o = p.r + e.r + 10 + (i % 3) * 22, s = ((i % 3) - 1) * 46; e.x = p.x + c.ax * o - c.ay * s; e.y = p.y + c.ay * o + c.ax * s; e.kx = e.ky = 0; e.kst = Math.max(e.kst || 0, .2); });
+  if (Math.random() < dt * 14) KV(9, p.x - c.ax * 60, p.y - c.ay * 60, 20, 60, 160, c.col, .5, 1, .4, undefined, .5);
+  if (wall && c.bounce && c.t > .4) { c.ax = -p.x / (hyp(p.x, p.y) || 1); c.ay = -p.y / (hyp(p.x, p.y) || 1); c.rt = .3; }
+  if (wall && !c.bounce) { for (const e of c.imp) { dmgE(e, kd(p) * 3 * c.K, true, p); kStun(e, 1.5); } addFx(p.x, p.y, 320, '#ffe9a8', .5); KV(7, p.x, p.y, 60, 150, 560, '#ffd45e', .4, 0, 1); G.shake = .6; evp(['sh', .6, .2]); gsnd('slam'); k.stun = 1.5; k.sx = p.x; k.sy = p.y; c.t = 0; announce('MUR !', '#ffe9a8'); }
+  kTp(p); if (c.t <= 0) { for (const e of c.imp) { e.kx = c.ax * 600; e.ky = c.ay * 600; } k.chg = null; if (c.end) c.end(); } }
+
+Object.assign(KS, {
+  aaron: {
+    pts(p) { return kMine(p, 'portal'); },
+    E(p) { for (const a of this.pts(p)) kDel(a); const an = kAng(p), x2 = p.x + Math.cos(an) * 9 * KM, y2 = p.y + Math.sin(an) * 9 * KM, b = { x: x2, y: y2 }; clampR(b, AR - 110);
+      const A = kAdd({ al: 'portal', own: p, x: p.x, y: p.y, t: 8 }), B = kAdd({ al: 'portal', own: p, x: b.x, y: b.y, t: 8 }); A.o = B; B.o = A; p.k.ppt = G.t + .8;
+      for (const q of [A, B]) { addPil(q.x, q.y, 70, 900, '#8a6aff', .7); KV(3, q.x, q.y, 6, 80, 260, '#b07bff', .6, 1, 4); } gsnd('dash'); },
+    A(p, K) { const L = this.pts(p); let x1 = p.x, y1 = p.y, x2, y2, w = 70; if (L.length === 2) { x1 = L[0].x; y1 = L[0].y; x2 = L[1].x; y2 = L[1].y; w = 52; } else { const an = kAng(p); x2 = p.x + Math.cos(an) * 720; y2 = p.y + Math.sin(an) * 720; }
+      for (const b of kMine(p, 'rift')) kDel(b); kAdd({ al: 'rift', own: p, x: x1, y: y1, x2, y2, t: 2.5, w, ft: 0, K }); gsnd('onde'); },
+    C(p) { p.k.pull = 3; p.k.pullT = 0; p.k.trav = 0; announce('ATTRACTION DIMENSIONNELLE', '#b07bff'); gsnd('ultc'); },
+    R(p, K) { const k = p.k; k.ph = 6; k.phK = K; kMul(p, 'spd', 1.5); p.inv = Math.max(p.inv, 6.2); addPil(p.x, p.y, 100, 1200, '#8a6aff', 1); KV(3, p.x, p.y, 6, 120, 600, '#b07bff', .8, 1, 6); G.ecl = 1.2; gsnd('ult'); },
+    off(p) { const k = p.k; if (k.ph > 0) { kMul(p, 'spd', 1 / 1.5); k.ph = 0; } },
+    tick(p, dt) { const k = p.k, L = this.pts(p);
+      for (const a of L) { a.t -= dt; if (a.t <= 0) { addFx(a.x, a.y, 120, '#8a6aff', .3); kDel(a); } } const P2 = this.pts(p);
+      if (P2.length === 2) { for (const a of P2) { if (Math.random() < dt * 5) KV(3, a.x, a.y, 6, 120, 150, '#8a6aff', .5, 1, 5, undefined, .7);
+          for (const e of G.en) { if (e.dead || e.m.boss || (e.kpt || 0) > G.t || hyp(e.x - a.x, e.y - a.y) > 70 + e.r * .5) continue; const o = a.o, an = Math.random() * 6.283; e.x = o.x + Math.cos(an) * 90; e.y = o.y + Math.sin(an) * 90; e.kpt = G.t + 1.4; k.trav = 1; KV(4, o.x, o.y, 60, 60, 200, '#d0b0ff', .3, 0, 2); }
+          if ((k.ppt || 0) < G.t && hyp(p.x - a.x, p.y - a.y) < 70) { const o = a.o; p.x = o.x; p.y = o.y; kTp(p); k.ppt = G.t + 1.2; addFx(o.x, o.y, 160, '#b07bff', .4); KV(4, o.x, o.y, 70, 80, 300, '#ffffff', .3, 0, 2); gsnd('dash');
+            if ((k.pcd || 0) <= G.t) { k.pcd = G.t + 6; aoe(p, o.x, o.y, 230, kd(p) * 1.2, 300, e => kStun(e, 1.2)); addFx(o.x, o.y, 230, '#8a6aff', .45);
+              for (const c of kMine(p, 'clone')) kDel(c); for (const sg of [-1, 1]) { const c = kClone(p, o.x + sg * 90, o.y); c.t = Math.max(a.t, 2); c.echo = 1; } announce('ÉCHOS D’OMBRE', '#b07bff'); } } } }
+      for (const c of kMine(p, 'clone')) { c.t -= dt; if (c.t <= 0 || P2.length < 2) { addFx(c.x, c.y, 90, '#7a4ad0', .3); kDel(c); continue; } kFight(p, c, dt, kd(p) * .35 * 2, .4, 430); }
+      for (const b of kMine(p, 'rift')) { b.t -= dt; if (b.t <= 0) { kDel(b); continue; } const pr = P2.length === 2 && b.w < 60; if (pr) { b.x = P2[0].x; b.y = P2[0].y; b.x2 = P2[1].x; b.y2 = P2[1].y; }
+        b.ft -= dt; if (b.ft <= 0) { b.ft = .3; const d = kd(p) * .9 * b.K; for (const e of G.en.slice()) if (!e.dead && kSeg(b.x, b.y, b.x2, b.y2, e.x, e.y) < b.w + e.r) { dmgE(e, d, false, p); e.slowT = Math.max(e.slowT || 0, .8); e.kfl = G.t + 6; } const f = Math.random(); KV(13, b.x + (b.x2 - b.x) * f, b.y + (b.y2 - b.y) * f, 40, 80, 220, '#b07bff', .3, 0, 3); } }
+      if (k.pull > 0) { k.pull -= dt; k.pullT -= dt; const ctr = P2.length ? P2 : [p]; for (const e of G.en) { if (e.dead || e.m.boss) continue; let c = null, cd = 560; for (const q of ctr) { const d = hyp(e.x - q.x, e.y - q.y); if (d < cd) { cd = d; c = q; } } if (!c || cd < 30) continue; const f = Math.min(cd, 900 * dt); e.x += (c.x - e.x) / cd * f; e.y += (c.y - e.y) / cd * f; }
+        if (k.pullT <= 0) { k.pullT = .3; for (const q of ctr) { aoe(p, q.x, q.y, 160, kd(p) * .8, 0); KV(3, q.x, q.y, 6, 300, 120, '#8a6aff', .4, 1, -6); } } }
+      if (k.ph > 0) { k.ph -= dt; p.inv = Math.max(p.inv, .2); for (const e of G.en.slice()) if (!e.dead && (e.kph || 0) < G.t && hyp(e.x - p.x, e.y - p.y) < p.r + e.r + 30) { e.kph = G.t + .5; dmgE(e, kd(p) * 2 * k.phK, false, p); KV(13, e.x, e.y, 50, 80, 220, '#d0b0ff', .25, 0, 6); }
+        if (Math.random() < dt * 10) KV(8, p.x, p.y, 60, 60, 180, '#7a4ad0', .5, 0, .5, undefined, .5);
+        if (k.ph <= 0) { kMul(p, 'spd', 1 / 1.5); aoe(p, p.x, p.y, 400, kd(p) * 3 * k.phK, 400, e => kStun(e, 1.5)); addFx(p.x, p.y, 400, '#8a6aff', .6); KV(3, p.x, p.y, 6, 200, 900, '#b07bff', .8, 1, -5); G.shake = .5; evp(['sh', .5, .2]); gsnd('boom'); } }
+      k.cr = !!k.trav && !(k.pull > 0); k.st = P2.length === 2 ? 'Portails ' + Math.ceil(P2[0].t) + ' s' : (k.pcd > G.t ? 'Échos dans ' + Math.ceil(k.pcd - G.t) + ' s' : ''); },
+    hit(p, e, d) { if (e.kfl > G.t && !e.dead) _kDmg(e, d * .15, false, p); }
+  },
+  seren: {
+    E(p, K) { const a = kAng(p); for (let i = -3; i <= 3; i++) { const an = a + i * .13; G.sh.push({ x: p.x + Math.cos(an) * 40, y: p.y + Math.sin(an) * 40, vx: Math.cos(an) * 1150, vy: Math.sin(an) * 1150, r: 22, dmg: kd(p) * 2.1 * K, crit: false, pierce: 99, life: .9, col: '#e8f4ff', by: p }); }
+      KV(5, p.x + Math.cos(a) * 70, p.y + Math.sin(a) * 70, 60, 60, 220, '#ffffff', .25, 0, 2); gsnd('salve'); },
+    A(p, K) { for (const w of kMine(p, 'well')) kDel(w); kAdd({ al: 'well', own: p, x: p.x, y: p.y, t: 6, ft: 0, K }); addPil(p.x, p.y, 120, 1000, '#bfe0ff', .9); KV(2, p.x, p.y, 6, 120, 520, '#bfe0ff', .8, 1, 1); gsnd('heal'); },
+    C(p) { p.k.reb = 1; p.k.fk = 0; announce('RENAISSANCE LUNAIRE', '#e8f4ff'); KV(1, p.x, p.y, 80, 100, 420, '#e8f4ff', .6, 0, 0); gsnd('ultc'); },
+    R(p, K) { const k = p.k; k.ecl = 4; k.eK = K; k.eT = 0; G.ecl = 1; addPil(p.x, p.y, 140, 1500, '#e8f4ff', 1); gsnd('ult'); },
+    tick(p, dt) { const k = p.k;
+      for (const w of kMine(p, 'well')) { w.t -= dt; if (w.t <= 0) { kDel(w); continue; } w.ft -= dt; if (w.ft <= 0) { w.ft = .5; for (const q of alive()) if (hyp(q.x - w.x, q.y - w.y) < 270) kHeal(q, q.maxhp * .035 * w.K); for (const e of G.en) if (hyp(e.x - w.x, e.y - w.y) < 270 + e.r) e.slowT = Math.max(e.slowT || 0, 1); KV(15, w.x + rnd(-150, 150), w.y + rnd(-150, 150), 60, 40, 120, '#e8f4ff', .6, 0, 1); } }
+      if (k.ecl > 0) { k.ecl -= dt; k.eT -= dt; if (k.eT <= 0) { k.eT = .1; const pool = G.en.filter(e => !e.dead && hyp(e.x - p.x, e.y - p.y) < 1100); const e = pool[(Math.random() * pool.length) | 0]; if (e) { const x = e.x, y = e.y; KV(13, x, y, 120, 60, 260, '#e8f4ff', .22, 0, 0, 1.571); fdo(.12, () => { aoe(p, x, y, 90, kd(p) * 1.7 * k.eK, 0); addPil(x, y, 26, 700, '#e8f4ff', .35); }); } }
+        if (k.ecl <= 0) { const f = k.reb ? 1 : .2; for (const q of alive()) { kHeal(q, q.maxhp * f); addPil(q.x, q.y, 90, 1100, '#e8f4ff', .9); } announce(k.reb ? 'RENAISSANCE LUNAIRE' : 'LA LUNE VOUS SOIGNE', '#e8f4ff'); k.reb = 0; gsnd('heal'); } }
+      k.cr = (k.fk | 0) >= 10 && !k.reb; k.st = k.reb ? 'Renaissance prête' : 'Tirs lointains ' + (k.fh | 0) + ' / 4' + ((k.fk | 0) < 10 ? ' · ' + (k.fk | 0) + ' / 10' : ''); },
+    hit(p, e, d, crit, by) { if (by !== p || hyp(e.x - p.x, e.y - p.y) < 7 * KM) return; const k = p.k; e.kml = G.t + 6; k.fh = (k.fh | 0) + 1; if (k.fh < 4) return; k.fh = 0;
+      if (!e.dead) dmgE(e, kd(p) * 2.5, true, p); addPil(e.x, e.y, 50, 1100, '#e8f4ff', .6); KV(1, e.x, e.y, 70, 60, 200, '#e8f4ff', .4, 0, 0); for (const q of alive()) if (hyp(q.x - p.x, q.y - p.y) < 8 * KM) kHeal(q, q.maxhp * .05); },
+    kill(p, e, by) { if (by === p && hyp(e.x - p.x, e.y - p.y) > 7 * KM && !p.k.reb) p.k.fk = (p.k.fk | 0) + 1; }
+  },
+  sahra: {
+    sand(p, x, y, r, t) { const k = p.k; (k.sp = k.sp || []).push([x, y, r, G.t + t]); if (k.sp.length > 40) k.sp.shift(); KV(9, x, y, 5, r * 1.6, r * 2, '#e8c06a', t, 1, .15, undefined, .4); },
+    E(p) { p.k.qs = 6; announce('SABLES MOUVANTS', '#e8c06a'); KV(3, p.x, p.y, 6, 100, 360, '#e8c06a', .6, 1, 3); gsnd('onde'); },
+    A(p) { const k = p.k; for (const d of kMine(p, 'dune')) kDel(d); const d = kAdd({ al: 'dune', own: p, x: p.x, y: p.y, t: 3, hp: p.maxhp * .7, maxhp: p.maxhp * .7, ft: 0 }); k.dune = d; addFx(p.x, p.y, 220, '#e8c06a', .4); KV(9, p.x, p.y, 6, 120, 360, '#e8c06a', .7, 1, .3); gsnd('slam'); },
+    C(p) { const k = p.k; k.dend = -99; let n = 0; for (const e of G.en) if (!e.dead && e.slowT > 0) { kBurn(e, kd(p) * .9, 5, p); this.sand(p, e.x, e.y, 70, 5); n++; } announce('CHUTE DE SABLE · ' + n, '#e8c06a'); gsnd('ultc'); },
+    R(p, K) { const a = kAng(p), ax = Math.cos(a), ay = Math.sin(a); const hitS = new Set(), d0 = kd(p) * 6 * K;
+      for (let i = 1; i <= 8; i++) { const x = p.x + ax * i * 140, y = p.y + ay * i * 140; fdo(i * .14, () => { this.sand(p, x, y, 130, 5); KV(9, x, y, 40, 120, 340, '#ffd890', .6, 0, .5, undefined, .7); KV(12, x, y, 70, 80, 260, '#e8c06a', .45, 0, 1); for (const e of G.en.slice()) if (!e.dead && !hitS.has(e.uid) && hyp(e.x - x, e.y - y) < 150 + e.r) { hitS.add(e.uid); dmgE(e, d0, false, p); e.kx = ax * 500; e.ky = ay * 500; } }); } G.shake = .5; evp(['sh', .5, .2]); gsnd('boom'); },
+    off(p) { const k = p.k; if (k.chm) { p.mods.dmg /= 1 + .05 * k.chm; k.chm = 0; } },
+    tick(p, dt) { const k = p.k; k.qs = Math.max(0, (k.qs || 0) - dt);
+      k.cT = (k.cT || 0) - dt; if (k.cT <= 0) { k.cT = .25; let n = 0; for (const e of G.en) if (!e.dead && e.slowT > 0) n++; n = Math.min(10, n); if (n !== (k.chm | 0)) { p.mods.dmg *= (1 + .05 * n) / (1 + .05 * (k.chm | 0)); k.chm = n; } }
+      k.aT = (k.aT || 0) - dt; if (k.aT <= 0) { k.aT = .5; const r = 150 + 16 * (k.chm | 0); aoe(p, p.x, p.y, r, kd(p) * .3 * (1 + .1 * (k.chm | 0)), 0, e => { e.slowT = Math.max(e.slowT || 0, .7); }); KV(9, p.x, p.y, 5, r * 1.5, r * 1.9, '#e8c06a', .7, 1, .4, undefined, .3); }
+      if (k.sp && k.sp.length) { k.sp = k.sp.filter(s => s[3] > G.t); k.sT = (k.sT || 0) - dt; if (k.sT <= 0) { k.sT = .3; for (const e of G.en) for (const s of k.sp) if (hyp(e.x - s[0], e.y - s[1]) < s[2] + e.r) { e.slowT = Math.max(e.slowT || 0, .6); break; } } }
+      const d = k.dune; if (d) { d.x = p.x; d.y = p.y; d.t -= dt; d.ft -= dt; if (d.ft <= 0) { d.ft = .5; aoe(p, p.x, p.y, 210, kd(p) * .6, 120); }
+        if (d.t <= 0 || d.hp <= 0) { kDel(d); k.dune = null; k.dend = G.t; addFx(p.x, p.y, 240, '#e8c06a', .45); KV(9, p.x, p.y, 20, 200, 420, '#e8c06a', .8, 0, .4, undefined, .6); } }
+      k.cr = !k.dune && G.t - (k.dend || -99) < 8; k.st = 'Sable ' + (k.chm | 0) + ' / 10' + (k.dune ? ' · Dune ' + Math.round(100 * Math.max(0, k.dune.hp) / k.dune.maxhp) + ' %' : ''); },
+    hit(p, e, d, crit, by) { if (e.dead) return; const k = p.k; e.slowT = Math.max(e.slowT || 0, k.qs > 0 ? 2.5 : 1.4); if (k.qs > 0 && G.t - (k.lsd || 0) > .2) { k.lsd = G.t; this.sand(p, e.x, e.y, 80, 4); } },
+    hurt(p, d) { const k = p.k; if (k.dune && k.dune.hp > 0) { k.dune.hp -= d; addTxt(p.x, p.y, 170, 'DUNE', '#e8c06a', 1); KV(9, p.x, p.y, 30, 80, 200, '#e8c06a', .4, 0, .5, undefined, .6); return 0; } return d; }
+  },
+  aurion: {
+    init(p) { const k = p.k; k.mount = 1; k.rf = 1; p.maxhp = Math.round(p.maxhp * 1.3); p.hp = p.maxhp; k.wv = G ? G.wave : 0; },
+    can(p, key) { const k = p.k; if (k.mount) return true; if (key === 'u' && G.t - (k.foot || 0) >= 60) { this.mountUp(p); return false; } if (p === G.p) { snd('no'); toast('Désarçonné : pas de compétences' + (G.t - (k.foot || 0) < 60 ? ' (R rappelle le destrier dans ' + Math.ceil(60 - (G.t - k.foot)) + ' s)' : '')); } return false; },
+    mountUp(p) { const k = p.k; if (k.mount) return; k.mount = 1; kMul(p, 'spd', 1 / .4); addPil(p.x, p.y, 110, 1200, '#ffe9a8', 1); KV(15, p.x, p.y, 100, 80, 300, '#ffe9a8', .6, 0, 1); announce('LE DESTRIER REVIENT', '#ffe9a8'); gsnd('heal'); },
+    E(p, K) { const k = p.k, a = p.mv > .3 ? Math.atan2(p.mvy, p.mvx) : kAng(p), m = 1 + Math.min(1, (k.rt || 0) / 10); k.chg = { t: .75, ax: Math.cos(a), ay: Math.sin(a), sp: 1500, dm: 2.6 * m * K, K, hit: new Set(), imp: [], col: '#ffe9a8' }; gsnd('dash'); },
+    A(p) { p.k.ram = 10; addPil(p.x, p.y, 100, 1100, '#c0c8d8', .9); KV(2, p.x, p.y, 6, 140, 420, '#e8d8a0', .8, 1, 2); announce('REMPART D’ACIER', '#e8d8a0'); gsnd('heal'); },
+    C(p) { p.k.tri = 1; p.k.drag = 0; announce('CHARGE TRIOMPHALE PRÊTE', '#ffd45e'); gsnd('ultc'); },
+    R(p, K) { const k = p.k, n0 = kNear(p.x, p.y, 1100); let best = null, bn = -1; for (const e of G.en) { if (e.dead) continue; let n = 0; for (const f of G.en) if (hyp(f.x - e.x, f.y - e.y) < 300) n++; if (n > bn) { bn = n; best = e; } }
+      let a = kAng(p); if (best) a = Math.atan2(best.y - p.y, best.x - p.x); if (n0 && !n0.m.boss) { n0.kx = Math.cos(a) * 1600; n0.ky = Math.sin(a) * 1600; dmgE(n0, kd(p) * 4 * K, true, p); }
+      const tri = k.tri; k.tri = 0; k.chg = { t: 3 + (tri ? 2 : 0), ax: Math.cos(a), ay: Math.sin(a), sp: 1050, dm: 3.2 * K, K, hit: new Set(), imp: [], col: '#ffd45e', bounce: tri, end() { aoe(p, p.x, p.y, 380, kd(p) * 4 * K, 500); addFx(p.x, p.y, 380, '#ffd45e', .5); gsnd('boom'); } }; addPil(p.x, p.y, 130, 1400, '#ffd45e', 1); gsnd('ult'); },
+    off(p) { const k = p.k; if (k.rf && k.rf !== 1) { p.mods.spd /= k.rf; k.rf = 1; } if (!k.mount) { k.mount = 1; p.mods.spd /= .4; } },
+    tick(p, dt) { const k = p.k; if (k.wv !== G.wave) { k.wv = G.wave; if (!k.mount) this.mountUp(p); }
+      if (k.stun > 0) { k.stun -= dt; p.x = k.sx; p.y = k.sy; kTp(p); p.mv = 0; if (Math.random() < dt * 6) KV(15, p.x, p.y, 150, 40, 90, '#ffe9a8', .4, 0, 3); }
+      if (k.chg) kChargeStep(p, dt);
+      if (k.mount) { if (p.mv > .4 || k.chg) k.rt = Math.min(10, (k.rt || 0) + dt); else k.rt = 0; const f = 1 + Math.min(1, k.rt / 10); if (Math.abs(f - (k.rf || 1)) > .02) { p.mods.spd *= f / (k.rf || 1); k.rf = f; } if (k.rt > 4 && Math.random() < dt * k.rt) KV(9, p.x, p.y, 10, 40, 120, '#c0c8d8', .4, 1, .3, undefined, .4); }
+      if (k.ram > 0) { k.ram -= dt; p.fireT = Math.max(p.fireT, .2); if (Math.random() < dt * 3) KV(2, p.x, p.y, 8, 120, 200, '#e8d8a0', .5, 1, 2, undefined, .5); }
+      k.cr = (k.drag | 0) >= 15 && !k.tri; k.st = !k.mount ? 'À pied' + (G.t - k.foot < 60 ? ' · ' + Math.ceil(60 - (G.t - k.foot)) + ' s' : ' · R pour remonter') : 'Élan ×' + (k.rf || 1).toFixed(1) + (k.tri ? ' · triomphe prêt' : (k.drag | 0) < 15 ? ' · ' + (k.drag | 0) + ' / 15' : ''); },
+    hurt(p, d) { const k = p.k; if (k.mount) d *= .82; if (k.ram > 0) d *= .45;
+      if (k.mount && d >= p.hp && !p.revive) { k.mount = 0; k.foot = G.t; if (k.rf !== 1) { p.mods.spd /= k.rf; k.rf = 1; } k.rt = 0; kMul(p, 'spd', .4); k.chg = null; p.hp = Math.round(p.maxhp * .5); p.inv = 2; p.blink = 1; addFx(p.x, p.y, 300, '#c0c8d8', .6); KV(9, p.x, p.y, 20, 150, 420, '#c0c8d8', .8, 0, .5, undefined, .6); announce('DÉSARÇONNÉ !', '#ff9a6a'); gsnd('hurt'); return 0; } return d; }
+  },
+  ashryn: {
+    E(p, K) { const k = p.k, hit = () => { aoe(p, p.x, p.y, 310, kd(p) * 2.2 * K, 260, e => kBurn(e, kd(p) * .6, 3, p)); addFx(p.x, p.y, 310, '#ff6a3a', .4); KV(3, p.x, p.y, 8, 140, 640, '#ff7a2e', .4, 1, 9); KV(12, p.x, p.y, 60, 120, 380, '#ffb52e', .35, 0, 1); };
+      hit(); fdo(.25, () => { if (!p.dead) { hit(); gsnd('slam'); } }); if (!(k.fury > 0)) kMul(p, 'dmg', 1.25); k.fury = 5; gsnd('slam'); },
+    A(p, K) { const k = p.k, a = kAng(p), x1 = p.x + Math.cos(a) * 9 * KM, y1 = p.y + Math.sin(a) * 9 * KM, b = { x: x1, y: y1 }; clampR(b, AR - 80); k.fly = { t: .55, T: .55, x0: p.x, y0: p.y, x1: b.x, y1: b.y, K }; p.inv = Math.max(p.inv, .75); KV(8, p.x, p.y, 20, 100, 300, '#ff7a2e', .6, 0, .5, undefined, .6); gsnd('dash'); },
+    C(p, K) { const a = kAng(p); k8(p, a, K); p.k.c8 = -99; },
+    R(p, K) { const k = p.k; k.sky = 5; k.sK = K; k.sT = 0; p.inv = Math.max(p.inv, 5.2); G.ecl = 1; addPil(p.x, p.y, 140, 1500, '#ff5a1e', 1); KV(11, p.x, p.y, 60, 200, 600, '#ff7a2e', .7, 0, 0); gsnd('ult'); },
+    off(p) { const k = p.k; if (k.fury > 0) { p.mods.dmg /= 1.25; k.fury = 0; } },
+    tick(p, dt) { const k = p.k;
+      if (k.fury > 0) { k.fury -= dt; if (Math.random() < dt * 8) KV(12, p.x + rnd(-40, 40), p.y + rnd(-40, 40), 40, 50, 120, '#ff7a2e', .35, 0, 1); if (k.fury <= 0) p.mods.dmg /= 1.25; }
+      const f = k.fly; if (f) { f.t -= dt; const u = 1 - Math.max(0, f.t) / f.T; p.x = f.x0 + (f.x1 - f.x0) * u; p.y = f.y0 + (f.y1 - f.y0) * u; p.inv = Math.max(p.inv, .2); kTp(p); if (Math.random() < dt * 20) KV(11, p.x, p.y, 80 + Math.sin(u * 3.14) * 160, 60, 160, '#ff7a2e', .35, 0, 0);
+        if (f.t <= 0) { k.fly = null; let n = 0; aoe(p, p.x, p.y, 340, kd(p) * 3.5 * f.K, 400, e => { kStun(e, 1.2); kBurn(e, kd(p) * .6, 3, p); n++; }); if (n >= 8) { k.c8 = G.t; } addFx(p.x, p.y, 340, '#ff5a1e', .55); addFx(p.x, p.y, 200, '#ffffff', .3); KV(7, p.x, p.y, 60, 160, 700, '#ff7a2e', .5, 0, 1); KV(9, p.x, p.y, 8, 150, 600, '#ff5a1e', .9, 1, .5, undefined, .6); G.shake = .55; evp(['sh', .55, .2]); gsnd('boom'); } }
+      if (k.sky > 0) { k.sky -= dt; p.inv = Math.max(p.inv, .2); k.sT -= dt; if (k.sT <= 0) { k.sT = .1; const pool = G.en.filter(e => !e.dead); const e = pool[(Math.random() * pool.length) | 0], a = Math.random() * 6.283, r = Math.random() * (AR - 100), x = e && Math.random() < .7 ? e.x : Math.cos(a) * r, y = e && Math.random() < .7 ? e.y : Math.sin(a) * r;
+          KV(11, x, y, 300, 60, 160, '#ff7a2e', .3, 0, 0); fdo(.25, () => { aoe(p, x, y, 130, kd(p) * 1.8 * k.sK, 0, q => kBurn(q, kd(p) * .5, 2, p)); KV(7, x, y, 30, 60, 260, '#ff5a1e', .35, 0, 1); KV(9, x, y, 6, 60, 240, '#ff7a2e', .6, 1, .5, undefined, .5); }); }
+        if (k.sky <= 0) { aoe(p, p.x, p.y, 460, kd(p) * 5 * k.sK, 500, e => kStun(e, 1.5)); addFx(p.x, p.y, 460, '#ff5a1e', .7); addFx(p.x, p.y, 260, '#ffffff', .35); KV(7, p.x, p.y, 80, 200, 1000, '#ff7a2e', .6, 0, 1); G.shake = .8; G.flash = .3; evp(['sh', .8, .3]); gsnd('boom'); } }
+      k.cr = G.t - (k.c8 || -99) < 10; k.st = k.fury > 0 ? 'Braise ' + k.fury.toFixed(1) + ' s' : ''; },
+    hit(p, e) { if (p.k.fury > 0 && !e.dead && !e.kbn) kBurn(e, kd(p) * .4, 2, p); },
+    hurt(p, d) { let burn = false; for (const e of G.en) if (e.kbn && hyp(e.x - p.x, e.y - p.y) < 280) { burn = true; break; } return d * (burn ? .6 : .8); }
+  },
+  golem: {
+    init(p) { p.k.gb = 0; p.k.lsd = G ? G.shards | 0 : 0; p.k.wv = G ? G.wave : 0; },
+    E(p) { p.k.hun = 5; announce('FAIM DE CRISTAL', '#6ae0ff'); KV(15, p.x, p.y, 100, 80, 300, '#6ae0ff', .6, 0, 1); gsnd('pick'); },
+    A(p) { const k = p.k; if (kOwnW(p) < 20) { p.cd.b = .3; if (p === G.p) { snd('no'); toast('Il faut 20 éclats'); } return; } p.spent = (p.spent | 0) + 20; for (const m of kMine(p, 'mini')) kDel(m);
+      const an = kAng(p), c = mkPlayer({ hero: 'golem', name: '', skin: p.skin }, 0, 1); c.k = null; c.al = 'mini'; c.own = p; c.x = p.x + Math.cos(an) * 140; c.y = p.y + Math.sin(an) * 140; c.inv = 0; c.t = 10; c.ft = .4; c.gt = 1.5; c.hp = c.maxhp = Math.round(p.maxhp * .75); c.mv = 0; kAdd(c); clampR(c, AR - 80);
+      addPil(c.x, c.y, 80, 900, '#6ae0ff', .8); KV(4, c.x, c.y, 60, 100, 340, '#6ae0ff', .5, 0, 2); announce('PETIT GOLEM', '#6ae0ff'); gsnd('slam'); },
+    C(p, K) { const w = kOwnW(p), d = w * 2.5 * K; p.spent = (p.spent | 0) + Math.floor(w / 2); aoe(p, p.x, p.y, 560, d, 500); addFx(p.x, p.y, 560, '#6ae0ff', .7); addFx(p.x, p.y, 320, '#ffffff', .35);
+      for (let i = 0; i < 10; i++) { const a = i * .628; KV(4, p.x + Math.cos(a) * 300, p.y + Math.sin(a) * 300, 40, 60, 220, '#9af0ff', .45, 0, 3); } KV(2, p.x, p.y, 6, 200, 1100, '#6ae0ff', .8, 1, 2); G.shake = .7; evp(['sh', .7, .3]); announce('SURCHARGE · ' + Math.round(d), '#6ae0ff'); gsnd('boom'); },
+    R(p, K) { const k = p.k, tot = (p.maxhp * .15 + kOwnW(p) / 2.5) * K; kHeal(p, tot * .6); k.rg = tot * .4 / 10; k.rgT = 10; addPil(p.x, p.y, 130, 1300, '#6ae0ff', 1); KV(2, p.x, p.y, 6, 160, 600, '#9af0ff', 1, 1, 1); for (let i = 0; i < 6; i++) KV(4, p.x + rnd(-120, 120), p.y + rnd(-120, 120), 80, 50, 200, '#9af0ff', .6, 0, 2); gsnd('heal'); },
+    off(p) { const k = p.k; if (k.gb) { p.maxhp -= k.gb; p.hp = Math.min(p.hp, p.maxhp); k.gb = 0; } },
+    tick(p, dt) { const k = p.k, sd = G.shards | 0; if (k.hun > 0) { k.hun -= dt; if (sd > (k.lsd | 0)) { G.shards += sd - k.lsd; addTxt(p.x, p.y, 200, '+' + (sd - k.lsd), '#6ae0ff'); } } k.lsd = G.shards | 0;
+      if (k.wv !== G.wave) { k.wv = G.wave; const nb = Math.floor(kOwnW(p) / 4); if (nb !== (k.gb | 0)) { const dd = nb - (k.gb | 0); p.maxhp += dd; if (dd > 0) p.hp += dd; else p.hp = Math.min(p.hp, p.maxhp); k.gb = nb; if (dd > 0) addTxt(p.x, p.y, 220, '+' + dd + ' PV MAX', '#6ae0ff', 1); } }
+      if (k.rgT > 0) { k.rgT -= dt; kHealQ(p, k.rg * dt); }
+      for (const m of kMine(p, 'mini')) { m.t -= dt; if (m.t <= 0 || m.hp <= 0) { addFx(m.x, m.y, 160, '#6ae0ff', .4); KV(4, m.x, m.y, 60, 80, 260, '#9af0ff', .4, 0, 3); kDel(m); continue; } kFight(p, m, dt, kd(p) * .9, .7, 300); clampR(m, AR - 60); m.gt -= dt; if (m.gt <= 0) { m.gt = 1.5; G.gems.push({ x: m.x + rnd(-40, 40), y: m.y + rnd(-40, 40) }); } }
+      const w = kOwnW(p); k.cr = w > p.maxhp; k.st = 'Éclats ' + w + ' / ' + Math.round(p.maxhp) + (k.hun > 0 ? ' · faim ' + k.hun.toFixed(1) + ' s' : ''); }
+  },
+  arven: {
+    strike(p, s, K) { const a = kAng(p), k = p.k, sov = k.sov > 0; let n = 0; const d = kd(p) * [2.6, 2.3, 4.2][s] * K, f = e => { dmgE(e, d, s === 2, p); n++; };
+      if (s === 0) { kCone(p, a, .8, 360, f); KV(13, p.x + Math.cos(a) * 170, p.y + Math.sin(a) * 170, 10, 220, 480, '#4ae0c8', .3, 1, 0, -a + 1.571); }
+      else if (s === 1) { kCone(p, a, 1.5, 400, e => { f(e); e.kx = Math.cos(a) * 500; e.ky = Math.sin(a) * 500; }); KV(14, p.x, p.y, 8, 200, 700, '#7af0ff', .35, 1, 3); KV(13, p.x + Math.cos(a) * 160, p.y + Math.sin(a) * 160, 10, 300, 560, '#bfe8ff', .3, 1, 0, -a + .2); }
+      else { kLine(p.x, p.y, Math.cos(a), Math.sin(a), 700, 180, f); for (let i = 1; i <= 5; i++) KV(0, p.x + Math.cos(a) * i * 135, p.y + Math.sin(a) * i * 135, 6, 70, 260, '#4ae0c8', .35 + i * .05, 1); KV(5, p.x + Math.cos(a) * 80, p.y + Math.sin(a) * 80, 60, 80, 300, '#ffffff', .25, 0, 2); G.shake = Math.max(G.shake, .35); }
+      gsnd(s === 2 ? 'slam' : 'salve');
+      if (!n) { addTxt(p.x, p.y, 200, 'DANS LE VIDE', '#ff9a9a', 1); k.dn = 0; if (!sov) { this.setCh(p, 0); p.cd.a += 4; } return; }
+      if (s < 2) { k.dn = s + 1; k.dw = G.t + 2.5; p.cd.a = .3; addTxt(p.x, p.y, 210, ['', 'FOUET !', 'PERCÉE !'][s + 1], '#7af0ff', 1); return; }
+      k.dn = 0; const was5 = (k.ch | 0) >= 5; this.setCh(p, Math.min(5, (k.ch | 0) + 1)); p.cd.a = Math.max(1.5, 6 - (k.ch | 0)) * p.mods.cdr; if (sov) p.ult = Math.min(100, p.ult + 8); if (was5 && !k.ht) k.c5 = G.t; announce('TROIS MARÉES · ' + k.ch, '#4ae0c8'); },
+    setCh(p, c) { const k = p.k, o = k.ch | 0; if (c === o) return; p.mods.dmg *= (1 + .05 * c) / (1 + .05 * o); k.ch = c; if (c < 5 && k.ht) { p.mods.dmg /= 1.3; k.ht = 0; } },
+    E(p, K) { const k = p.k; const s = k.dn > 0 && G.t < k.dw ? k.dn : 0; this.strike(p, s, K); },
+    A(p) { const k = p.k; for (const w of kMine(p, 'wall')) kDel(w); const hp = p.maxhp * .8 + 26 * G.wave; k.wall = kAdd({ al: 'wall', own: p, x: p.x, y: p.y, t: 6, hp, maxhp: hp }); addPil(p.x, p.y, 120, 1000, '#4ae0c8', .8); gsnd('onde'); },
+    C(p) { const k = p.k; if (!k.ht) { p.mods.dmg *= 1.3; k.ht = 1; } k.c5 = -99; announce('MARÉE HAUTE', '#4ae0c8'); gsnd('ultc'); },
+    R(p) { const k = p.k; if (!(k.sov > 0)) kMul(p, 'dmg', 1.5); k.sov = 10; k.dn = 0; p.cd.a = 0; addPil(p.x, p.y, 140, 1500, '#4ae0c8', 1); KV(2, p.x, p.y, 6, 200, 900, '#4ae0c8', .9, 1, 1.5); G.shake = .5; gsnd('ult'); },
+    off(p) { const k = p.k; if (k.sov > 0) { p.mods.dmg /= 1.5; k.sov = 0; } this.setCh(p, 0); },
+    tick(p, dt) { const k = p.k; if (k.dn > 0 && G.t > k.dw) { k.dn = 0; p.cd.a = Math.max(p.cd.a, 1.5); }
+      if (k.sov > 0) { k.sov -= dt; kHealQ(p, p.maxhp * .015 * dt); if (Math.random() < dt * 6) KV(15, p.x + rnd(-50, 50), p.y + rnd(-50, 50), 90, 40, 110, '#7af0ff', .5, 0, 1); if (k.sov <= 0) p.mods.dmg /= 1.5; }
+      const w = k.wall; if (w) { w.x = p.x; w.y = p.y; w.t -= dt; for (const s of G.sh) if (s.foe && s.life > 0 && hyp(s.x - p.x, s.y - p.y) < 250) { s.life = 0; w.hp -= s.dmg; KV(0, s.x, s.y, 40, 30, 90, '#7af0ff', .25, 0); }
+        for (const e of G.en) { if (e.dead || e.m.boss) continue; const dx = e.x - p.x, dy = e.y - p.y, d = hyp(dx, dy) || 1; if (d < 250 + e.r * .4) { const t = 250 + e.r * .4; e.x = p.x + dx / d * t; e.y = p.y + dy / d * t; e.kx = dx / d * 300; e.ky = dy / d * 300; } }
+        if (w.t <= 0 || w.hp <= 0) { kDel(w); k.wall = null; addFx(p.x, p.y, 260, '#4ae0c8', .45); KV(0, p.x, p.y, 8, 200, 420, '#7af0ff', .5, 1); } }
+      k.cr = !k.ht && G.t - (k.c5 || -99) < 8; k.st = 'Maîtrise ' + (k.ch | 0) + ' / 5' + (k.dn ? ' · coup ' + (k.dn + 1) + ' / 3' : '') + (k.wall ? ' · mur ' + Math.round(100 * Math.max(0, k.wall.hp) / k.wall.maxhp) + ' %' : ''); },
+    hit(p, e, d) { if (p.k.sov > 0) { const t = G.t; if (t - (p.k.lhT || 0) > .1) { p.k.lhT = t; kHealQ(p, Math.min(p.maxhp * .02, d * .1)); } } },
+    hurt(p, d) { const w = p.k.wall; if (w && w.hp > 0) { w.hp -= d; addTxt(p.x, p.y, 170, 'MUR D’EAU', '#7af0ff', 1); return 0; } return d; }
+  }
+});
+/* soin discret (sans texte à chaque image) */
+function kHealQ(q, amt) { if (!q || q.dead || q.gone || amt <= 0) return; q.hp = Math.min(q.maxhp, q.hp + amt); }
+/* l'éternuement draconique d'Ashryn : grand cône de feu */
+function k8(p, a, K) { const d = kd(p) * 10 * K; kCone(p, a, .62, 860, e => { dmgE(e, d, true, p); kBurn(e, kd(p) * .8, 4, p); });
+  for (let i = 1; i <= 6; i++) { const r = i * 130, w = .25 + i * .07; for (const s of [-1, 0, 1]) KV(12, p.x + Math.cos(a + s * w * .6) * r, p.y + Math.sin(a + s * w * .6) * r, 60, 80 + i * 30, 220 + i * 60, i % 2 ? '#ff7a2e' : '#ffb52e', .45 + i * .05, 0, 1); }
+  KV(7, p.x + Math.cos(a) * 300, p.y + Math.sin(a) * 300, 60, 200, 900, '#ff5a1e', .6, 0, 1); G.shake = .8; G.flash = .3; evp(['sh', .8, .3]); announce('ÉTERNUEMENT DRACONIQUE', '#ff7a2e'); gsnd('boom'); }
+
+/* changement de kit (Dex) : on annule les bonus de l'ancien, on prépare le nouveau */
+{ const _kn = kNew; kNew = function (p, id) { const o = p.k; if (o && typeof o === 'object' && o.id && KS[o.id] && KS[o.id].off) { try { KS[o.id].off(p); } catch (x) { } } const r = _kn(p, id); if (KS[id] && KS[id].init) { try { KS[id].init(p); } catch (x) { } } return r; }; }
+/* le petit golem attire les monstres (hors boss) */
+{ const _nr = nearest; nearest = function (x, y) { const b = _nr(x, y); if (!G || !G.al || !G.al.length) return b; let m = null, md = 1320; for (const a of G.al) if (a.al === 'mini' && a.hp > 0) { const d = hyp(a.x - x, a.y - y); if (d < md) { md = d; m = a; } } if (!m) return b;
+  for (const e of G.en) if (e.x === x && e.y === y) return e.m.boss ? b : m; return b; }; }
 /* le dé de Dex : à chaque nouvelle vague */
 function kDexRoll(p) { const k = p.k; if (k.luck > 0) { p.mods.dmg /= 1 + k.lm; p.mods.crit -= k.lm; k.luck = 0; } if (k.tier) { k.ex = 0; KS.vesper.tier(p); } if (k.cdk === .5) p.mods.cdr *= 2; k.cdk = 1;
   const r = 1 + ((Math.random() * 6) | 0); k.die = r; let id = 'nyxara', msg; if (r <= 4) { id = KCOPY[(Math.random() * KCOPY.length) | 0]; msg = 'DÉ : ' + r + ' · Dex copie ' + KDEF[id].n; } else if (r === 5) msg = 'DÉ : 5 · Dex garde ses compétences'; else { msg = 'DÉ : 6 · recharges divisées par deux !'; k.cdk = .5; p.mods.cdr *= .5; }
@@ -159,9 +354,9 @@ function kIcons(id) { try { const ids = HEROES[id].tox; ['a', 'b', 'c', 'u'].for
 let _kIn = 0; const _kDmg = dmgE;
 dmgE = function (e, d, crit, by) { _kDmg(e, d, crit, by); const p = kOwn(by); if (_kIn || !kIsKit(p) || NETROLE === 2) return; const S2 = KS[p.k.id]; if (S2 && S2.hit) { _kIn = 1; try { S2.hit(p, e, d, crit, by); } catch (x) { } _kIn = 0; } };
 { const _kill = kill; kill = function (e) { const by = e.by, p = kOwn(by); if (by && by.al && !by.mods) by.mods = (p && p.mods) || { leech: 0 }; _kill(e); if (kIsKit(p)) { const S2 = KS[p.k.id]; if (S2 && S2.kill) { try { S2.kill(p, e, by); } catch (x) { } } } };
-  const _hurt = hurt; hurt = function (p, d) { if (!kIsKit(p) || !p || p.dead || p.gone || p.inv > 0 || !G || G.state !== 'play') return _hurt(p, d); const S2 = KS[p.k.id]; if (S2 && S2.hurt) { try { d = S2.hurt(p, d); } catch (x) { } } const k = p.k; if (d > 0 && k.sh > 0) { const a = Math.min(k.sh, d); k.sh -= a; d -= a; if (d <= 0) { p.inv = .35; addTxt(p.x, p.y, 170, 'BOUCLIER', '#ffe27a', 1); spark(p.x, p.y, '#ffe27a', 6); return; } } if (d <= 0) return; return _hurt(p, d); };
+  const _hurt = hurt; hurt = function (p, d) { if (p && p.al === 'mini') { if (p.hp > 0 && G && G.state === 'play') { p.hp -= d * .6; p.blink = .3; addTxt(p.x, p.y, 150, '-' + Math.round(d * .6), '#9af0ff'); } return; } if (!kIsKit(p) || !p || p.dead || p.gone || p.inv > 0 || !G || G.state !== 'play') return _hurt(p, d); const S2 = KS[p.k.id]; if (S2 && S2.hurt) { try { d = S2.hurt(p, d); } catch (x) { } } const k = p.k; if (d > 0 && k.sh > 0) { const a = Math.min(k.sh, d); k.sh -= a; d -= a; if (d <= 0) { p.inv = .35; addTxt(p.x, p.y, 170, 'BOUCLIER', '#ffe27a', 1); spark(p.x, p.y, '#ffe27a', 6); return; } } if (d <= 0) return; return _hurt(p, d); };
   const _skill = skill; skill = function (k, p) { if (!G || G.state !== 'play' || NETROLE === 2) return _skill(k, p); p = p || G.p; if (!kIsKit(p) || p.dead || k === 'd') return _skill(k, p);
-    const slot = { a: 0, b: 1, c: 2, u: 3 }[k], id = kKit(p, slot); if (!id) return _skill(k, p); const lv = p.tl[slot] || (p.k.dex && p.k.id !== 'nyxara' ? 1 : 0); if (!lv) return _skill(k, p); const S2 = KS[id], K = tk(lv), D = KDEF[id];
+    const slot = { a: 0, b: 1, c: 2, u: 3 }[k], id = kKit(p, slot); if (!id) return _skill(k, p); const lv = p.tl[slot] || (p.k.dex && p.k.id !== 'nyxara' ? 1 : 0); if (!lv) return _skill(k, p); const S2 = KS[id], K = tk(lv), D = KDEF[id]; if (S2.can && !S2.can(p, k)) return;
     if (k === 'u') { if (p.ult < 100) return; p.ult = 0; gsnd('ultc'); if (p === G.p) vib(60); cine({ t: .9, f: p, zoom: 1.7, title: D.R[0].toUpperCase(), sub: D.n, col: p.h.col, end() { try { S2.R(p, K); } catch (x) { } } }); return; }
     if (p.cd[k] > 0) return; if (k === 'c') { if (!D.C) { if (p === G.p) toast('Dex n’a pas de combo'); return; } if (!p.k.cr) { if (p === G.p) { snd('no'); toast('Combo pas prêt : ' + D.C[3].toLowerCase()); } return; } }
     _skill(k, p); if (!(p.cd[k] > 0)) return; p.cd[k] = p.cdm[k] * p.mods.cdr; p.atk = .2; try { S2[k === 'a' ? 'E' : k === 'b' ? 'A' : 'C'](p, K); } catch (x) { } if (k === 'c') { G.shake = Math.max(G.shake, .4); } };
@@ -171,10 +366,10 @@ dmgE = function (e, d, crit, by) { _kDmg(e, d, crit, by); const p = kOwn(by); if
     if (!G || G.state !== 'play') return; for (const p of G.ps) { if (!kIsKit(p) || p.gone) continue; const k = p.k; if (k.dex && G.wave !== k.dw) { const first = !k.dw; k.dw = G.wave; if (!first) kDexRoll(p); } if (p.dead) { for (const a of kMine(p)) kDel(a); k.cr = 0; continue; } const S2 = KS[k.id]; if (S2 && S2.tick) { try { S2.tick(p, dt); } catch (x) { } } }
     const L = G.al; if (L) for (let i = L.length - 1; i >= 0; i--) if (!L[i].own || L[i].own.gone) L.splice(i, 1); }; }
 /* instantané pour les invités : état du kit + alliés invoqués */
-{ const AK = ['phx', 'forge', 'beam', 'clone'];
-  const _sn = snapshot; snapshot = function () { const d = _sn(), r = Math.round; d.ks = G.ps.map(p => kIsKit(p) ? [p.k.cr ? 1 : 0, p.k.st || ''] : 0); d.al = (G.al || []).map(a => [a.id, AK.indexOf(a.al), r(a.x), r(a.y), a.al === 'beam' ? r(a.x2) : +(a.fx || 0).toFixed(2), a.al === 'beam' ? r(a.y2) : +(a.fy || 1).toFixed(2), G.ps.indexOf(a.own), a.atk > 0 ? 1 : 0, a.mv ? 1 : 0]); return d; };
+{ const AK = ['phx', 'forge', 'beam', 'clone', 'portal', 'well', 'dune', 'wall', 'mini', 'rift'], LN = k => k === 'beam' || k === 'rift';
+  const _sn = snapshot; snapshot = function () { const d = _sn(), r = Math.round; d.ks = G.ps.map(p => kIsKit(p) ? [p.k.cr ? 1 : 0, p.k.st || ''] : 0); d.al = (G.al || []).map(a => [a.id, AK.indexOf(a.al), r(a.x), r(a.y), LN(a.al) ? r(a.x2) : +(a.fx || 0).toFixed(2), LN(a.al) ? r(a.y2) : +(a.fy || 1).toFixed(2), G.ps.indexOf(a.own), a.atk > 0 ? 1 : 0, a.mv ? 1 : 0]); return d; };
   const _as = applySnap; applySnap = function (d) { _as(d); if (!G || NETROLE !== 2 || !d) return; if (d.ks) d.ks.forEach((s, i) => { const p = G.ps[i]; if (p && s) { p.k = p.k && typeof p.k === 'object' ? p.k : { id: p.hero }; p.k.cr = s[0]; p.k.st = s[1]; } });
-    if (d.al) { const old = new Map((G.al || []).map(a => [a.id, a])); G.al = d.al.map(s => { let a = old.get(s[0]); const own = G.ps[s[6]] || G.p, kind = AK[s[1]]; if (!a) { a = kind === 'clone' ? Object.assign(mkPlayer({ hero: own.hero, name: '', skin: own.skin }, 0, 1), { k: null }) : {}; a.id = s[0]; a.al = kind; a.own = own; a.col = '#ff7a2e'; } a.x = s[2]; a.y = s[3]; if (kind === 'beam') { a.x2 = s[4]; a.y2 = s[5]; } else { a.fx = s[4]; a.fy = s[5]; a.mvx = s[4]; a.mvy = s[5]; } a.atk = s[7] ? .2 : 0; a.mv = s[8]; a.inv = 0; a.blink = 0; return a; }); } }; }
+    if (d.al) { const old = new Map((G.al || []).map(a => [a.id, a])); G.al = d.al.map(s => { let a = old.get(s[0]); const own = G.ps[s[6]] || G.p, kind = AK[s[1]]; if (!a) { a = kind === 'clone' || kind === 'mini' ? Object.assign(mkPlayer({ hero: kind === 'mini' ? 'golem' : own.hero, name: '', skin: own.skin }, 0, 1), { k: null }) : {}; a.id = s[0]; a.al = kind; a.own = own; a.col = '#ff7a2e'; } a.x = s[2]; a.y = s[3]; if (LN(kind)) { a.x2 = s[4]; a.y2 = s[5]; } else { a.fx = s[4]; a.fy = s[5]; a.mvx = s[4]; a.mvy = s[5]; } a.atk = s[7] ? .2 : 0; a.mv = s[8]; a.inv = 0; a.blink = 0; return a; }); } }; }
 /* ---- affichage en partie : combo (nom, condition, prêt ou non) et état du passif ---- */
 { const _ht = hudTick; hudTick = function () { _ht(); const p = G.p; if (!kIsKit(p)) return; const id = p.k.id || p.hero, D = KDEF[id] || KDEF[p.hero];
     if (!$('#k7c')) { const box = $('#cmbs'); if (!box) return; box.insertAdjacentHTML('beforeend', `<div class="cmb k7" id="k7c"><b id="k7n">${D.C ? D.C[0] : 'Pas de combo'}</b><span id="k7q">${D.C ? D.C[3] : 'Dex copie les autres gardiens'}</span></div><div class="k7p" id="k7p"></div>`); }

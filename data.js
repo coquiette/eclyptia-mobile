@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 7.3', BUILD = '73';
+let AR = 1300; const VERSION = 'mobile 7.4', BUILD = '74';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -12,7 +12,14 @@ const HEROES = {
   aria:    { n: 'Aria',    cls: 'Barde des marées', img: 'h2', hp: 115, spd: 340, dmg: 11, rate: 2.8, pierce: 2, col: '#5ac8ff', cost: 600, curr: 'coins', tox: ['a1', 'a2', 'a3', 'a4'] },
   vesper:  { n: 'Vesper',  cls: 'Lame du néant',   img: 'h3', hp: 95,  spd: 390, dmg: 12, rate: 2.6, crit: .25, col: '#b07bff', cost: 900, curr: 'coins', tox: ['v1', 'v2', 'v3', 'v4'] },
   brakkor: { n: 'Brakkor', cls: 'Forgeron runique', img: 'h6', hp: 190, spd: 295, dmg: 21, rate: 1.65, col: '#ff9d3d', cost: 1500, curr: 'coins', tox: ['b1', 'b2', 'b3', 'b4'] },
-  nyxara:  { n: 'Nyxara',  cls: "Sorcière d'ombre", img: 'h5', hp: 95,  spd: 335, dmg: 8,  rate: 2.6, multi: 2, col: '#d06bff', cost: 250, curr: 'prisms', tox: ['n1', 'n2', 'n3', 'n4'] }
+  nyxara:  { n: 'Nyxara',  cls: "Sorcière d'ombre", img: 'h5', hp: 95,  spd: 335, dmg: 8,  rate: 2.6, multi: 2, col: '#d06bff', cost: 250, curr: 'prisms', tox: ['n1', 'n2', 'n3', 'n4'] },
+  aaron:   { n: 'Aaron',   cls: 'Cavalier Dimensionnel', img: 'h7', hp: 124, spd: 360, dmg: 13, rate: 2.6, crit: .15, col: '#8a6aff', cost: 2000, curr: 'coins', tox: ['aa1', 'aa2', 'aa3', 'aa4'] },
+  seren:   { n: 'Seren',   cls: 'Chasseresse Lunaire', img: 'h8', hp: 130, spd: 340, dmg: 12, rate: 3, pierce: 1, col: '#9ad0ff', cost: 1800, curr: 'coins', tox: ['se1', 'se2', 'se3', 'se4'] },
+  sahra:   { n: 'Sahra',   cls: 'Danseuse des Sables', img: 'h9', hp: 124, spd: 345, dmg: 9, rate: 3, multi: 2, col: '#e8c06a', cost: 1800, curr: 'coins', tox: ['sa1', 'sa2', 'sa3', 'sa4'] },
+  aurion:  { n: 'Aurion',  cls: 'Jouteur Mécanique', img: 'h10', hp: 143, spd: 330, dmg: 17, rate: 2, col: '#e8d8a0', cost: 2200, curr: 'coins', tox: ['au1', 'au2', 'au3', 'au4'] },
+  ashryn:  { n: 'Ashryn',  cls: 'Sang-Dragon des Plaines', img: 'h11', hp: 150, spd: 305, dmg: 18, rate: 1.9, col: '#ff6a4a', cost: 2400, curr: 'coins', tox: ['as1', 'as2', 'as3', 'as4'] },
+  golem:   { n: 'Golem',   cls: 'Colosse de Cristal', img: 'h12', hp: 169, spd: 290, dmg: 20, rate: 1.6, col: '#6ae0ff', cost: 350, curr: 'prisms', tox: ['go1', 'go2', 'go3', 'go4'] },
+  arven:   { n: 'Arven',   cls: 'Souverain des Marées', img: 'h13', hp: 137, spd: 355, dmg: 13, rate: 2.6, col: '#4ae0c8', cost: 400, curr: 'prisms', tox: ['ar1', 'ar2', 'ar3', 'ar4'] }
 };
 const HERO_IDS = Object.keys(HEROES);
 
@@ -162,6 +169,31 @@ const WEAPONS = {
   nyxara: [{ n: "Bâton d'ombre", d: 'Arme de départ', m: {} }, { n: "Grimoire maudit", d: "Un projectile de plus qui traverse, dégâts réduits", k: 'book', m: { multi:1,pierce:1,dmg:.7 }, cost: 1500 }],
 };
 const ALT = { kaelion: ['k5', 'k6'], elyra: ['e5', 'e6'], aria: ['a5', 'a6'], vesper: ['v5', 'v6'], brakkor: ['b5', 'b6'], nyxara: ['n5', 'n6'] }, PASSIVE = ['p1', 'p2', 'p3', 'p4'], HTOX = {};
+/* v7.4 : les 7 nouveaux gardiens reçoivent leurs TOX (mêmes modèles que les autres, noms à leur image) et leurs armes */
+const HPFX = { kaelion: 'k', elyra: 'e', aria: 'a', vesper: 'v', brakkor: 'b', nyxara: 'n', aaron: 'aa', seren: 'se', sahra: 'sa', aurion: 'au', ashryn: 'as', golem: 'go', arven: 'ar' };
+{ const TPL = [[0, { t:'salve',cd:3.5,num:5,dk:1.7,cone:.9,pierce:3 }, 'Cinq projectiles perçants en éventail.'], [0, { t:'salve',cd:4.5,num:1,dk:5.5,cone:.1,pierce:12,r:38,sp:1100 }, 'Un énorme projectile qui traverse tout.'], [0, { t:'rain',cd:4.5,num:4,dk:2.2,rad:130 }, 'Quatre frappes rapides sur les ennemis.'], [0, { t:'blink',cd:4,dist:300,rad:200,dk:2.4 }, "Un bond court qui frappe à l'arrivée."], [0, { t:'onde',cd:3.5,rad:220,dk:2.6,kb:350 }, 'Une petite onde, très vite rechargée.'],
+    [1, { t:'heal',cd:10,pct:.12,sh:3.5 }, 'Un long bouclier et un peu de soin.'], [1, { t:'slow',cd:9,rad:440,dur:4,dk:1.8 }, 'Blesse et ralentit une grande zone.'], [1, { t:'pulse',cd:9,nw:3,rad:320,dk:1.7,kb:250 }, 'Trois ondes à la suite autour de toi.'], [1, { t:'salve',cd:7,num:3,dk:3.4,cone:.5,pierce:5,r:30 }, 'Trois gros projectiles perçants.'],
+    [2, { t:'heal',cd:15,pct:.45,sh:1.5 }, 'Un très gros soin.'], [2, { t:'drain',cd:11,rad:360,dk:2.6,heal:.05 }, 'Blesse autour de toi et te soigne pour chaque ennemi.'], [2, { t:'buff',cd:13,dur:6,rate:1.35,spd:1.6 }, 'Tu cours beaucoup plus vite et tu tires plus vite.'], [3, { t:'ult',dk:7,bk:11,hl:.5 }, 'Frappe tous les ennemis et te rend la moitié de tes PV.'], [3, { t:'ult',dk:12.5,bk:18 }, 'Des dégâts énormes sur tous les ennemis.']];
+  const NN = {
+    aaron: [['Pluie de failles', 'Phase accélérée'], ['Éclats dimensionnels', 'Rayon du néant', 'Fissures soudaines', 'Saut de phase', 'Onde de distorsion', 'Barrière de phase', 'Champ de gravité', 'Triple distorsion', 'Lances du vide', 'Réparation spatiale', "Siphon d'univers", 'Vitesse quantique', 'Effondrement', 'Trou noir']],
+    seren: [["Pluie d'étoiles", 'Vent nocturne'], ["Flèches d'argent", 'Trait de lune', 'Étoiles filantes', 'Bond lunaire', "Halo d'argent", 'Voile nocturne', "Brume d'argent", 'Triple croissant', 'Flèches de comète', 'Rosée de lune', 'Morsure de minuit', 'Course de la louve', 'Pleine lune', 'Nuit des mille flèches']],
+    sahra: [['Grêle de sable', 'Transe du désert'], ['Lames de sable', 'Javelot du désert', 'Pluie de cailloux', 'Glissade des dunes', 'Souffle chaud', 'Voile de soie', 'Sables lents', 'Triple tourbillon', "Lances d'ambre", 'Oasis', 'Mirage vorace', 'Danse du vent', 'Bénédiction des dunes', 'Tempête du désert']],
+    aurion: [['Pluie de rivets', 'Surchauffe'], ['Rivets perçants', 'Lance-piston', "Pluie d'engrenages", 'Bond mécanique', 'Onde de vapeur', "Plaques d'acier", 'Huile glissante', 'Triple piston', 'Lances de joute', 'Graissage complet', 'Broyeur', 'Turbo', 'Zénith doré', 'Joute céleste']],
+    ashryn: [['Pluie de braises', 'Rage du dragon'], ['Griffes de braise', 'Souffle perçant', 'Écailles brûlantes', 'Bond du dragon', 'Rugissement', 'Écailles dures', 'Terre calcinée', 'Triple rugissement', 'Crocs de feu', 'Sang de dragon', 'Festin du dragon', 'Ailes de braise', 'Cœur draconique', 'Colère ancestrale']],
+    golem: [['Pluie de cristaux', 'Cœur vibrant'], ['Éclats tranchants', 'Pique de cristal', 'Grêle de quartz', 'Bond du colosse', 'Onde cristalline', 'Carapace de quartz', 'Sol de cristal', 'Triple résonance', 'Lances de prisme', 'Géode guérisseuse', 'Absorption', 'Résonance rapide', 'Cœur de géode', 'Cataclysme de cristal']],
+    arven: [["Pluie d'écume", 'Courant royal'], ["Lames d'eau", 'Trident royal', 'Gouttes acérées', 'Plongeon', 'Ressac', "Bouclier d'écume", 'Eaux profondes', 'Triple ressac', 'Harpons royaux', 'Source royale', 'Marée vorace', 'Courant marin', 'Couronne des mers', "Colère de l'océan"]] };
+  for (const h in NN) { const p = HPFX[h], N = NN[h];
+    TOX[p + '1'] = { n: '', t: 'salve', cd: 5, num: 5, dk: 1.5, cone: .8, pierce: 2, d: '' }; TOX[p + '2'] = { n: '', t: 'onde', cd: 9, rad: 300, dk: 3, kb: 500, d: '' }; TOX[p + '3'] = { n: '', t: 'heal', cd: 14, pct: .3, sh: 1.6, d: '' }; TOX[p + '4'] = { n: '', t: 'ult', dk: 9, bk: 14, d: '' };
+    TOX[p + '5'] = { n: N[0][0], t: 'rain', cd: 9, num: 5, dk: 3.4, rad: 170, d: 'Cinq frappes tombent sur les ennemis.' }; TOX[p + '6'] = { n: N[0][1], t: 'buff', cd: 14, dur: 6, rate: 1.7, spd: 1.2, d: 'Tu tires bien plus vite pendant quelques secondes.' }; ALT[h] = [p + '5', p + '6'];
+    N[1].forEach((n, i) => { MORE[p + (i + 7)] = Object.assign({ n }, TPL[i][1], { d: TPL[i][2], h, s: TPL[i][0] }); }); }
+  Object.assign(WEAPONS, {
+    aaron: [{ n: 'Lame de phase', d: 'Arme de départ', m: {} }, { n: 'Faux dimensionnelle', d: 'Plus de critiques, tir plus lent', m: { crit: .12, rate: .85 }, cost: 1500 }],
+    seren: [{ n: "Arc d'argent", d: 'Arme de départ', m: {} }, { n: 'Arc du croissant', d: 'Une flèche de plus, dégâts réduits', m: { multi: 1, dmg: .75 }, cost: 1500 }],
+    sahra: [{ n: 'Voiles des dunes', d: 'Arme de départ', m: {} }, { n: 'Éventails dorés', d: 'Tire plus vite, un peu moins fort', m: { rate: 1.3, dmg: .85 }, cost: 1500 }],
+    aurion: [{ n: 'Lance de joute', d: 'Arme de départ', m: {} }, { n: 'Lance-piston', d: 'Tirs perçants, plus forts mais plus lents', m: { pierce: 2, rate: .8, dmg: 1.25 }, cost: 1500 }],
+    ashryn: [{ n: 'Hache de braise', d: 'Arme de départ', m: {} }, { n: 'Griffes de dragon', d: 'Tire plus vite, un peu moins fort', m: { rate: 1.3, dmg: .85 }, cost: 1500 }],
+    golem: [{ n: 'Poings de cristal', d: 'Arme de départ', m: {} }, { n: 'Masse de géode', d: 'Gros boulets très puissants, tir lent', m: { dmg: 1.5, rate: .7, big: 1 }, cost: 1500 }],
+    arven: [{ n: 'Épée des marées', d: 'Arme de départ', m: {} }, { n: 'Trident royal', d: 'Un projectile de plus qui traverse, dégâts réduits', m: { multi: 1, pierce: 1, dmg: .7 }, cost: 1500 }] }); }
 for (const h of HERO_IDS) { HEROES[h].tox.forEach((id, i) => { TOX[id].h = h; TOX[id].s = i; }); ALT[h].forEach((id, i) => { TOX[id].h = h; TOX[id].s = i + 1; TOX[id].alt = 1; }); }
 Object.assign(TOX, MORE);
 for (const id in TOX) { const T = TOX[id]; T.id = id; if (T.h) { T.r = T.s; (HTOX[T.h] = HTOX[T.h] || []).push(id); } }
@@ -192,6 +224,29 @@ const SKX = {
   brakkor: [{ n: 'Forge de jade', hue: 110, acc: 0x6bffb0, cost: 2500, curr: 'coins' }, { n: "Forge d'améthyste", hue: 250, acc: 0xc08bff, cost: 500, curr: 'prisms' }],
   nyxara: [{ n: 'Sorcière écarlate', hue: 90, acc: 0xff5a6a, cost: 2500, curr: 'coins' }, { n: 'Sorcière des glaces', hue: 290, acc: 0x7ad8ff, cost: 500, curr: 'prisms' }]
 };
+/* v7.4 : tenues des nouveaux gardiens, et une tenue MYTHIQUE pour chaque gardien (5e tenue) */
+Object.assign(SKINS, {
+  aaron: { n: 'Phase dorée', hue: 170, pal: { hair: 0xffe9a8, cloth: 0x6a4a1a, acc: 0xffd45e, cape: 0x8a5a1a } },
+  seren: { n: 'Lune de sang', hue: 150, pal: { hair: 0xffc0c0, cloth: 0x7a1a2a, acc: 0xff5a6a, cape: 0x4a0a16 } },
+  sahra: { n: 'Danse de jade', hue: 110, pal: { hair: 0x1a3a2a, cloth: 0x2a9a6a, acc: 0x6bffb0, cape: 0x1a6a4a } },
+  aurion: { n: "Jouteur d'obsidienne", hue: 220, pal: { hair: 0x2a2a3a, cloth: 0x2a2a4a, acc: 0x9a7aff, cape: 0x1a1a3a } },
+  ashryn: { n: 'Dragon des glaces', hue: 190, pal: { hair: 0xcfe8ff, cloth: 0x2a4a7a, acc: 0x7ad8ff, cape: 0x16304a } },
+  golem: { n: 'Colosse de rubis', hue: 160, pal: { hair: 0xff5a6a, cloth: 0x7a2a2a, acc: 0xff5a6a, cape: 0x4a1a1a } },
+  arven: { n: 'Marée de corail', hue: 170, pal: { hair: 0xff7aa8, cloth: 0xd6426f, acc: 0xffd0e0, cape: 0x9a1a4a } } });
+Object.assign(SKX, {
+  aaron: [{ n: 'Phase écarlate', hue: 120, acc: 0xff5a6a, cost: 2500, curr: 'coins' }, { n: 'Phase de jade', hue: 250, acc: 0x6bffb0, cost: 500, curr: 'prisms' }],
+  seren: [{ n: 'Chasseresse dorée', hue: 200, acc: 0xffd45e, cost: 2500, curr: 'coins' }, { n: "Lune d'émeraude", hue: 280, acc: 0x6bffb0, cost: 500, curr: 'prisms' }],
+  sahra: [{ n: 'Sables pourpres', hue: 250, acc: 0xd06bff, cost: 2500, curr: 'coins' }, { n: 'Sables de lune', hue: 180, acc: 0x9ad0ff, cost: 500, curr: 'prisms' }],
+  aurion: [{ n: 'Jouteur de jade', hue: 100, acc: 0x6bffb0, cost: 2500, curr: 'coins' }, { n: 'Jouteur écarlate', hue: 320, acc: 0xff5a6a, cost: 500, curr: 'prisms' }],
+  ashryn: [{ n: 'Dragon de jade', hue: 110, acc: 0x8cff7a, cost: 2500, curr: 'coins' }, { n: "Dragon d'or", hue: 30, acc: 0xffd45e, cost: 500, curr: 'prisms' }],
+  golem: [{ n: "Colosse d'émeraude", hue: 300, acc: 0x6bffb0, cost: 2500, curr: 'coins' }, { n: "Colosse d'or", hue: 210, acc: 0xffd45e, cost: 500, curr: 'prisms' }],
+  arven: [{ n: 'Marée violette', hue: 80, acc: 0xb07bff, cost: 2500, curr: 'coins' }, { n: 'Marée dorée', hue: 220, acc: 0xffd45e, cost: 500, curr: 'prisms' }] });
+const MYTHS = {
+  kaelion: ['Archange du Zénith', 10, 0xfff0a0, 'seraph'], elyra: ['Impératrice du Phénix', 320, 0xff4a8a, 'phoenix'], aria: ['Reine des Abysses', 150, 0x6affe0, 'abyss'],
+  vesper: ['Faucheur du Néant', 120, 0xff3a5a, 'void'], brakkor: ['Titan de Magma', 340, 0xff5a1e, 'magma'], nyxara: ['Joker Céleste', 60, 0xffd45e, 'star'],
+  aaron: ['Seigneur du Multivers', 180, 0x5affff, 'void'], seren: ["Déesse d'Argent", 40, 0xfff6c0, 'seraph'], sahra: ['Pharaonne Éternelle', 200, 0x5ad8ff, 'star'],
+  aurion: ['Paladin Céleste', 190, 0x8ac8ff, 'seraph'], ashryn: ['Dragon Primordial', 230, 0xb07bff, 'dragon'], golem: ["Colosse d'Améthyste", 100, 0xd06bff, 'abyss'], arven: ['Empereur des Profondeurs', 120, 0xffd45e, 'abyss'] };
+for (const h in MYTHS) { const m = MYTHS[h]; SKX[h][2] = { n: m[0], hue: m[1], acc: m[2], fx: m[3], cost: 1500, curr: 'prisms', myth: 1 }; }
 /* boosts : achetés en prismes, utilisés pour une partie */
 const BOOSTS = [
   { id: 'coins', ic: 'bx_coins', n: 'Double pièces', d: 'Pièces ×2 à la fin de la partie', cost: 30 },
@@ -253,6 +308,11 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins', 'Nébuleuse d’Orion', 'Système solaire', 'Mer de la Tranquillité', 'Planète rouge', 'Anneaux de Saturne', 'Horizon du trou noir', 'Station Éclipse', 'Comète de glace'];
 const PATCH = [
+  { v: '7.4', date: '13 novembre 2026', title: '7 nouveaux gardiens et tenues mythiques', items: [
+    { img: 'h7.jpg', t: '7 nouveaux gardiens jouables', d: 'Aaron, Seren, Sahra, Aurion, Ashryn, Golem et Arven arrivent avec leur passif, E, A, Combo et ultime : portails, puits de lune, dune, charges à cheval, envol de dragon, petit golem et mur d’eau.' },
+    { img: 'ic/crown.webp', t: 'Tenues MYTHIQUES', d: 'Chaque gardien a une 5e tenue mythique : ailes ou couronne, cercle de runes sous les pieds, aura de particules et lueur qui respire.' },
+    { img: 'ic/star.webp', t: 'Nouvelle page Tenues', d: 'Choisis un gardien en haut, ses 5 tenues s’affichent en grandes cartes avec leur rareté.' },
+    { img: 'ic/swords.webp', t: 'Accueil plus aéré', d: 'Flèches à côté du portrait, boutons plus espacés, profil plus petit, boutons de mode plus grands, plus de chevauchements.' } ] },
   { v: '7.3', date: '13 novembre 2026', title: 'Nouvel accueil', items: [
     { img: 'ic/star.webp', t: 'Accueil réorganisé', d: 'Plus de barre en bas : les boutons sont à gauche, ton gardien au centre avec sa fiche (stats, passif, compétences), ton rang et JOUER à droite.' },
     { img: 'ic/swords.webp', t: 'Nouveaux boutons de mode', d: 'Partie normale en bleu, partie classée en or avec ton rang. Grandes flèches pour changer de gardien.' },
@@ -548,7 +608,7 @@ function give(r) {
 const skOwn = (h, k) => k === 0 || (k === 1 ? S.skins.includes(h) : !!(S.sk2 && S.sk2[h] && S.sk2[h].includes(k)));
 const skinOf = h => { const k = S.skin[h] === true ? 1 : S.skin[h] | 0; return k > 0 && skOwn(h, k) ? k : 0; };
 const skDef = (h, k) => k > 1 && SKX[h] && SKX[h][k - 2] ? SKX[h][k - 2] : k > 0 && SKINS[h] ? { n: SKINS[h].n, hue: SKINS[h].hue, acc: SKINS[h].pal.acc, cost: 300, curr: 'prisms' } : { n: 'Classique', hue: 0 };
-const himg = (h, sk) => { const k = sk === undefined ? skinOf(h) : sk === true ? 1 : sk | 0; return `<img src="img/${HEROES[h].img}.jpg" draggable="false" alt=""${k ? ` style="filter:hue-rotate(${skDef(h, k).hue}deg) saturate(1.15)"` : ''}>`; };
+const himg = (h, sk) => { const k = sk === undefined ? skinOf(h) : sk === true ? 1 : sk | 0; const my = k >= 4; return `<img src="img/${HEROES[h].img}.jpg" draggable="false" alt=""${my ? ' data-my="1"' : ''}${k ? ` style="filter:hue-rotate(${skDef(h, k).hue}deg) saturate(${my ? 1.5 : 1.15})${my ? ' contrast(1.08) brightness(1.05)' : ''}"` : ''}>`; };
 const tic = (id, cls) => `<img class="tic ${cls || ''}" src="img/tx/${id}.webp" draggable="false" alt="">`;
 
 function vib(ms) { if (S.set.vib && navigator.vibrate) { try { navigator.vibrate(ms); } catch (e) {} } }
