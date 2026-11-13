@@ -1304,4 +1304,9 @@ setTimeout(() => { try { admFps(); } catch (e) { } }, 2500);
   const _de6 = dmgE; dmgE = function (e, d, crit, by) { if (G && G.adm && G.adm.dmg) d *= 10; return _de6.call(this, e, d, crit, by); };
   ACT.admG = v => { if (!G || !G.adm || SCREEN !== 'game') return; if (v === 'boss') { spawn((G.myth && G.myth[0]) || 'xalven'); return; } if (v === 'next') G.queue.length = 0; for (const e of G.en.slice()) { try { _de6(e, 1e9, false, G.p); } catch (x) { } } };
   const _sh6 = show; show = function (n, e) { if (n !== 'game') { const b = $('#ad7bar'); if (b) b.remove(); } return _sh6(n, e); }; }
-{ const _se6 = SCR.settings; SCR.settings = function () { const h = _se6.apply(this, arguments); return admOn() ? h.replace(/<\/div>\s*$/, '') + '<button class="btn vio ad7open" data-a="go" data-v="admin">PANNEAU ADMIN</button></div>' : h; }; }
+{ const _se6 = SCR.settings; SCR.settings = function () { const h = _se6.apply(this, arguments), b = admOn() ? '<button class="btn sm vio" data-a="go" data-v="admin">PANNEAU ADMIN</button>' : '<button class="btn sm vio" data-a="admAskB">ENTRER UN CODE</button>'; return h.replace('<button class="btn sm gray" data-a="reset">', b + '<button class="btn sm gray" data-a="reset">'); }; ACT.admAskB = () => { snd('open'); admAsk(); }; }
+
+/* ================= v6.9 : un pack étoile gratuit par jour (un seul), à prendre sur le bouton PACKS ÉTOILES du menu ================= */
+const dpkFree = () => S.dpk !== dayNum();
+{ const _orb9 = ACT.orb; ACT.orb = function () { if (dpkFree()) { S.dpk = dayNum(); S.orbs = (S.orbs || 0) + 1; save(); snd('claim'); try { rwBig([{ orbs: 1 }]); } catch (e) { } toast('Pack étoile gratuit du jour récupéré ! Reviens demain pour le suivant.'); if (SCREEN === 'menu') show('menu'); return; } return _orb9.apply(this, arguments); };
+  const _mn9 = SCR.menu; SCR.menu = function () { const h = _mn9.apply(this, arguments); return dpkFree() ? h.replace('<button class="m3pk" data-a="orb">', '<button class="m3pk free7" data-a="orb"><i class="dot"></i>').replace(/<small>\d+ étoiles? avant le prochain pack<\/small>/, '<small class="fr7">PACK GRATUIT DU JOUR : à prendre !</small>') : h; }; }

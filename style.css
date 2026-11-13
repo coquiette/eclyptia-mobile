@@ -1922,3 +1922,5 @@ img{image-rendering:auto;-webkit-user-drag:none}
 .soon7 .sil{position:absolute;inset:6% 12% 0;display:block}.soon7 .sil svg{position:absolute;inset:0;width:100%;height:100%;fill:#0c0818;filter:drop-shadow(0 0 10px var(--sc))}.soon7 .sil .em{inset:44% 30% auto 30%;width:40%;height:auto;fill:var(--sc);opacity:.85;filter:none}
 .soon7 .rb7{position:absolute;left:-6%;right:-6%;top:38%;transform:rotate(-8deg);font-style:normal;font-size:23px;line-height:1.05;font-weight:800;letter-spacing:1px;color:#fff;text-align:center;padding:8px 0 10px;background:#150a2ee6;box-shadow:0 0 0 3px var(--sc);text-shadow:0 2px 0 #000}
 .nar .soon7 .rb7{font-size:19px}
+/* ===== v6.9 : pack étoile gratuit du jour ===== */
+.m3pk.free7{animation:pul 1.1s ease-in-out infinite}.m3pk .fr7{color:#7dff8a!important;font-weight:800}.m3pk.free7 .dot{position:absolute;right:6px;top:6px}
