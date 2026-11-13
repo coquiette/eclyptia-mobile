@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 7.2', BUILD = '72';
+let AR = 1300; const VERSION = 'mobile 7.3', BUILD = '73';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -253,6 +253,10 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins', 'Nébuleuse d’Orion', 'Système solaire', 'Mer de la Tranquillité', 'Planète rouge', 'Anneaux de Saturne', 'Horizon du trou noir', 'Station Éclipse', 'Comète de glace'];
 const PATCH = [
+  { v: '7.3', date: '13 novembre 2026', title: 'Nouvel accueil', items: [
+    { img: 'ic/star.webp', t: 'Accueil réorganisé', d: 'Plus de barre en bas : les boutons sont à gauche, ton gardien au centre avec sa fiche (stats, passif, compétences), ton rang et JOUER à droite.' },
+    { img: 'ic/swords.webp', t: 'Nouveaux boutons de mode', d: 'Partie normale en bleu, partie classée en or avec ton rang. Grandes flèches pour changer de gardien.' },
+    { img: 'ic/crown.webp', t: 'Pages plus compactes', d: 'En-têtes plus fins sur toutes les pages, plus de place pour le contenu.' } ] },
   { v: '7.2', date: '13 novembre 2026', title: 'Menus mieux rangés', items: [
     { img: 'ic/star.webp', t: 'Plus de chevauchements', d: 'Boutons de l’accueil plus petits, et le portrait de ton gardien se cale tout seul dans la place libre, même avec l’encoche de l’iPhone.' },
     { img: 'ui/bstar.webp', t: 'Ouverture des packs', d: 'La barre du bas se cache pendant l’ouverture d’un pack : tu peux toujours continuer.' } ] },

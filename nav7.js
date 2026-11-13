@@ -53,7 +53,7 @@ function hm7Fit() {
     const box = el => { if (!el || !el.offsetParent) return null; const r = el.getBoundingClientRect(); return { l: (r.left - sr.left) / k, t: (r.top - sr.top) / k, r: (r.right - sr.left) / k, b: (r.bottom - sr.top) / k }; };
     const Wd = $('#stage').offsetWidth, Hd = $('#stage').offsetHeight, L = box(m.querySelector('.m3bl')), P = box(m.querySelector('.pl7')), tb = box(m.querySelector('.tb7'));
     const tops = ['.m2prof', '.m2cur', '.set7'].map(s => box(m.querySelector(s))).filter(Boolean), lg = m.querySelector('.m2logo'), lgb = lg && getComputedStyle(lg.parentElement).display !== 'none' ? box(lg) : null;
-    const left = (L ? L.r : 0) + 24, right = (P ? P.l : Wd) - 24, bottom = (tb ? tb.t + 18 : Hd - 130) - 14;
+    const IP = box(m.querySelector('.ip7')), left = (L ? L.r : 0) + 24, right = Math.min(P ? P.l : Wd, IP ? IP.l : Wd) - 24, bottom = (tb ? tb.t + 18 : Hd - 130) - 14;
     let top = Math.max(120, ...tops.map(b => b.b + 12)); if (lgb && lgb.r > left && lgb.l < right) top = Math.max(top, lgb.b + 6);
     const aw = right - left, ah = bottom - top, h = Math.max(220, Math.min(620, ah, aw / .86)), cx = (left + right) / 2;
     Object.assign(hm.style, { left: Math.round(cx) + 'px', top: Math.round(top + (ah - h) / 2) + 'px', height: Math.round(h) + 'px', bottom: 'auto' });
@@ -63,3 +63,68 @@ function hm7Fit() {
 addEventListener('resize', () => setTimeout(hm7Fit, 300)); addEventListener('orientationchange', () => setTimeout(hm7Fit, 600));
 /* ouverture de pack : la barre d'onglets se cache (aussi sur les vieux iPhone qui ne gèrent pas :has) */
 { const _oo = openOrb, _co = closeOrb; openOrb = function () { const r = _oo.apply(this, arguments); if (typeof OB !== 'undefined' && OB) $('#stage').classList.add('orbon'); return r; }; closeOrb = function () { $('#stage').classList.remove('orbon'); return _co.apply(this, arguments); }; }
+
+/* ================= v7.3 : accueil compact — rail de raccourcis à gauche, éléments plus petits ================= */
+{ const _mn3 = SCR.menu; SCR.menu = function () { let h = _mn3.apply(this, arguments); const i0 = h.indexOf('<div class="m3bl">'), i1 = h.indexOf('<div class="ver">'); if (i0 < 0 || i1 < 0) return h;
+  const dr = typeof drState === 'function' ? drState() : { can: 0 }, df = typeof dayFree === 'function' && dayFree(), pf = typeof dpkFree === 'function' && dpkFree(), n = S.orbs || 0, st = S.bst || 0;
+  const it = (a, img, lab, sub, hot, badge) => `<button class="rl7b ${hot ? 'hot' : ''}" data-a="${a}"><span class="ic">${img}${badge ? `<u>${badge}</u>` : ''}${hot ? '<i class="dot"></i>' : ''}</span><b>${lab}</b><small>${sub}</small></button>`;
+  const rail = `<div class="rl7">${it('drOpen', '<img src="img/kit/r_gift.webp" draggable="false" alt="">', 'CADEAU', dr.can ? 'À prendre !' : 'Demain', dr.can)}${it('dayGo', ic('tox'), 'TOX DU JOUR', df ? 'Gratuit !' : 'Pris', df)}${it('orb', orbImg('myst'), 'PACKS', pf ? 'Gratuit !' : '★'.repeat(st) + '☆'.repeat(Math.max(0, 4 - st)), pf, n || '')}</div>`;
+  return h.slice(0, i0) + rail + h.slice(i1); }; }
+
+/* ================= v7.3 : accueil plus rempli — rang, pass et quêtes du jour à droite ================= */
+{ const _mn4 = SCR.menu; SCR.menu = function () { let h = _mn4.apply(this, arguments); try { if (typeof dayCheck === 'function') dayCheck();
+  const k = rankOf(S.rp), lv = Math.min(PASS.length, Math.floor(S.passXp / PASS_STEP)), full = lv >= PASS.length, into = full ? PASS_STEP : S.passXp % PASS_STEP, nx = full ? null : (typeof pRw === 'function' ? pRw(PASS[lv]) : null);
+  const qs = QUESTS.map(q => ({ q, v: Math.min(q.goal, q.get(S)), cl: S.q.claimed.includes(q.id) })), done = qs.filter(x => x.cl).length, ready = qs.filter(x => !x.cl && x.v >= x.q.goal).length;
+  const show3 = qs.filter(x => !x.cl).sort((a, b) => (b.v >= b.q.goal) - (a.v >= a.q.goal) || b.v / b.q.goal - a.v / a.q.goal).slice(0, 3);
+  const bar = (p, c) => `<span class="ip7bar"><i style="width:${Math.round(100 * Math.max(0, Math.min(1, p)))}%;${c ? 'background:' + c : ''}"></i></span>`;
+  const side = `<div class="ip7">
+    <button class="ip7c" data-a="go" data-v="hero"><span class="ip7i rk" style="--rc:${k.c}">${ic('crown')}</span><span class="ip7t"><small>MON RANG</small><b style="color:${k.c}">${k.n}</b>${bar(k.in / RSTEP, k.c)}<small>${k.in} / ${RSTEP} points</small></span></button>
+    <button class="ip7c" data-a="go" data-v="pass"><span class="ip7i">${ic('star')}</span><span class="ip7t"><small>PASS · PALIER ${lv} / ${PASS.length}</small>${bar(into / PASS_STEP)}<small>${full ? 'Pass terminé !' : into + ' / ' + PASS_STEP + ' XP' + (nx ? ' · prochain ' + nx.n : '')}</small></span>${nx ? `<span class="ip7n">${nx.i}</span>` : ''}</button>
+    <button class="ip7c ip7q ${ready ? 'hot' : ''}" data-a="go" data-v="quests"><span class="ip7h"><b>QUÊTES DU JOUR</b><small>${done} / ${QUESTS.length}${ready ? ` · <em>${ready} à réclamer !</em>` : ''}</small></span>
+      ${show3.length ? show3.map(x => `<span class="ip7r ${x.v >= x.q.goal ? 'ok' : ''}"><span>${x.q.t}</span>${bar(x.v / x.q.goal, x.v >= x.q.goal ? '#5ee06a' : '')}<small>${x.v >= x.q.goal ? '✔' : x.v + ' / ' + x.q.goal}</small></span>`).join('') : '<span class="ip7r"><span>Toutes les quêtes sont faites !</span></span>'}</button></div>`;
+  h = h.replace('<div class="pl7">', side + '<div class="pl7">'); } catch (e) { } return h; }; }
+
+/* ================= v7.3 : plus de barre en bas — boutons à gauche et à droite ================= */
+{ const _sh3 = show; show = function (n, e) { _sh3(n, e); try { ui().querySelectorAll('.tb7').forEach(x => x.remove()); const s = ui().querySelector('.scr'); if (s) s.classList.add('nb7'); } catch (x) { } }; }
+{ const _mn5 = SCR.menu; SCR.menu = function () { let h = _mn5.apply(this, arguments);
+  const N = [['shop', 'BOUTIQUE'], ['pass', 'PASS'], ['quests', 'QUÊTES'], ['collection', 'COLLECTION'], ['friends', 'AMIS']];
+  const nav = `<div class="ln7">${N.map(([k, n], i) => `<button class="ln7b" data-a="go" data-v="${k}" style="--i:${i}"><img src="img/ui/b_${k}.webp" draggable="false" alt="${n}">${tb7Dot(k) ? '<i class="dot"></i>' : ''}</button>`).join('')}</div>`;
+  const gd = `<button class="gd7" data-a="go" data-v="hero"><span class="av">${himg(S.hero)}</span><b>GARDIENS</b><small>Choix · pouvoirs · tenues</small></button>`;
+  h = h.replace('<div class="rl7">', nav + '<div class="rl7">').replace('<div class="pl7">', gd + '<div class="pl7">');
+  return h; }; }
+{ const _fit = hm7Fit; hm7Fit = function () { _fit(); try { if (SCREEN !== 'menu') return; const m = ui().querySelector('.m2'), hm = m && m.querySelector('.hm7'), rl = m && m.querySelector('.rl7'); if (!hm || !rl) return;
+    const st = $('#stage'), sr = st.getBoundingClientRect(), k = sr.width / (st.offsetWidth || 1); if (!k || ROT) return; const bx = el => { const r = el.getBoundingClientRect(); return { l: (r.left - sr.left) / k, t: (r.top - sr.top) / k, r: (r.right - sr.left) / k, b: (r.bottom - sr.top) / k }; };
+    const ln = m.querySelector('.ln7'), L = bx(ln || rl), R = ['.ip7', '.pl7'].map(s => m.querySelector(s)).filter(Boolean).map(bx), tops = ['.m2prof', '.m2cur', '.set7'].map(s => m.querySelector(s)).filter(Boolean).map(bx);
+    const left = L.r + 26, right = Math.min(...R.map(b => b.l)) - 26, Hd = st.offsetHeight, top = Math.max(110, ...tops.filter(b => b.r > left && b.l < right).map(b => b.b + 14)), bottom = Hd - 34;
+    const lg = m.querySelector('.m2logo'); let t2 = top; if (lg && getComputedStyle(lg.parentElement).display !== 'none') { const g = bx(lg); if (g.r > left && g.l < right) t2 = Math.max(t2, g.b + 6); }
+    const aw = right - left, ah = bottom - t2, hh = Math.max(220, Math.min(500, ah * .82, aw / .86));
+    Object.assign(hm.style, { left: Math.round((left + right) / 2) + 'px', top: Math.round(t2 + (ah - hh) / 2) + 'px', height: Math.round(hh) + 'px', bottom: 'auto' }); hm.classList.toggle('sm', hh < 470); } catch (e) { } }; }
+
+/* ================= v7.3 : accueil épuré — une seule colonne de boutons, moins de doublons ================= */
+{ const _mn6 = SCR.menu; SCR.menu = function () { let h = _mn6.apply(this, arguments); const n = S.orbs || 0, pf = typeof dpkFree === 'function' && dpkFree(), dr = typeof drState === 'function' ? drState() : { can: 0 };
+  const pk = `<button class="ln7b ln7p ${pf ? 'hot' : ''}" data-a="orb"><span class="ic">${orbImg('myst')}${n ? `<u>${n}</u>` : ''}${pf ? '<i class="dot"></i>' : ''}</span><b>PACKS</b></button>`;
+  const gift = dr.can ? `<button class="gf7" data-a="drOpen" aria-label="Cadeau du jour"><img src="img/kit/r_gift.webp" draggable="false" alt=""><i class="dot"></i></button>` : '';
+  h = h.replace(/<\/button><\/div><div class="rl7">/, '</button>' + pk + '</div><div class="rl7">').replace('<button class="set7"', gift + '<button class="set7"');
+  return h; }; }
+
+/* ================= v7.3 : fiche du gardien à côté du portrait (stats, passif, compétences) ================= */
+{ const _mn7 = SCR.menu; SCR.menu = function () { let h = _mn7.apply(this, arguments); try { const id = S.hero, H = HEROES[id], D = typeof KDEF !== 'undefined' && KDEF[id], hs = S.hs[id] || {};
+  const st = (n, v, max, c) => `<span class="hi7s"><small>${n}</small><span class="ip7bar"><i style="width:${Math.min(100, 100 * v / max)}%;background:${c}"></i></span><b>${Math.round(v)}</b></span>`;
+  const sk = D ? [['E', D.E], ['A', D.A], ['C', D.C], ['R', D.R]].map(([k, x], i) => x ? `<span class="hi7k"><span class="tq">${tic(H.tox[i])}<i>${k === 'C' ? 'COMBO' : k}</i></span><small>${x[0]}</small></span>` : '').join('') : '';
+  const info = `<button class="hi7" data-a="go" data-v="hero" style="--hc:${H.col}"><span class="hi7h"><b>${H.n.toUpperCase()}</b><small>${D ? D.role + ' · ' + D.cls : H.cls}</small></span>
+    <span class="hi7g">${st('PV', H.hp * (1 + .08 * (hs.hp || 0)), 200, '#5ee06a')}${st('Dégâts', H.dmg * (1 + .06 * (hs.dmg || 0)), 25, '#ff7a4a')}${st('Vitesse', H.spd * (1 + .03 * (hs.spd || 0)), 420, '#5ac8ff')}</span>
+    ${D ? `<span class="hi7p"><b>Passif · ${D.pas[0]}</b><small>${D.pas[1]}</small></span>` : ''}<span class="hi7ks">${sk}</span><span class="hi7c">TOUCHE POUR CHANGER DE GARDIEN ›</span></button>`;
+  h = h.replace('<div class="pl7">', info + '<div class="pl7">'); } catch (e) { } return h; }; }
+{ const _fit2 = hm7Fit; hm7Fit = function () { _fit2(); try { if (SCREEN !== 'menu') return; const m = ui().querySelector('.m2'), hm = m && m.querySelector('.hm7'), hi = m && m.querySelector('.hi7'), ln = m && m.querySelector('.ln7'); if (!hm || !hi || !ln) return;
+    const st = $('#stage'), sr = st.getBoundingClientRect(), k = sr.width / (st.offsetWidth || 1); if (!k || ROT) return; const bx = el => { const r = el.getBoundingClientRect(); return { l: (r.left - sr.left) / k, t: (r.top - sr.top) / k, r: (r.right - sr.left) / k, b: (r.bottom - sr.top) / k }; };
+    const L = bx(ln), R = ['.ip7', '.pl7'].map(s => m.querySelector(s)).filter(Boolean).map(bx), tops = ['.m2prof', '.m2cur', '.set7', '.gf7'].map(s => m.querySelector(s)).filter(Boolean).map(bx);
+    const left = L.r + 66, right = Math.min(...R.map(b => b.l)) - 30, Hd = st.offsetHeight, aw = right - left, iw = Math.max(300, Math.min(500, aw * .44)), gap = 66;
+    let top = Math.max(118, ...tops.filter(b => b.r > left && b.l < right).map(b => b.b + 14)); const lg = m.querySelector('.m2logo'); if (lg && getComputedStyle(lg.parentElement).display !== 'none') { const g = bx(lg); if (g.r > left && g.l < right) top = Math.max(top, g.b + 8); }
+    const ah = Hd - 36 - top, ch = Math.max(240, Math.min(640, ah, (aw - iw - gap) / .86)), cw = ch * .86, gw = cw + gap + iw, gl = (left + right) / 2 - gw / 2, ty = top + (ah - ch) / 2;
+    Object.assign(hm.style, { left: Math.round(gl + cw / 2) + 'px', top: Math.round(ty) + 'px', height: Math.round(ch) + 'px', bottom: 'auto' }); hm.classList.toggle('sm', ch < 470);
+    Object.assign(hi.style, { left: Math.round(gl + cw + gap) + 'px', top: Math.round(ty) + 'px', width: Math.round(iw) + 'px', height: Math.round(ch - 24) + 'px' }); hi.classList.toggle('sm', iw < 400 || ch < 470); } catch (e) { } }; }
+
+/* v7.3 : beaux boutons de mode */
+{ const _mn8 = SCR.menu; SCR.menu = function () { let h = _mn8.apply(this, arguments); const k = rankOf(S.rp), r = typeof rkOn === 'function' && rkOn(), gst = typeof NET !== 'undefined' && NET.role === 2;
+  const md = `<div class="mb7 ${gst ? 'gst' : ''}"><button class="mb7b n ${r ? '' : 'on'}" data-a="mode" data-v="n"><span class="mi">${ic('swords')}</span><span class="mt"><b>NORMALE</b><small>Pour s’amuser</small></span>${r ? '' : '<i class="ck">✔</i>'}</button><button class="mb7b r ${r ? 'on' : ''}" data-a="mode" data-v="r" style="--rc:${k.c}"><span class="mi">${ic('crown')}</span><span class="mt"><b>CLASSÉE</b><small>${gst ? 'Le chef choisit' : k.n}</small></span>${r ? '<i class="ck">✔</i>' : ''}</button></div>`;
+  return h.replace(/<div class="md7 hmd7[^"]*">[\s\S]*?<\/button><\/div>/, md); }; }
