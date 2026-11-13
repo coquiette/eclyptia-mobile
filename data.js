@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 6.7', BUILD = '67';
+let AR = 1300; const VERSION = 'mobile 6.8', BUILD = '68';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -253,6 +253,9 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins', 'Nébuleuse d’Orion', 'Système solaire', 'Mer de la Tranquillité', 'Planète rouge', 'Anneaux de Saturne', 'Horizon du trou noir', 'Station Éclipse', 'Comète de glace'];
 const PATCH = [
+  { v: '6.8', date: '13 novembre 2026', title: 'Modes mieux placés et gardiens à venir', items: [
+    { img: 'ic/swords.webp', t: 'Modes dans le choix du gardien', d: 'Les boutons Partie normale et Partie classée sont maintenant en grand sous les gardiens, juste au-dessus de JOUER.' },
+    { img: 'ic/lock.webp', t: '4 gardiens annoncés', d: 'Sélène, Dravok, Mirelle et Zéphyr apparaissent en grisé : ils arriveront dans une prochaine mise à jour.' } ] },
   { v: '6.7', date: '13 novembre 2026', title: 'Familiers, nouveau pass et image plus nette', items: [
     { img: 'ic/heart.webp', t: '11 familiers', d: 'Un petit compagnon te suit en partie : Givrette, Croc-Rouge, Mini-Titan, Petite Reine… À acheter avec tes pièces dans Profil › Cosmétiques. Juste pour le style, aucun bonus.' },
     { img: 'ic/crown.webp', t: 'Pass de saison refait', d: 'Récompenses en grand, gros bouton « Tout prendre » et animation quand tu récupères un palier. La page cosmétiques a aussi de plus gros boutons.' },

@@ -1912,3 +1912,13 @@ img{image-rendering:auto;-webkit-user-drag:none}
 #ad7fps{position:fixed;left:6px;bottom:6px;z-index:99999;font:700 13px system-ui;color:#7dff8a;background:#000a;padding:3px 7px;border-radius:8px;pointer-events:none}
 #ad7bar{position:absolute;left:50%;top:150px;transform:translateX(-50%);z-index:40;display:flex;gap:12px}#ad7bar button{min-height:76px;padding:0 26px;border-radius:22px;font-size:26px;color:#fff;background:#b0203ae6;box-shadow:0 0 0 3px #ffb0b0,0 6px 0 #0d061d}
 .nar .ad7b{min-height:90px}.nar .ad7b b{font-size:26px}.nar .ad7b small{font-size:17px}
+/* ===== v6.8 : modes dans le choix du gardien + mini bouton admin ===== */
+.md7{width:100%;max-width:none;margin:0;gap:16px;flex:none}.md7 button{min-height:112px}.md7 b{font-size:38px}.md7 small{font-size:22px}
+.hb7 .pn.sub{min-height:86px!important;font-size:24px}.hb7 .btn.big{min-height:112px;font-size:56px}
+.nar .md7 button{min-height:100px}.nar .md7 b{font-size:33px}.nar .md7 small{font-size:19px}
+.adm7m{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:8px;height:58px;padding:0 20px 2px 12px;border-radius:29px;color:#fff;background:#b0203ad9;box-shadow:0 0 0 3px #ffb0b0,0 5px 0 #0d061d}.adm7m .ici{width:38px;height:38px}.adm7m b{font-size:24px;letter-spacing:1px}
+/* ===== v6.8 : gardiens annoncés (grisés) ===== */
+.soon7{position:relative;overflow:hidden;background:linear-gradient(160deg,#3a3350,#17122a 70%)!important;filter:saturate(.45)}.soon7:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,var(--sc),transparent 62%);opacity:.38}
+.soon7 .sil{position:absolute;inset:6% 12% 0;display:block}.soon7 .sil svg{position:absolute;inset:0;width:100%;height:100%;fill:#0c0818;filter:drop-shadow(0 0 10px var(--sc))}.soon7 .sil .em{inset:44% 30% auto 30%;width:40%;height:auto;fill:var(--sc);opacity:.85;filter:none}
+.soon7 .rb7{position:absolute;left:-6%;right:-6%;top:38%;transform:rotate(-8deg);font-style:normal;font-size:23px;line-height:1.05;font-weight:800;letter-spacing:1px;color:#fff;text-align:center;padding:8px 0 10px;background:#150a2ee6;box-shadow:0 0 0 3px var(--sc);text-shadow:0 2px 0 #000}
+.nar .soon7 .rb7{font-size:19px}
