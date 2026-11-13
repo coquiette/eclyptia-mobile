@@ -5,7 +5,7 @@ function toast(s) { const t = $('#toast'); t.textContent = s; t.classList.add('o
 const spk = n => Array.from({ length: n }, (_, i) => `<i class="spk" style="left:${(i * 137.5) % 100}%;top:${20 + (i * 61) % 75}%;animation-delay:${(i * .37) % 3}s;animation-duration:${2.4 + (i % 4) * .5}s"></i>`).join('');
 const stars = n => Array.from({ length: n }, (_, i) => `<i class="star" style="left:${(i * 61.8) % 100}%;top:${(i * 38.2) % 100}%;animation-delay:${(i * .29) % 2.4}s;width:${3 + i % 4}px;height:${3 + i % 4}px"></i>`).join('');
 const cur = () => `<div class="cur"><span class="pill">${ic('prism')} ${S.prisms}</span><span class="pill">${ic('coin')} ${S.coins}</span></div>`;
-const head = (t, bk) => `<div class="bg"></div>${spk(5)}<div class="top"><button class="back" data-a="go" data-v="${bk || 'menu'}">◀ RETOUR</button><div class="ttl">${t}</div>${cur()}</div>`;
+const head = (t, bk) => `<div class="bg" data-s="${SCREEN}"><i class="b7i"></i><i class="b7a"></i><i class="b7r"></i><i class="b7m"></i></div>${spk(5)}<div class="top"><button class="back" data-a="go" data-v="${bk || 'menu'}">◀ RETOUR</button><div class="ttl">${t}</div>${cur()}</div>`;
 const bst = cls => `<img class="ici ${cls || ''}" src="img/ui/bstar.webp" draggable="false" alt="">`;
 const rewTxt = r => [r.coins ? r.coins + ' ' + ic('coin') : '', r.prisms ? r.prisms + ' ' + ic('prism') : '', r.orbs ? r.orbs + ' ' + bst() : '', r.cards ? r.cards + ' ' + ic('tox') : '', r.skin ? ic('crown') : '', r.passXp ? r.passXp + ' XP' : ''].filter(Boolean).join(' · ');
 const pips = l => `<div class="pips">${Array.from({ length: 10 }, (_, i) => `<i class="${i < l ? 'on' : ''}"></i>`).join('')}</div>`;

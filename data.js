@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 7.0', BUILD = '70';
+let AR = 1300; const VERSION = 'mobile 7.1', BUILD = '71';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -253,6 +253,11 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins', 'Nébuleuse d’Orion', 'Système solaire', 'Mer de la Tranquillité', 'Planète rouge', 'Anneaux de Saturne', 'Horizon du trou noir', 'Station Éclipse', 'Comète de glace'];
 const PATCH = [
+  { v: '7.1', date: '13 novembre 2026', title: 'Nouveaux menus et nouveaux portraits', items: [
+    { img: 'h1.jpg', t: 'Nouveaux portraits', d: 'Chaque gardien a son propre portrait : expression, pose et décor bien à lui.' },
+    { img: 'ic/star.webp', t: 'Menus réorganisés', d: 'Une barre d’onglets en bas sur toutes les pages, ton gardien en grand sur l’accueil, et les pages regroupées : Gardiens, Collection, Amis.' },
+    { img: 'ic/tox.webp', t: 'Fonds animés', d: 'Le menu change d’ambiance à chaque partie et chaque page a sa couleur, avec lumières et poussières qui bougent.' },
+    { img: 'ic/lock.webp', t: 'Les futurs gardiens se dévoilent', d: 'Aaron, Seren, Sahra, Aurion, Ashryn, Golem et Arven ont leur portrait en attendant leur arrivée.' } ] },
   { v: '7.0', date: '13 novembre 2026', title: 'Les gardiens ont leurs vraies compétences', items: [
     { img: 'ic/swords.webp', t: 'Passif, E, A, Combo et R', d: 'Kaelion, Elyra, Aria, Vesper et Brakkor ont chacun un passif et des compétences uniques. Le bouton 3 est maintenant le Combo : il s’allume quand sa condition est remplie.' },
     { img: 'ic/star.webp', t: 'Invocations', d: 'Le phénix d’Elyra, les clones de Vesper et la forge de Brakkor se battent à tes côtés.' },
