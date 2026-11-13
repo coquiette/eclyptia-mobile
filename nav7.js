@@ -117,10 +117,10 @@ addEventListener('resize', () => setTimeout(hm7Fit, 300)); addEventListener('ori
   h = h.replace('<div class="pl7">', info + '<div class="pl7">'); } catch (e) { } return h; }; }
 { const _fit2 = hm7Fit; hm7Fit = function () { _fit2(); try { if (SCREEN !== 'menu') return; const m = ui().querySelector('.m2'), hm = m && m.querySelector('.hm7'), hi = m && m.querySelector('.hi7'), ln = m && m.querySelector('.ln7'); if (!hm || !hi || !ln) return;
     const st = $('#stage'), sr = st.getBoundingClientRect(), k = sr.width / (st.offsetWidth || 1); if (!k || ROT) return; const bx = el => { const r = el.getBoundingClientRect(); return { l: (r.left - sr.left) / k, t: (r.top - sr.top) / k, r: (r.right - sr.left) / k, b: (r.bottom - sr.top) / k }; };
-    const L = bx(ln), R = ['.ip7', '.pl7', '.gf7'].map(s => m.querySelector(s)).filter(Boolean).map(bx), tops = ['.m2prof', '.m2cur', '.set7'].map(s => m.querySelector(s)).filter(Boolean).map(bx);
-    const left = L.r + 150, right = Math.min(...R.map(b => b.l)) - 30, Hd = st.offsetHeight, aw = right - left, iw = Math.max(290, Math.min(470, aw * .42)), gap = 150;
+    const L = bx(ln), R = ['.ip7', '.pl7'].map(s => m.querySelector(s)).filter(Boolean).map(bx), tops = ['.m2prof', '.m2cur', '.set7'].map(s => m.querySelector(s)).filter(Boolean).map(bx);
+    const left = L.r + 150, right = Math.min(...R.map(b => b.l)) - 30, Hd = st.offsetHeight, aw = right - left, iw = Math.max(300, Math.min(540, aw * .46)), gap = 140;
     let top = Math.max(118, ...tops.filter(b => b.r > left && b.l < right).map(b => b.b + 14)); const lg = m.querySelector('.m2logo'); if (lg && getComputedStyle(lg.parentElement).display !== 'none') { const g = bx(lg); if (g.r > left && g.l < right) top = Math.max(top, g.b + 8); }
-    const ah = Hd - 36 - top, ch = Math.max(230, Math.min(560, ah * .94, (aw - iw - gap) / .86)), cw = ch * .86, gw = cw + gap + iw, gl = (left + right) / 2 - gw / 2, ty = top + (ah - ch) / 2;
+    const ah = Hd - 36 - top, ch = Math.max(230, Math.min(640, ah * .96, (aw - iw - gap) / .86)), cw = ch * .86, gw = cw + gap + iw, gl = (left + right) / 2 - gw / 2, ty = top + (ah - ch) / 2;
     Object.assign(hm.style, { left: Math.round(gl + cw / 2) + 'px', top: Math.round(ty) + 'px', height: Math.round(ch) + 'px', bottom: 'auto' }); hm.classList.toggle('sm', ch < 470);
     Object.assign(hi.style, { left: Math.round(gl + cw + gap) + 'px', top: Math.round(ty) + 'px', width: Math.round(iw) + 'px', height: Math.round(ch - 24) + 'px' }); hi.classList.toggle('sm', iw < 400 || ch < 470); hi.classList.toggle('xs', ch < 400); } catch (e) { } }; }
 
@@ -138,3 +138,9 @@ addEventListener('resize', () => setTimeout(hm7Fit, 300)); addEventListener('ori
     return head('TENUES', SKBK) + `<div class="body sk7"><div class="sk7s">${chips}</div><div class="sk7r">${[0, 1, 2, 3, 4].map(card).join('')}</div>
       <div class="sk7f ${pk >= 4 ? 'my' : ''}" style="--rc:${RAR[pk][1]}"><span class="sk7q">${RAR[pk][0]}</span><span class="sk7t"><b>${D.n}</b><small>${HEROES[ph].n} · ${desc}</small></span>
       <button class="btn big ${!own || on || (!has && (S[D.curr] || 0) < D.cost) ? 'gray' : ''}" data-a="skDo">${!own ? ic('lock') + ' VERROUILLÉ' : on ? 'ÉQUIPÉE ✓' : has ? 'ÉQUIPER' : 'ACHETER ' + D.cost + ' ' + ic(cur)}</button></div></div>`; }; }
+
+/* v7.5 : page des gardiens plus simple — sans barres de stats ni bandeau d'astuce */
+{ const _h9 = SCR.hero; SCR.hero = function () { let h = _h9.apply(this, arguments);
+  h = h.replace(/<div class="col" style="width:100%;gap:8px">(?:<div class="row">[\s\S]*?<\/div><\/div>){3}<\/div>/, '');
+  h = h.replace(/<div class="pn grow row sub"[^>]*><img class="ici[^>]*>\s*Survis à[^<]*<\/div>/, '');
+  return h; }; }
