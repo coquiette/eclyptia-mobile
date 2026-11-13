@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 7.1', BUILD = '71';
+let AR = 1300; const VERSION = 'mobile 7.2', BUILD = '72';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -253,6 +253,9 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins', 'Nébuleuse d’Orion', 'Système solaire', 'Mer de la Tranquillité', 'Planète rouge', 'Anneaux de Saturne', 'Horizon du trou noir', 'Station Éclipse', 'Comète de glace'];
 const PATCH = [
+  { v: '7.2', date: '13 novembre 2026', title: 'Menus mieux rangés', items: [
+    { img: 'ic/star.webp', t: 'Plus de chevauchements', d: 'Boutons de l’accueil plus petits, et le portrait de ton gardien se cale tout seul dans la place libre, même avec l’encoche de l’iPhone.' },
+    { img: 'ui/bstar.webp', t: 'Ouverture des packs', d: 'La barre du bas se cache pendant l’ouverture d’un pack : tu peux toujours continuer.' } ] },
   { v: '7.1', date: '13 novembre 2026', title: 'Nouveaux menus et nouveaux portraits', items: [
     { img: 'h1.jpg', t: 'Nouveaux portraits', d: 'Chaque gardien a son propre portrait : expression, pose et décor bien à lui.' },
     { img: 'ic/star.webp', t: 'Menus réorganisés', d: 'Une barre d’onglets en bas sur toutes les pages, ton gardien en grand sur l’accueil, et les pages regroupées : Gardiens, Collection, Amis.' },

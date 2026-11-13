@@ -46,3 +46,20 @@ ACT.play7 = () => { SEL = S.hero; snd('buy'); ACT.play(); };
   h = h.replace(/<div class="m2grid">[\s\S]*?<\/div>\s*<button class="m2play" data-a="go" data-v="hero">/, `</div>${card}<div class="pl7">${md}<button class="m2play" data-a="play7">`);
   h = h.replace('<div class="m2cur">', '<button class="set7" data-a="go" data-v="settings" aria-label="Réglages"><img src="img/kit/r_gear.webp" draggable="false" alt=""></button><div class="m2cur">');
   return h; }; }
+
+/* ================= v7.2 : accueil qui s'adapte à la place libre (encoche, petits écrans) ================= */
+function hm7Fit() {
+  try { if (SCREEN !== 'menu') return; const m = ui().querySelector('.m2'), hm = m && m.querySelector('.hm7'); if (!hm) return; const sr = $('#stage').getBoundingClientRect(), k = sr.width / ($('#stage').offsetWidth || 1); if (!k || ROT) return;
+    const box = el => { if (!el || !el.offsetParent) return null; const r = el.getBoundingClientRect(); return { l: (r.left - sr.left) / k, t: (r.top - sr.top) / k, r: (r.right - sr.left) / k, b: (r.bottom - sr.top) / k }; };
+    const Wd = $('#stage').offsetWidth, Hd = $('#stage').offsetHeight, L = box(m.querySelector('.m3bl')), P = box(m.querySelector('.pl7')), tb = box(m.querySelector('.tb7'));
+    const tops = ['.m2prof', '.m2cur', '.set7'].map(s => box(m.querySelector(s))).filter(Boolean), lg = m.querySelector('.m2logo'), lgb = lg && getComputedStyle(lg.parentElement).display !== 'none' ? box(lg) : null;
+    const left = (L ? L.r : 0) + 24, right = (P ? P.l : Wd) - 24, bottom = (tb ? tb.t + 18 : Hd - 130) - 14;
+    let top = Math.max(120, ...tops.map(b => b.b + 12)); if (lgb && lgb.r > left && lgb.l < right) top = Math.max(top, lgb.b + 6);
+    const aw = right - left, ah = bottom - top, h = Math.max(220, Math.min(620, ah, aw / .86)), cx = (left + right) / 2;
+    Object.assign(hm.style, { left: Math.round(cx) + 'px', top: Math.round(top + (ah - h) / 2) + 'px', height: Math.round(h) + 'px', bottom: 'auto' });
+    hm.classList.toggle('sm', h < 470);
+  } catch (e) { } }
+{ const _sh2 = show; show = function (n, e) { _sh2(n, e); if (n === 'menu') { hm7Fit(); requestAnimationFrame(hm7Fit); setTimeout(hm7Fit, 450); setTimeout(hm7Fit, 1200); } }; }
+addEventListener('resize', () => setTimeout(hm7Fit, 300)); addEventListener('orientationchange', () => setTimeout(hm7Fit, 600));
+/* ouverture de pack : la barre d'onglets se cache (aussi sur les vieux iPhone qui ne gèrent pas :has) */
+{ const _oo = openOrb, _co = closeOrb; openOrb = function () { const r = _oo.apply(this, arguments); if (typeof OB !== 'undefined' && OB) $('#stage').classList.add('orbon'); return r; }; closeOrb = function () { $('#stage').classList.remove('orbon'); return _co.apply(this, arguments); }; }

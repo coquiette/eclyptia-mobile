@@ -2022,3 +2022,19 @@ img{image-rendering:auto;-webkit-user-drag:none}
 .p7 .txl .heroshow{width:96px!important;height:96px!important}.p7 .txl .gold{font-size:30px!important;word-break:break-word}
 .hm7{bottom:auto;height:min(calc(100% - 328px),620px);top:max(178px,calc(50% - 330px))}
 .nar .hm7{bottom:auto;height:min(calc(100% - 322px),600px);top:max(172px,calc(50% - 320px))}
+/* v7.2 : la barre d'onglets passe sous les fenêtres (ouverture de pack, etc.) */
+#ui .scr{z-index:1}
+#stage:has(#orb.on) .tb7,#stage:has(#drw) .tb7,#stage:has(.rw7) .tb7{display:none}
+/* v7.2 : boutons de l'accueil plus petits, portrait calé dans la place libre */
+.m3 .m3bl{transform:scale(.8);transform-origin:left bottom}
+.pl7{transform:scale(.84);transform-origin:right bottom}
+.m3 .m2prof{transform:scale(.84);transform-origin:left top}
+.m3 .m2cur{transform:scale(.84);transform-origin:right top;right:calc(var(--sr,0px) + 118px)}
+.set7{width:86px;height:86px}
+.hm7{gap:0}.hm7a,.nar .hm7a{position:absolute;bottom:4px;z-index:3;width:76px;height:76px}.hm7a:first-child{left:-30px}.hm7a:last-child{right:-30px}
+.hm7n{padding:8px 46px 10px}
+.hm7.sm .hm7n b{font-size:30px}.hm7.sm .hm7n small{font-size:15px}.hm7.sm .hm7n{padding:5px 40px 7px;margin-top:-26px}.hm7.sm .hm7a{width:62px;height:62px;left:auto;right:auto}.hm7.sm .hm7a:first-child{left:-24px}.hm7.sm .hm7a:last-child{right:-24px}
+.tb7{height:122px}.tb7:before{height:108px}.tb7b{height:106px}.tb7b img{height:88px}.tb7h{height:118px}.tb7h img{width:94px;height:94px}
+.tb7g .av{width:62px;height:62px}.tb7g b{font-size:21px;padding:10px 14px 8px}
+.scr.p7 .body{bottom:134px}
+#stage.orbon .tb7{display:none!important}
