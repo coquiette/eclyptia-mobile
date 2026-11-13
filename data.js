@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 6.6', BUILD = '66';
+let AR = 1300; const VERSION = 'mobile 6.7', BUILD = '67';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -253,6 +253,11 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins', 'Nébuleuse d’Orion', 'Système solaire', 'Mer de la Tranquillité', 'Planète rouge', 'Anneaux de Saturne', 'Horizon du trou noir', 'Station Éclipse', 'Comète de glace'];
 const PATCH = [
+  { v: '6.7', date: '13 novembre 2026', title: 'Familiers, nouveau pass et image plus nette', items: [
+    { img: 'ic/heart.webp', t: '11 familiers', d: 'Un petit compagnon te suit en partie : Givrette, Croc-Rouge, Mini-Titan, Petite Reine… À acheter avec tes pièces dans Profil › Cosmétiques. Juste pour le style, aucun bonus.' },
+    { img: 'ic/crown.webp', t: 'Pass de saison refait', d: 'Récompenses en grand, gros bouton « Tout prendre » et animation quand tu récupères un palier. La page cosmétiques a aussi de plus gros boutons.' },
+    { img: 'ic/swords.webp', t: 'Partie normale ou classée', d: 'Choisis au-dessus de JOUER. En normale, ton rang ne bouge pas. En groupe, c’est le chef qui décide.' },
+    { img: 'ic/star.webp', t: 'Image plus nette et plus lisse', d: 'Le jeu est dessiné plus finement : sols retravaillés, bords arrondis, ombres douces. Nyxara se tient enfin droite.' } ] },
   { v: '6.6', date: '12 novembre 2026', title: 'Nouveaux monstres, effets et sons', items: [
     { img: 'ic/skull.webp', t: '13 nouveaux modèles 3D', d: '8 monstres et 5 boss ont maintenant leur propre modèle au lieu d’une simple couleur : Colosse d’obsidienne, Archimage du néant, Ver de lave, Nyxalis, Titan de givre, Azurion…' },
     { img: 'ic/star.webp', t: 'Effets plus spectaculaires', d: 'Cercles magiques, éclairs, flammes et fumées sur les impacts, les explosions et les compétences, à la couleur de ton gardien.' },
