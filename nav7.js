@@ -1,4 +1,9 @@
 'use strict';
+/* v7.6 : position d'un élément dans le repère de la scène, que l'écran soit tourné (téléphone tenu droit) ou non */
+function sbx(el) { const st = $('#stage'), W = st.offsetWidth, H = st.offsetHeight, sr = st.getBoundingClientRect(), r = el.getBoundingClientRect();
+  if (!ROT) { const k = sr.width / (W || 1); return { l: (r.left - sr.left) / k, t: (r.top - sr.top) / k, r: (r.right - sr.left) / k, b: (r.bottom - sr.top) / k }; }
+  const k = sr.height / (W || 1), cx = sr.left + sr.width / 2, cy = sr.top + sr.height / 2;
+  return { l: W / 2 + (r.top - cy) / k, r: W / 2 + (r.bottom - cy) / k, t: H / 2 - (r.right - cx) / k, b: H / 2 - (r.left - cx) / k }; }
 /* ================= v7.1 : NOUVELLE ORGANISATION DES MENUS =================
    - barre d'onglets en bas sur l'accueil et sur toutes les pages
    - accueil : ton gardien en grand au centre, modes + JOUER en bas à droite, réglages en haut à droite
@@ -49,8 +54,8 @@ ACT.play7 = () => { SEL = S.hero; snd('buy'); ACT.play(); };
 
 /* ================= v7.2 : accueil qui s'adapte à la place libre (encoche, petits écrans) ================= */
 function hm7Fit() {
-  try { if (SCREEN !== 'menu') return; const m = ui().querySelector('.m2'), hm = m && m.querySelector('.hm7'); if (!hm) return; const sr = $('#stage').getBoundingClientRect(), k = sr.width / ($('#stage').offsetWidth || 1); if (!k || ROT) return;
-    const box = el => { if (!el || !el.offsetParent) return null; const r = el.getBoundingClientRect(); return { l: (r.left - sr.left) / k, t: (r.top - sr.top) / k, r: (r.right - sr.left) / k, b: (r.bottom - sr.top) / k }; };
+  try { if (SCREEN !== 'menu') return; const m = ui().querySelector('.m2'), hm = m && m.querySelector('.hm7'); if (!hm) return; const sr = $('#stage').getBoundingClientRect(), k = sr.width / ($('#stage').offsetWidth || 1); if (!k) return;
+    const box = el => (!el || !el.offsetParent) ? null : sbx(el);
     const Wd = $('#stage').offsetWidth, Hd = $('#stage').offsetHeight, L = box(m.querySelector('.m3bl')), P = box(m.querySelector('.pl7')), tb = box(m.querySelector('.tb7'));
     const tops = ['.m2prof', '.m2cur', '.set7'].map(s => box(m.querySelector(s))).filter(Boolean), lg = m.querySelector('.m2logo'), lgb = lg && getComputedStyle(lg.parentElement).display !== 'none' ? box(lg) : null;
     const IP = box(m.querySelector('.ip7')), left = (L ? L.r : 0) + 24, right = Math.min(P ? P.l : Wd, IP ? IP.l : Wd) - 24, bottom = (tb ? tb.t + 18 : Hd - 130) - 14;
@@ -93,7 +98,7 @@ addEventListener('resize', () => setTimeout(hm7Fit, 300)); addEventListener('ori
   h = h.replace('<div class="rl7">', nav + '<div class="rl7">').replace('<div class="pl7">', gd + '<div class="pl7">');
   return h; }; }
 { const _fit = hm7Fit; hm7Fit = function () { _fit(); try { if (SCREEN !== 'menu') return; const m = ui().querySelector('.m2'), hm = m && m.querySelector('.hm7'), rl = m && m.querySelector('.rl7'); if (!hm || !rl) return;
-    const st = $('#stage'), sr = st.getBoundingClientRect(), k = sr.width / (st.offsetWidth || 1); if (!k || ROT) return; const bx = el => { const r = el.getBoundingClientRect(); return { l: (r.left - sr.left) / k, t: (r.top - sr.top) / k, r: (r.right - sr.left) / k, b: (r.bottom - sr.top) / k }; };
+    const st = $('#stage'), sr = st.getBoundingClientRect(), k = sr.width / (st.offsetWidth || 1); if (!k) return; const bx = sbx;
     const ln = m.querySelector('.ln7'), L = bx(ln || rl), R = ['.ip7', '.pl7'].map(s => m.querySelector(s)).filter(Boolean).map(bx), tops = ['.m2prof', '.m2cur', '.set7'].map(s => m.querySelector(s)).filter(Boolean).map(bx);
     const left = L.r + 26, right = Math.min(...R.map(b => b.l)) - 26, Hd = st.offsetHeight, top = Math.max(110, ...tops.filter(b => b.r > left && b.l < right).map(b => b.b + 14)), bottom = Hd - 34;
     const lg = m.querySelector('.m2logo'); let t2 = top; if (lg && getComputedStyle(lg.parentElement).display !== 'none') { const g = bx(lg); if (g.r > left && g.l < right) t2 = Math.max(t2, g.b + 6); }
@@ -116,7 +121,7 @@ addEventListener('resize', () => setTimeout(hm7Fit, 300)); addEventListener('ori
     ${D ? `<span class="hi7p"><b>Passif · ${D.pas[0]}</b><small>${D.pas[1]}</small></span>` : ''}<span class="hi7ks">${sk}</span><span class="hi7c">TOUCHE POUR CHANGER DE GARDIEN ›</span></button>`;
   h = h.replace('<div class="pl7">', info + '<div class="pl7">'); } catch (e) { } return h; }; }
 { const _fit2 = hm7Fit; hm7Fit = function () { _fit2(); try { if (SCREEN !== 'menu') return; const m = ui().querySelector('.m2'), hm = m && m.querySelector('.hm7'), hi = m && m.querySelector('.hi7'), ln = m && m.querySelector('.ln7'); if (!hm || !hi || !ln) return;
-    const st = $('#stage'), sr = st.getBoundingClientRect(), k = sr.width / (st.offsetWidth || 1); if (!k || ROT) return; const bx = el => { const r = el.getBoundingClientRect(); return { l: (r.left - sr.left) / k, t: (r.top - sr.top) / k, r: (r.right - sr.left) / k, b: (r.bottom - sr.top) / k }; };
+    const st = $('#stage'), sr = st.getBoundingClientRect(), k = sr.width / (st.offsetWidth || 1); if (!k) return; const bx = sbx;
     const L = bx(ln), R = ['.ip7', '.pl7'].map(s => m.querySelector(s)).filter(Boolean).map(bx), tops = ['.m2prof', '.m2cur', '.set7'].map(s => m.querySelector(s)).filter(Boolean).map(bx);
     const left = L.r + 150, right = Math.min(...R.map(b => b.l)) - 30, Hd = st.offsetHeight, aw = right - left, iw = Math.max(300, Math.min(540, aw * .46)), gap = 140;
     let top = Math.max(118, ...tops.filter(b => b.r > left && b.l < right).map(b => b.b + 14)); const lg = m.querySelector('.m2logo'); if (lg && getComputedStyle(lg.parentElement).display !== 'none') { const g = bx(lg); if (g.r > left && g.l < right) top = Math.max(top, g.b + 8); }

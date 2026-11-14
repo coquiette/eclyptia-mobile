@@ -1,6 +1,6 @@
 'use strict';
 let W = 1672, H = 941;
-let AR = 1300; const VERSION = 'mobile 7.5', BUILD = '75';
+let AR = 1300; const VERSION = 'mobile 7.6', BUILD = '76';
 const $ = s => document.querySelector(s);
 const ic = (n, cls) => `<img class="ici ${cls || ''}" src="img/ic/${n}.webp" draggable="false" alt="">`;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -308,6 +308,9 @@ const upCost = l => 100 * (l + 1);
 /* notes de version : affichées une fois après chaque mise à jour, et consultables dans les Réglages. La plus récente en premier. */
 const MAPS = ['Sanctuaire astral', 'Forêt enchantée', 'Désert solaire', 'Glacier éternel', 'Volcan de braise', 'Grotte de cristal', 'Cimetière des ombres', 'Jardin céleste', 'Abysses marins', 'Nébuleuse d’Orion', 'Système solaire', 'Mer de la Tranquillité', 'Planète rouge', 'Anneaux de Saturne', 'Horizon du trou noir', 'Station Éclipse', 'Comète de glace'];
 const PATCH = [
+  { v: '7.6', date: '14 novembre 2026', title: 'Accueil réparé téléphone tenu droit', items: [
+    { img: 'ic/star.webp', t: 'Plus de chevauchements', d: 'Quand le téléphone est tenu droit, l’accueil se place enfin correctement : portrait, fiche, boutons de mode et JOUER ne se marchent plus dessus.' },
+    { img: 'ic/shield.webp', t: 'Petites corrections', d: 'Le jeu ne cherche plus à charger un ancien modèle de monstre qui n’existe plus.' } ] },
   { v: '7.5', date: '14 novembre 2026', title: 'Un accueil plus grand et plus simple', items: [
     { img: 'ic/star.webp', t: 'Accueil agrandi', d: 'Profil plus grand, portrait et fiche du gardien centrés et plus gros, boutons de mode empilés et bien plus grands au-dessus de JOUER.' },
     { img: 'ic/swords.webp', t: 'Moins de petites choses', d: 'La fiche du gardien ne garde que l’essentiel : nom, passif et 4 compétences. La page des gardiens perd ses barres et son bandeau d’astuce.' },
